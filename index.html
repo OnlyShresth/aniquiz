@@ -945,10 +945,25 @@
 
             try {
                 const response = await puter.ai.chat(systemPrompt);
-                console.log('Raw AI response:', response);
+                console.log('Raw AI response structure:', response);
                 
-                // Extract JSON from response more robustly
-                let questionData = parseQuestionResponse(response);
+                // Extract the actual content from the response
+                let content;
+                if (response && response.message && response.message.content) {
+                    content = response.message.content;
+                } else if (typeof response === 'string') {
+                    content = response;
+                } else if (response && response.content) {
+                    content = response.content;
+                } else {
+                    console.error('Unexpected response format:', response);
+                    throw new Error('Unexpected response format from AI service');
+                }
+                
+                console.log('Extracted content:', content);
+                
+                // Parse the JSON content
+                let questionData = parseQuestionResponse(content);
                 
                 console.log('Parsed question data:', questionData);
 
@@ -967,32 +982,32 @@
             }
         }
 
-        function parseQuestionResponse(response) {
+        function parseQuestionResponse(content) {
             // Remove common prefixes and suffixes
-            let cleanResponse = response.trim();
+            let cleanContent = content.trim();
             
             // Remove markdown code blocks
-            cleanResponse = cleanResponse.replace(/``````\n?/g, '');
+            cleanContent = cleanContent.replace(/``````\n?/g, '');
             
             // Remove any text before the first {
-            const jsonStartIndex = cleanResponse.indexOf('{');
+            const jsonStartIndex = cleanContent.indexOf('{');
             if (jsonStartIndex > 0) {
-                cleanResponse = cleanResponse.substring(jsonStartIndex);
+                cleanContent = cleanContent.substring(jsonStartIndex);
             }
             
             // Remove any text after the last }
-            const jsonEndIndex = cleanResponse.lastIndexOf('}');
-            if (jsonEndIndex >= 0 && jsonEndIndex < cleanResponse.length - 1) {
-                cleanResponse = cleanResponse.substring(0, jsonEndIndex + 1);
+            const jsonEndIndex = cleanContent.lastIndexOf('}');
+            if (jsonEndIndex >= 0 && jsonEndIndex < cleanContent.length - 1) {
+                cleanContent = cleanContent.substring(0, jsonEndIndex + 1);
             }
             
             try {
-                return JSON.parse(cleanResponse);
+                return JSON.parse(cleanContent);
             } catch (parseError) {
                 console.error('JSON parse failed, trying regex extraction...');
                 
                 // Try to extract JSON using regex
-                const jsonMatch = cleanResponse.match(/\{[^{}]*\}/);
+                const jsonMatch = cleanContent.match(/\{[^{}]*\}/);
                 if (jsonMatch) {
                     try {
                         return JSON.parse(jsonMatch[0]);
@@ -1002,7 +1017,7 @@
                 }
                 
                 // Last resort: try to parse line by line
-                const lines = response.split('\n');
+                const lines = content.split('\n');
                 for (const line of lines) {
                     const trimmedLine = line.trim();
                     if (trimmedLine.startsWith('{') && trimmedLine.endsWith('}')) {
@@ -1014,7 +1029,7 @@
                     }
                 }
                 
-                throw new Error('Could not parse JSON from response');
+                throw new Error('Could not parse JSON from content: ' + content);
             }
         }
 
