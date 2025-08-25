@@ -463,6 +463,17 @@
             text-align: center;
         }
 
+        .retry-info {
+            background: var(--pearl);
+            border: 2px solid var(--mushroom);
+            border-radius: 15px;
+            padding: 1rem;
+            margin: 1rem 0;
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--slate);
+        }
+
         /* Mobile Responsive */
         @media (max-width: 768px) {
             .container {
@@ -614,6 +625,9 @@
 
                 <div id="game-error" class="error-container" style="display: none;">
                     <div class="error-message"></div>
+                    <div class="retry-info">
+                        Don't worry! Sometimes the question service needs a moment. We'll keep trying to get you great questions!
+                    </div>
                     <button id="retry-question-btn" class="btn secondary">Retry Question</button>
                     <button id="end-game-btn" class="btn">End Challenge</button>
                 </div>
@@ -639,9 +653,21 @@
     <script>
         'use strict';
 
+        // Top 30 Popular Anime List for variety
+        const POPULAR_ANIME = [
+            "Naruto", "One Piece", "Attack on Titan", "Dragon Ball Z", "Demon Slayer", 
+            "My Hero Academia", "Death Note", "Fullmetal Alchemist", "One Punch Man", "Tokyo Ghoul",
+            "Hunter x Hunter", "Bleach", "Jujutsu Kaisen", "Mob Psycho 100", "Code Geass",
+            "Cowboy Bebop", "Evangelion", "JoJo's Bizarre Adventure", "Spy x Family", "Chainsaw Man",
+            "Vinland Saga", "Promised Neverland", "Haikyuu", "Fire Force", "Black Clover",
+            "Dr. Stone", "Steins;Gate", "Your Name", "Spirited Away", "Princess Mononoke"
+        ];
+
         // Configuration
         const CONFIG = {
             QUESTIONS_PER_SESSION: 10,
+            MAX_RETRIES: 3,
+            RETRY_DELAY: 1000,
             TIMER_DURATIONS: {
                 easy: 15,
                 medium: 20,
@@ -665,6 +691,8 @@
             timeLeft: 0,
             isAnswered: false,
             gameStartTime: null,
+            retryCount: 0,
+            usedAnime: new Set(),
             settings: {
                 difficulty: 'mixed',
                 specificAnime: '',
@@ -746,7 +774,7 @@
                 const user = await puter.auth.getUser();
                 if (user) {
                     console.log('Auto sign-in successful');
-                    setTimeout(() => showSetupScreen(), 10); // Minimal delay
+                    setTimeout(() => showSetupScreen(), 10);
                     return;
                 }
             } catch (error) {
@@ -770,7 +798,10 @@
             });
 
             elements.startQuizBtn.addEventListener('click', handleQuizStart);
-            elements.retryQuestionBtn.addEventListener('click', loadNextQuestion);
+            elements.retryQuestionBtn.addEventListener('click', () => {
+                gameState.retryCount = 0; // Reset retry count
+                loadNextQuestion();
+            });
             elements.endGameBtn.addEventListener('click', endGame);
             elements.playAgainBtn.addEventListener('click', restartGame);
             elements.backToSetupBtn.addEventListener('click', showSetupScreen);
@@ -854,6 +885,8 @@
             gameState.correctAnswers = 0;
             gameState.isAnswered = false;
             gameState.gameStartTime = Date.now();
+            gameState.retryCount = 0;
+            gameState.usedAnime = new Set();
             
             updateUI();
         }
@@ -874,14 +907,34 @@
             hideError(elements.gameError);
             
             try {
-                const question = await fetchQuestion();
+                const question = await fetchQuestionWithRetry();
                 renderQuestion(question);
                 startTimer(question.difficulty);
                 gameState.currentQuestionIndex++;
                 elements.currentQuestion.textContent = gameState.currentQuestionIndex;
+                gameState.retryCount = 0; // Reset retry count on success
             } catch (error) {
-                console.error('Failed to load question:', error);
-                showError('Failed to load question. Please try again.', elements.gameError);
+                console.error('Failed to load question after retries:', error);
+                showError('Having trouble loading questions. This might be a temporary API limit. Please try again in a moment.', elements.gameError);
+            }
+        }
+
+        async function fetchQuestionWithRetry() {
+            for (let attempt = 1; attempt <= CONFIG.MAX_RETRIES; attempt++) {
+                try {
+                    console.log(`Fetching question, attempt ${attempt}/${CONFIG.MAX_RETRIES}`);
+                    const question = await fetchQuestion();
+                    return question;
+                } catch (error) {
+                    console.error(`Attempt ${attempt} failed:`, error);
+                    
+                    if (attempt === CONFIG.MAX_RETRIES) {
+                        throw error;
+                    }
+                    
+                    // Wait before retrying, with exponential backoff
+                    await new Promise(resolve => setTimeout(resolve, CONFIG.RETRY_DELAY * attempt));
+                }
             }
         }
 
@@ -895,40 +948,8 @@
                 console.log('Raw AI response:', response);
                 
                 // Extract JSON from response more robustly
-                let questionData;
+                let questionData = parseQuestionResponse(response);
                 
-                // First try to parse the entire response as JSON
-                try {
-                    questionData = JSON.parse(response);
-                } catch (parseError) {
-                    console.log('Direct JSON parse failed, trying to extract JSON...');
-                    
-                    // Try to find JSON object in the response
-                    const jsonMatch = response.match(/\{[\s\S]*?\}/);
-                    if (jsonMatch) {
-                        try {
-                            questionData = JSON.parse(jsonMatch[0]);
-                        } catch (extractError) {
-                            console.error('Failed to parse extracted JSON:', extractError);
-                            throw new Error('Could not parse JSON from response');
-                        }
-                    } else {
-                        // Try to extract just the content if it's in a different format
-                        const lines = response.split('\n').filter(line => line.trim());
-                        for (const line of lines) {
-                            try {
-                                questionData = JSON.parse(line);
-                                break;
-                            } catch (e) {
-                                continue;
-                            }
-                        }
-                        if (!questionData) {
-                            throw new Error('No valid JSON found in response');
-                        }
-                    }
-                }
-
                 console.log('Parsed question data:', questionData);
 
                 // Validate the response
@@ -946,9 +967,76 @@
             }
         }
 
+        function parseQuestionResponse(response) {
+            // Remove common prefixes and suffixes
+            let cleanResponse = response.trim();
+            
+            // Remove markdown code blocks
+            cleanResponse = cleanResponse.replace(/``````\n?/g, '');
+            
+            // Remove any text before the first {
+            const jsonStartIndex = cleanResponse.indexOf('{');
+            if (jsonStartIndex > 0) {
+                cleanResponse = cleanResponse.substring(jsonStartIndex);
+            }
+            
+            // Remove any text after the last }
+            const jsonEndIndex = cleanResponse.lastIndexOf('}');
+            if (jsonEndIndex >= 0 && jsonEndIndex < cleanResponse.length - 1) {
+                cleanResponse = cleanResponse.substring(0, jsonEndIndex + 1);
+            }
+            
+            try {
+                return JSON.parse(cleanResponse);
+            } catch (parseError) {
+                console.error('JSON parse failed, trying regex extraction...');
+                
+                // Try to extract JSON using regex
+                const jsonMatch = cleanResponse.match(/\{[^{}]*\}/);
+                if (jsonMatch) {
+                    try {
+                        return JSON.parse(jsonMatch[0]);
+                    } catch (regexParseError) {
+                        console.error('Regex extraction also failed:', regexParseError);
+                    }
+                }
+                
+                // Last resort: try to parse line by line
+                const lines = response.split('\n');
+                for (const line of lines) {
+                    const trimmedLine = line.trim();
+                    if (trimmedLine.startsWith('{') && trimmedLine.endsWith('}')) {
+                        try {
+                            return JSON.parse(trimmedLine);
+                        } catch (lineParseError) {
+                            continue;
+                        }
+                    }
+                }
+                
+                throw new Error('Could not parse JSON from response');
+            }
+        }
+
+        function getRandomAnime() {
+            // Get anime that haven't been used yet
+            const availableAnime = POPULAR_ANIME.filter(anime => !gameState.usedAnime.has(anime));
+            
+            // If we've used all anime, reset the used set
+            if (availableAnime.length === 0) {
+                gameState.usedAnime.clear();
+                return POPULAR_ANIME[Math.floor(Math.random() * POPULAR_ANIME.length)];
+            }
+            
+            const selectedAnime = availableAnime[Math.floor(Math.random() * availableAnime.length)];
+            gameState.usedAnime.add(selectedAnime);
+            return selectedAnime;
+        }
+
         function buildSystemPrompt() {
             let difficultyInstruction = '';
             let focusInstruction = '';
+            let animeSelectionInstruction = '';
 
             // Handle difficulty
             if (gameState.settings.difficulty === 'mixed') {
@@ -960,28 +1048,45 @@
 
             // Handle specific anime focus
             if (gameState.settings.specificAnime) {
-                focusInstruction = `Create questions ONLY about the anime "${gameState.settings.specificAnime}". Focus on characters, plot details, episodes, and specific facts from this anime series.`;
+                focusInstruction = `Create questions ONLY about the anime "${gameState.settings.specificAnime}".`;
+                animeSelectionInstruction = `Focus exclusively on "${gameState.settings.specificAnime}".`;
             } else if (gameState.settings.genre) {
-                focusInstruction = `Create questions about anime from the ${gameState.settings.genre} genre. Include various popular anime series from this genre.`;
+                focusInstruction = `Create questions about anime from the ${gameState.settings.genre} genre.`;
+                animeSelectionInstruction = `Select from popular ${gameState.settings.genre} anime series.`;
             } else {
-                focusInstruction = `Create questions about popular anime series from various genres (shonen, seinen, shoujo, etc).`;
+                const randomAnime = getRandomAnime();
+                focusInstruction = `Create a question about the anime "${randomAnime}".`;
+                animeSelectionInstruction = `Focus on "${randomAnime}" for this question.`;
             }
 
-            return `Create an anime quiz question. Return ONLY valid JSON with no additional text or formatting.
+            return `You are creating an anime quiz question. Return ONLY a valid JSON object with no additional text, explanations, or formatting.
 
 ${focusInstruction}
 ${difficultyInstruction}
+${animeSelectionInstruction}
+
+CRITICAL REQUIREMENTS:
+1. The question must be factually correct and verifiable
+2. ALL four options must be plausible answers to someone not familiar with the specific detail
+3. The correct answer must be definitively correct
+4. Avoid obvious answers or questions with only one reasonable option
+5. Double-check that the answer exactly matches one of the four options
 
 Difficulty guidelines:
-- Easy: Basic character names, main plot points, obvious details
-- Medium: Secondary characters, specific episodes, moderate lore
-- Hard: Obscure details, voice actors, production facts, deep lore
+- Easy: Main character names, basic plot points, obvious visual elements
+- Medium: Secondary characters, specific story arcs, moderate details
+- Hard: Minor characters, specific episodes, production details, obscure facts
 
-Return exactly this JSON format with no extra text:
+Example good questions:
+- Easy: "Who is the main protagonist of Naruto?"
+- Medium: "What is the name of Tanjiro's breathing technique in Demon Slayer?"
+- Hard: "Which studio animated the first season of Attack on Titan?"
+
+Return exactly this JSON format:
 {
-  "question": "specific anime question here",
-  "options": ["option1", "option2", "option3", "option4"],
-  "answer": "exact match to one of the options",
+  "question": "Your specific question here",
+  "options": ["Option A", "Option B", "Option C", "Option D"],
+  "answer": "Exact match to one option",
   "difficulty": "Easy" | "Medium" | "Hard"
 }`;
         }
