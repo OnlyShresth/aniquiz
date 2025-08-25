@@ -542,20 +542,6 @@
             opacity: 0.7;
             z-index: 1000;
         }
-
-        /* Debug info for testing */
-        .debug-info {
-            position: fixed;
-            top: 50px;
-            right: 10px;
-            background: rgba(0,0,0,0.7);
-            color: white;
-            padding: 10px;
-            border-radius: 5px;
-            font-size: 10px;
-            max-width: 200px;
-            display: none;
-        }
     </style>
 </head>
 <body>
@@ -664,7 +650,6 @@
     </div>
 
     <div id="preloader" class="preloader" style="display: none;"></div>
-    <div id="debug-info" class="debug-info"></div>
 
     <script>
         'use strict';
@@ -698,8 +683,8 @@
         // Configuration
         const CONFIG = {
             QUESTIONS_PER_SESSION: 10,
-            MAX_RETRIES: 2,
-            RETRY_DELAY: 500,
+            MAX_RETRIES: 3,
+            RETRY_DELAY: 800,
             TIMER_DURATIONS: {
                 easy: 15,
                 medium: 20,
@@ -727,6 +712,7 @@
             retryCount: 0,
             usedAnime: new Set(),
             usedQuestionTypes: new Set(),
+            askedQuestions: new Set(), // Track exact question texts
             settings: {
                 difficulty: 'mixed',
                 specificAnime: '',
@@ -762,8 +748,7 @@
             playAgainBtn: document.getElementById('play-again-btn'),
             backToSetupBtn: document.getElementById('back-to-setup-btn'),
             gameHeader: document.querySelector('.game-header'),
-            preloader: document.getElementById('preloader'),
-            debugInfo: document.getElementById('debug-info')
+            preloader: document.getElementById('preloader')
         };
 
         // Secure string escaping for JavaScript
@@ -785,12 +770,25 @@
                 .replace(/\t/g, ' ');
         }
 
-        // Normalize strings for accurate comparison
+        // Normalize strings for duplicate detection
         function normalizeString(str) {
             return str.toString().trim().toLowerCase()
                 .replace(/[^\w\s]/g, '')  // Remove punctuation
                 .replace(/\s+/g, ' ')     // Normalize whitespace
                 .trim();
+        }
+
+        // Check if question already asked
+        function isQuestionDuplicate(question) {
+            const normalizedQuestion = normalizeString(question.question);
+            return gameState.askedQuestions.has(normalizedQuestion);
+        }
+
+        // Check if options have duplicates
+        function hasDuplicateOptions(options) {
+            const normalizedOptions = options.map(opt => normalizeString(opt));
+            const uniqueOptions = new Set(normalizedOptions);
+            return uniqueOptions.size !== options.length;
         }
 
         // Initialize the game
@@ -941,6 +939,7 @@
             gameState.retryCount = 0;
             gameState.usedAnime = new Set();
             gameState.usedQuestionTypes = new Set();
+            gameState.askedQuestions = new Set(); // Reset asked questions
             gameState.nextQuestion = null;
             
             updateUI();
@@ -1004,6 +1003,21 @@
                 try {
                     console.log(`Fetching question, attempt ${attempt}/${CONFIG.MAX_RETRIES}`);
                     const question = await fetchQuestion();
+                    
+                    // Check for duplicates before accepting the question
+                    if (isQuestionDuplicate(question)) {
+                        console.log('Duplicate question detected, retrying...');
+                        throw new Error('Duplicate question');
+                    }
+                    
+                    if (hasDuplicateOptions(question.options)) {
+                        console.log('Duplicate options detected, retrying...');
+                        throw new Error('Duplicate options');
+                    }
+                    
+                    // Mark this question as used
+                    gameState.askedQuestions.add(normalizeString(question.question));
+                    
                     return question;
                 } catch (error) {
                     console.error(`Attempt ${attempt} failed:`, error);
@@ -1208,7 +1222,7 @@
 
             const questionSpec = questionSpecs[questionType] || "Ask a varied question about the anime";
 
-            return `Create an anime quiz question. Return ONLY a valid JSON object with no additional text.
+            return `Create a unique anime quiz question. Return ONLY a valid JSON object with no additional text.
 
 ${focusInstruction}
 ${difficultyInstruction}
@@ -1218,19 +1232,26 @@ SPECIFIC QUESTION TYPE: ${questionSpec}
 
 CRITICAL REQUIREMENTS:
 1. The question must be factually accurate and verifiable
-2. Create exactly 4 multiple choice options
+2. Create exactly 4 multiple choice options that are ALL DIFFERENT from each other
 3. The correct answer must EXACTLY match one of the 4 options (word for word)
-4. Make the wrong options plausible but definitely incorrect
-5. Use proper spelling and grammar
-6. Avoid questions that have been asked before by varying the specific focus
+4. Make sure all 4 options are unique - NO DUPLICATE OR SIMILAR OPTIONS
+5. Make the wrong options plausible but definitely incorrect
+6. Use proper spelling and grammar
+7. Create a truly unique question - avoid common or repeated questions
+
+UNIQUENESS REQUIREMENTS:
+- Ensure all 4 options are completely different from each other
+- Avoid generic questions like "Who is the main character of X?"
+- Be creative and specific in your question focus
+- Double-check that no two options are the same or very similar
 
 ANSWER MATCHING: The "answer" field must be an exact character-by-character match with one of the "options" array elements.
 
 Return exactly this JSON format:
 {
-  "question": "Your specific question here",
-  "options": ["Option 1", "Option 2", "Option 3", "Option 4"],
-  "answer": "Option X (exact match to one of the options above)",
+  "question": "Your specific and unique question here",
+  "options": ["Unique Option 1", "Unique Option 2", "Unique Option 3", "Unique Option 4"],
+  "answer": "Exact match to one of the options above",
   "difficulty": "${targetDifficulty}"
 }`;
         }
@@ -1253,6 +1274,14 @@ Return exactly this JSON format:
             
             if (!question.options.every(opt => typeof opt === 'string' && opt.length > 0)) {
                 console.error('Invalid option format:', question.options);
+                return false;
+            }
+            
+            // Check for duplicate options
+            const normalizedOptions = question.options.map(opt => normalizeString(opt));
+            const uniqueOptions = new Set(normalizedOptions);
+            if (uniqueOptions.size !== question.options.length) {
+                console.error('Duplicate options found:', question.options);
                 return false;
             }
             
@@ -1297,12 +1326,6 @@ Return exactly this JSON format:
             `;
             
             elements.questionContainer.innerHTML = questionHTML;
-
-            // Debug info (can be enabled for testing)
-            // elements.debugInfo.innerHTML = `
-            //     Correct Answer: "${question.answer}"<br>
-            //     Options: ${JSON.stringify(question.options, null, 2)}
-            // `;
         }
 
         function selectAnswerSafe(buttonElement, optionIndex) {
