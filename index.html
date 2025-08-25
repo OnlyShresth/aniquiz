@@ -619,7 +619,7 @@
 
                 <div id="loading-container" class="loading-container" style="display: none;">
                     <div class="loading"></div>
-                    <p class="loading-text">Crafting your challenge...</p>
+                    <p class="loading-text">Generating verified questions...</p>
                 </div>
 
                 <div id="game-error" class="error-container" style="display: none;">
@@ -664,27 +664,12 @@
             "Dr. Stone", "Steins;Gate", "Your Name", "Spirited Away", "Princess Mononoke"
         ];
 
-        // Question type templates to prevent repetition
-        const QUESTION_TYPES = {
-            Easy: [
-                "character_name", "main_protagonist", "appearance", "setting", "genre", 
-                "basic_plot", "character_relationship", "obvious_trait", "main_goal", "power_type"
-            ],
-            Medium: [
-                "special_technique", "secondary_character", "organization", "weapon_name", 
-                "story_arc", "character_backstory", "ability_details", "episode_event", "villain_name", "rank_title"
-            ],
-            Hard: [
-                "studio", "voice_actor", "release_year", "creator", "episode_title", 
-                "production_detail", "manga_fact", "franchise_info", "staff_member", "technical_detail"
-            ]
-        };
-
         // Configuration
         const CONFIG = {
             QUESTIONS_PER_SESSION: 10,
-            MAX_RETRIES: 5, // Increased for better quality
-            RETRY_DELAY: 1000,
+            MAX_RETRIES: 8, // Increased significantly
+            RETRY_DELAY: 1500,
+            AI_MODELS: ['gpt-4o', 'gpt-4', 'claude-3.5', 'claude-3'], // Try multiple models
             TIMER_DURATIONS: {
                 easy: 15,
                 medium: 20,
@@ -789,6 +774,51 @@
             const normalizedOptions = options.map(opt => normalizeString(opt));
             const uniqueOptions = new Set(normalizedOptions);
             return uniqueOptions.size !== options.length;
+        }
+
+        // Revolutionary AI-Powered Fact Verification System
+        async function verifyQuestionAccuracy(question) {
+            console.log('=== STARTING FACT VERIFICATION ===');
+            
+            const verificationPrompt = `You are a FACT-CHECKER for anime trivia. Your only job is to verify if this question and answer are 100% factually correct.
+
+QUESTION TO VERIFY: "${question.question}"
+CLAIMED CORRECT ANSWER: "${question.answer}"
+ALL OPTIONS: ${JSON.stringify(question.options)}
+
+VERIFICATION PROTOCOL:
+1. Is the question asking about something that actually exists in the specified anime?
+2. Is the claimed correct answer FACTUALLY ACCURATE based on your anime knowledge?
+3. Are the wrong options actually wrong (not correct alternatives)?
+
+RESPOND WITH ONLY ONE WORD:
+- "CORRECT" if everything is factually accurate
+- "WRONG" if anything is factually incorrect or questionable
+
+DO NOT EXPLAIN. JUST: CORRECT or WRONG`;
+
+            try {
+                const verificationResponse = await puter.ai.chat(verificationPrompt, {
+                    model: 'gpt-4o' // Use best model for verification
+                });
+                
+                let verificationResult = '';
+                if (verificationResponse && verificationResponse.message && verificationResponse.message.content) {
+                    verificationResult = verificationResponse.message.content;
+                } else if (typeof verificationResponse === 'string') {
+                    verificationResult = verificationResponse;
+                }
+                
+                const isVerified = verificationResult.trim().toUpperCase().includes('CORRECT');
+                console.log('Verification result:', verificationResult);
+                console.log('Is verified:', isVerified);
+                
+                return isVerified;
+            } catch (error) {
+                console.error('Verification failed:', error);
+                // If verification fails, assume question is questionable
+                return false;
+            }
         }
 
         // Initialize the game
@@ -982,7 +1012,7 @@
                 
             } catch (error) {
                 console.error('Failed to load question after retries:', error);
-                showError('Having trouble loading questions. This might be a temporary API limit. Please try again in a moment.', elements.gameError);
+                showError('Having trouble generating verified questions. Please try again in a moment.', elements.gameError);
             }
         }
 
@@ -990,7 +1020,7 @@
             elements.preloader.style.display = 'block';
             try {
                 gameState.nextQuestion = await fetchQuestionWithRetry();
-                console.log('Next question preloaded');
+                console.log('Next question preloaded and verified');
             } catch (error) {
                 console.log('Failed to preload next question:', error);
             } finally {
@@ -1001,10 +1031,11 @@
         async function fetchQuestionWithRetry() {
             for (let attempt = 1; attempt <= CONFIG.MAX_RETRIES; attempt++) {
                 try {
-                    console.log(`Fetching question, attempt ${attempt}/${CONFIG.MAX_RETRIES}`);
+                    console.log(`Generating question, attempt ${attempt}/${CONFIG.MAX_RETRIES}`);
+                    
                     const question = await fetchQuestion();
                     
-                    // Check for duplicates before accepting the question
+                    // Check for duplicates
                     if (isQuestionDuplicate(question)) {
                         console.log('Duplicate question detected, retrying...');
                         throw new Error('Duplicate question');
@@ -1015,17 +1046,29 @@
                         throw new Error('Duplicate options');
                     }
                     
+                    // REVOLUTIONARY: AI-powered fact verification
+                    console.log('Starting AI fact verification...');
+                    const isFactuallyCorrect = await verifyQuestionAccuracy(question);
+                    
+                    if (!isFactuallyCorrect) {
+                        console.log('AI verification FAILED - question contains errors, retrying...');
+                        throw new Error('Failed AI fact verification');
+                    }
+                    
+                    console.log('✅ Question passed AI fact verification!');
+                    
                     // Mark this question as used
                     gameState.askedQuestions.add(normalizeString(question.question));
                     
                     return question;
                 } catch (error) {
-                    console.error(`Attempt ${attempt} failed:`, error);
+                    console.error(`Attempt ${attempt} failed:`, error.message);
                     
                     if (attempt === CONFIG.MAX_RETRIES) {
                         throw error;
                     }
                     
+                    // Longer delay for better quality
                     await new Promise(resolve => setTimeout(resolve, CONFIG.RETRY_DELAY * attempt));
                 }
             }
@@ -1033,11 +1076,14 @@
 
         async function fetchQuestion() {
             console.log('Fetching question...');
-            const systemPrompt = buildSystemPrompt();
-            console.log('System prompt:', systemPrompt);
+            const systemPrompt = buildAdvancedSystemPrompt();
 
             try {
-                const response = await puter.ai.chat(systemPrompt);
+                const response = await puter.ai.chat(systemPrompt, {
+                    model: 'gpt-4o', // Force use of GPT-4o for better anime knowledge
+                    temperature: 0.3  // Lower temperature for more consistent, factual responses
+                });
+                
                 console.log('Raw AI response structure:', response);
                 
                 let content;
@@ -1100,18 +1146,6 @@
                     }
                 }
                 
-                const lines = content.split('\n');
-                for (const line of lines) {
-                    const trimmedLine = line.trim();
-                    if (trimmedLine.startsWith('{') && trimmedLine.endsWith('}')) {
-                        try {
-                            return JSON.parse(trimmedLine);
-                        } catch (lineParseError) {
-                            continue;
-                        }
-                    }
-                }
-                
                 throw new Error('Could not parse JSON from content: ' + content);
             }
         }
@@ -1134,163 +1168,70 @@
             return difficulties[Math.floor(Math.random() * difficulties.length)];
         }
 
-        function getQuestionType(difficulty) {
-            const availableTypes = QUESTION_TYPES[difficulty].filter(type => 
-                !gameState.usedQuestionTypes.has(`${difficulty}-${type}`)
-            );
-            
-            if (availableTypes.length === 0) {
-                // Reset if all types have been used for this difficulty
-                QUESTION_TYPES[difficulty].forEach(type => {
-                    gameState.usedQuestionTypes.delete(`${difficulty}-${type}`);
-                });
-                return QUESTION_TYPES[difficulty][Math.floor(Math.random() * QUESTION_TYPES[difficulty].length)];
-            }
-            
-            const selectedType = availableTypes[Math.floor(Math.random() * availableTypes.length)];
-            gameState.usedQuestionTypes.add(`${difficulty}-${selectedType}`);
-            return selectedType;
-        }
-
-        function buildSystemPrompt() {
+        function buildAdvancedSystemPrompt() {
             let difficultyInstruction = '';
             let focusInstruction = '';
-            let animeSelectionInstruction = '';
             let targetDifficulty;
 
             if (gameState.settings.difficulty === 'mixed') {
                 targetDifficulty = getDifficultyForMixed();
-                difficultyInstruction = `The difficulty must be exactly "${targetDifficulty}".`;
             } else {
                 targetDifficulty = gameState.settings.difficulty.charAt(0).toUpperCase() + gameState.settings.difficulty.slice(1);
-                difficultyInstruction = `The difficulty must be exactly "${targetDifficulty}".`;
             }
-
-            // Get a unique question type for variety
-            const questionType = getQuestionType(targetDifficulty);
 
             if (gameState.settings.specificAnime) {
                 focusInstruction = `Create questions ONLY about the anime "${gameState.settings.specificAnime}".`;
-                animeSelectionInstruction = `Focus exclusively on "${gameState.settings.specificAnime}".`;
             } else if (gameState.settings.genre) {
                 focusInstruction = `Create questions about anime from the ${gameState.settings.genre} genre.`;
-                animeSelectionInstruction = `Select from popular ${gameState.settings.genre} anime series.`;
             } else {
                 const randomAnime = getRandomAnime();
                 focusInstruction = `Create a question about the anime "${randomAnime}".`;
-                animeSelectionInstruction = `Focus on "${randomAnime}" for this question.`;
             }
 
-            return `You are an EXPERT anime knowledge specialist creating a high-quality quiz question. Follow this step-by-step process:
+            return `You are the WORLD'S LEADING ANIME EXPERT tasked with creating a 100% FACTUALLY ACCURATE quiz question.
 
-STEP 1: SELECT YOUR ANIME & VERIFY YOUR KNOWLEDGE
-${focusInstruction}
-${animeSelectionInstruction}
-- Only proceed if you have VERIFIED knowledge of this anime
-- If unsure about any detail, choose a different anime you know well
+🎯 TARGET: ${focusInstruction}
+📊 DIFFICULTY: ${targetDifficulty}
 
-STEP 2: QUESTION CREATION PROCESS
-${difficultyInstruction}
-Target Question Type: Ask about ${getQuestionTypeDescription(questionType)}
+🔒 CRITICAL ACCURACY PROTOCOL:
+1. ONLY create questions about anime you have VERIFIED, EXACT knowledge of
+2. If you're uncertain about ANY detail, choose a different question
+3. The correct answer must be UNQUESTIONABLY accurate
+4. All wrong answers must be DEFINITELY wrong (not alternative correct answers)
 
-STEP 3: FACT-CHECKING PROTOCOL (CRITICAL)
-Before finalizing your question:
-1. Mentally verify: "Do I know this fact is 100% correct?"
-2. Cross-check: "Does this match what actually happens in the anime?"
-3. Confirm: "Is my correct answer definitively accurate?"
-4. If ANY doubt exists, choose a different question
+📋 QUESTION CREATION RULES:
+✅ Use EXACT names, titles, and details as they appear in the anime
+✅ Create 4 completely different, non-duplicate options
+✅ Make wrong options believable but factually incorrect
+✅ Ensure the question is clear and unambiguous
+✅ Double-check spelling and grammar
 
-STEP 4: QUALITY REQUIREMENTS
-✅ QUESTION QUALITY:
-- Must be factually accurate and verifiable
-- Avoid generic questions like "Who is the main character of X?"
-- Be specific and interesting
-- Clear and unambiguous wording
+🚫 FORBIDDEN:
+❌ Don't guess or assume facts
+❌ Don't create questions about minor details you're unsure of
+❌ Don't use similar or duplicate options
+❌ Don't make questions where multiple answers could be correct
 
-✅ ANSWER OPTIONS QUALITY:
-- Create exactly 4 completely different options
-- All options must be plausible to someone unfamiliar with the anime
-- No duplicate or nearly identical options
-- Wrong options should be believable but definitively incorrect
-- Use proper names and exact spelling
+💡 DIFFICULTY GUIDELINES:
+• Easy: Main characters, obvious plot points, clear visual elements
+• Medium: Secondary characters, specific techniques, story details
+• Hard: Production details, specific episodes, technical information
 
-✅ TECHNICAL REQUIREMENTS:
-- The "answer" field must EXACTLY match one of the four "options"
-- Perfect spelling and grammar throughout
-- No ambiguous questions where multiple answers could be correct
+⚠️ FINAL CHECK BEFORE SUBMITTING:
+"Am I 100% certain this answer is factually correct? YES/NO"
+If NO, create a different question.
 
-STEP 5: FINAL VERIFICATION
-Double-check:
-- Is the correct answer 100% factually accurate? ✓
-- Does the answer exactly match one option? ✓
-- Are all 4 options unique and plausible? ✓
-- Is the question clear and specific? ✓
-
-EXAMPLES OF HIGH-QUALITY QUESTIONS:
-
-GOOD Easy: "What color is Naruto's signature jumpsuit in the original series?"
-Options: ["Orange", "Blue", "Red", "Yellow"] → Answer: "Orange"
-
-GOOD Medium: "What is the name of Tanjiro's Water Breathing technique used against Rui?"
-Options: ["Water Wheel", "Tenth Form: Constant Flux", "Sixth Form: Whirlpool", "First Form: Water Surface Slash"] → Answer: "Tenth Form: Constant Flux"
-
-BAD Example: "Who is the main character of Naruto?" (too generic)
-BAD Example: Four similar options like ["Naruto", "Naruto Uzumaki", "Uzumaki Naruto", "Naruto-kun"]
-
-Return ONLY this JSON format with no additional text:
+Return ONLY this exact JSON format:
 {
-  "question": "Your expertly crafted, fact-checked question here",
-  "options": ["Unique Option 1", "Unique Option 2", "Unique Option 3", "Unique Option 4"],
-  "answer": "Exact match to one of the options above",
+  "question": "Your verified, factually accurate question",
+  "options": ["Correct answer", "Wrong option 1", "Wrong option 2", "Wrong option 3"],
+  "answer": "Correct answer",
   "difficulty": "${targetDifficulty}"
 }`;
         }
 
-        function getQuestionTypeDescription(questionType) {
-            const descriptions = {
-                // Easy
-                character_name: "the name of a main character (not just 'who is the protagonist')",
-                main_protagonist: "who the main protagonist is (with specific character traits)",
-                appearance: "character appearance details like hair color, clothing, or distinctive features",
-                setting: "where the anime takes place (specific locations, worlds, or time periods)",
-                genre: "the anime's genre or category",
-                basic_plot: "basic storyline or premise elements",
-                character_relationship: "relationships between main characters",
-                obvious_trait: "obvious character traits or personalities",
-                main_goal: "the main character's primary goal or mission",
-                power_type: "the type of powers or abilities featured",
-                
-                // Medium
-                special_technique: "specific techniques, abilities, or special moves with exact names",
-                secondary_character: "secondary or supporting characters",
-                organization: "groups, organizations, or teams in the anime",
-                weapon_name: "specific weapons or tools used by characters",
-                story_arc: "specific story arcs or major events",
-                character_backstory: "character backgrounds or origins",
-                ability_details: "detailed aspects of powers or abilities",
-                episode_event: "specific events that happen in episodes",
-                villain_name: "antagonists or villains",
-                rank_title: "character ranks, titles, or positions",
-                
-                // Hard
-                studio: "the animation studio that produced the anime",
-                voice_actor: "voice actors (seiyuu) who play characters",
-                release_year: "when the anime was first released or aired",
-                creator: "the original creator or mangaka",
-                episode_title: "specific episode titles or numbers",
-                production_detail: "production details, staff, or behind-the-scenes information",
-                manga_fact: "the original manga source material",
-                franchise_info: "spin-offs, sequels, or related media",
-                staff_member: "directors, producers, or other staff members",
-                technical_detail: "technical aspects like animation techniques or production details"
-            };
-            
-            return descriptions[questionType] || "varied aspects of the anime";
-        }
-
         function validateQuestion(question) {
             console.log('=== VALIDATION START ===');
-            console.log('Question object:', question);
             
             if (!question || typeof question !== 'object') {
                 console.error('Question is not an object:', question);
@@ -1317,14 +1258,12 @@ Return ONLY this JSON format with no additional text:
             const uniqueOptions = new Set(normalizedOptions);
             if (uniqueOptions.size !== question.options.length) {
                 console.error('Duplicate options found:', question.options);
-                console.error('Normalized options:', normalizedOptions);
                 return false;
             }
             
             if (typeof question.answer !== 'string' || !question.options.includes(question.answer)) {
                 console.error('Invalid answer:', question.answer);
                 console.error('Options:', question.options);
-                console.error('Answer match check:', question.options.map(opt => opt === question.answer));
                 return false;
             }
             
@@ -1353,7 +1292,6 @@ Return ONLY this JSON format with no additional text:
                         ${question.options.map((option, index) => `
                             <button class="answer-btn ${index % 2 === 0 ? 'slide-in-left' : 'slide-in-right'}" 
                                     data-answer-index="${index}"
-                                    data-answer-text="${safeOptions[index]}"
                                     onclick="selectAnswerSafe(this, ${index})"
                                     style="animation-delay: ${index * 0.1}s">
                                 ${option}
@@ -1405,8 +1343,6 @@ Return ONLY this JSON format with no additional text:
             console.log('=== ANSWER SELECTION DEBUG ===');
             console.log('Selected answer text:', selectedAnswerText);
             console.log('Correct answer:', gameState.currentQuestion.answer);
-            console.log('Selected option index:', optionIndex);
-            console.log('All options:', gameState.currentQuestion.options);
             
             if (gameState.isAnswered) return;
             
@@ -1414,10 +1350,7 @@ Return ONLY this JSON format with no additional text:
             clearInterval(gameState.timer);
             
             const answerBtns = document.querySelectorAll('.answer-btn');
-            
-            // Find correct answer using exact string match
             const isCorrect = selectedAnswerText === gameState.currentQuestion.answer;
-            console.log('Is correct?', isCorrect);
             
             // Process all buttons
             answerBtns.forEach((btn, index) => {
@@ -1427,13 +1360,11 @@ Return ONLY this JSON format with no additional text:
                 // Mark correct answer (always show this)
                 if (currentOptionText === gameState.currentQuestion.answer) {
                     btn.classList.add('correct');
-                    console.log('Marked correct:', currentOptionText);
                 }
                 
-                // Mark incorrect selection (only if different from correct)
+                // Mark incorrect selection
                 if (btn === selectedButton && !isCorrect) {
                     btn.classList.add('incorrect');
-                    console.log('Marked incorrect:', currentOptionText);
                 }
                 
                 // Fade other options
@@ -1447,10 +1378,7 @@ Return ONLY this JSON format with no additional text:
                 const difficulty = gameState.currentQuestion.difficulty.toLowerCase();
                 gameState.score += CONFIG.POINTS[difficulty];
                 updateUI();
-                console.log('Score updated:', gameState.score);
             }
-            
-            console.log('=== END DEBUG ===');
             
             setTimeout(() => {
                 loadNextQuestion();
@@ -1615,12 +1543,6 @@ Return ONLY this JSON format with no additional text:
             if (container) {
                 container.style.display = 'none';
             }
-        }
-
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
         }
 
         // Handle page cleanup
