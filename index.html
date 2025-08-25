@@ -619,13 +619,13 @@
 
                 <div id="loading-container" class="loading-container" style="display: none;">
                     <div class="loading"></div>
-                    <p class="loading-text">AI is reasoning through the question...</p>
+                    <p class="loading-text">Generating unique question...</p>
                 </div>
 
                 <div id="game-error" class="error-container" style="display: none;">
                     <div class="error-message"></div>
                     <div class="retry-info">
-                        Don't worry! Sometimes the AI needs extra time to ensure accuracy.
+                        Don't worry! We're ensuring every question is unique and accurate.
                     </div>
                     <button id="retry-question-btn" class="btn secondary">Retry Question</button>
                     <button id="end-game-btn" class="btn">End Challenge</button>
@@ -667,7 +667,7 @@
         // Configuration
         const CONFIG = {
             QUESTIONS_PER_SESSION: 10,
-            MAX_RETRIES: 10, // Increased dramatically
+            MAX_RETRIES: 15, // Increased significantly for uniqueness
             RETRY_DELAY: 2000,
             TIMER_DURATIONS: {
                 easy: 15,
@@ -678,6 +678,130 @@
                 easy: 10,
                 medium: 20,
                 hard: 40
+            }
+        };
+
+        // COMPREHENSIVE QUESTION TRACKING SYSTEM
+        let questionTracker = {
+            // Track full question texts (normalized)
+            usedQuestions: new Set(),
+            
+            // Track question concepts/topics (e.g., "naruto protagonist", "attack titan setting")
+            usedConcepts: new Set(),
+            
+            // Track anime-difficulty combinations to force variety
+            usedAnimeQuestions: new Map(), // Map<anime, Set<difficulty>>
+            
+            // Track question patterns (e.g., "who is", "what is", "where does")
+            usedPatterns: new Set(),
+            
+            // Force anime rotation for non-specific queries
+            lastUsedAnime: [],
+            maxRecentAnime: 5,
+
+            // Reset all tracking for new game
+            reset: function() {
+                this.usedQuestions.clear();
+                this.usedConcepts.clear();
+                this.usedAnimeQuestions.clear();
+                this.usedPatterns.clear();
+                this.lastUsedAnime = [];
+                console.log('🔄 Question tracker reset for new game');
+            },
+
+            // Check if question is duplicate in any way
+            isDuplicate: function(question, anime, difficulty) {
+                const normalizedQ = normalizeString(question.question);
+                
+                // Check exact question text
+                if (this.usedQuestions.has(normalizedQ)) {
+                    console.log('❌ Duplicate: Exact question text');
+                    return true;
+                }
+
+                // Check concept (anime + key words)
+                const concept = this.extractConcept(question.question, anime);
+                if (this.usedConcepts.has(concept)) {
+                    console.log('❌ Duplicate: Question concept -', concept);
+                    return true;
+                }
+
+                // Check anime-difficulty over-use
+                if (this.usedAnimeQuestions.has(anime)) {
+                    const animeDifficulties = this.usedAnimeQuestions.get(anime);
+                    if (animeDifficulties.has(difficulty) && animeDifficulties.size >= 2) {
+                        console.log('❌ Duplicate: Same anime-difficulty combination overused');
+                        return true;
+                    }
+                }
+
+                // Check question pattern
+                const pattern = this.extractPattern(question.question);
+                if (this.usedPatterns.has(pattern) && this.usedPatterns.size < 3) {
+                    console.log('❌ Duplicate: Question pattern overused -', pattern);
+                    return true;
+                }
+
+                return false;
+            },
+
+            // Mark question as used
+            markAsUsed: function(question, anime, difficulty) {
+                const normalizedQ = normalizeString(question.question);
+                
+                // Track question text
+                this.usedQuestions.add(normalizedQ);
+                
+                // Track concept
+                const concept = this.extractConcept(question.question, anime);
+                this.usedConcepts.add(concept);
+                
+                // Track anime-difficulty
+                if (!this.usedAnimeQuestions.has(anime)) {
+                    this.usedAnimeQuestions.set(anime, new Set());
+                }
+                this.usedAnimeQuestions.get(anime).add(difficulty);
+                
+                // Track pattern
+                const pattern = this.extractPattern(question.question);
+                this.usedPatterns.add(pattern);
+                
+                // Track recent anime
+                this.lastUsedAnime.push(anime);
+                if (this.lastUsedAnime.length > this.maxRecentAnime) {
+                    this.lastUsedAnime.shift();
+                }
+
+                console.log('✅ Question marked as used:', concept);
+            },
+
+            // Extract concept from question (anime + key topic)
+            extractConcept: function(questionText, anime) {
+                const normalized = normalizeString(questionText);
+                const keyWords = normalized.split(' ').filter(word => 
+                    word.length > 3 && 
+                    !['what', 'who', 'where', 'when', 'which', 'does', 'have', 'main'].includes(word)
+                ).slice(0, 3);
+                
+                return `${normalizeString(anime)}-${keyWords.join('-')}`;
+            },
+
+            // Extract question pattern
+            extractPattern: function(questionText) {
+                const normalized = normalizeString(questionText);
+                if (normalized.startsWith('who is')) return 'who-is';
+                if (normalized.startsWith('what is')) return 'what-is';
+                if (normalized.startsWith('where')) return 'where';
+                if (normalized.startsWith('which')) return 'which';
+                if (normalized.startsWith('how')) return 'how';
+                return 'other';
+            },
+
+            // Get available anime (not recently used)
+            getAvailableAnime: function() {
+                return POPULAR_ANIME.filter(anime => 
+                    !this.lastUsedAnime.includes(anime)
+                );
             }
         };
 
@@ -694,8 +818,6 @@
             isAnswered: false,
             gameStartTime: null,
             retryCount: 0,
-            usedAnime: new Set(),
-            askedQuestions: new Set(),
             settings: {
                 difficulty: 'mixed',
                 specificAnime: '',
@@ -761,12 +883,6 @@
                 .trim();
         }
 
-        // Check if question already asked
-        function isQuestionDuplicate(question) {
-            const normalizedQuestion = normalizeString(question.question);
-            return gameState.askedQuestions.has(normalizedQuestion);
-        }
-
         // Check if options have duplicates
         function hasDuplicateOptions(options) {
             const normalizedOptions = options.map(opt => normalizeString(opt));
@@ -774,62 +890,86 @@
             return uniqueOptions.size !== options.length;
         }
 
-        // REVOLUTIONARY: Multi-step AI reasoning system
-        async function generateQuestionWithReasoning() {
-            console.log('=== STARTING MULTI-STEP AI REASONING ===');
+        // ENHANCED: Multi-step AI reasoning with forced uniqueness
+        async function generateUniqueQuestionWithReasoning() {
+            console.log('=== STARTING UNIQUE QUESTION GENERATION ===');
 
-            // STEP 1: Ask AI to think through the anime and facts
-            const thinkingPrompt = `You are going to create an anime trivia question. First, I want you to THINK THROUGH this step by step.
+            // Get anime for this question with forced variety
+            const targetAnime = selectAnimeForQuestion();
+            const targetDifficulty = getDifficultyForMixed();
 
-${getFocusInstruction()}
+            console.log(`🎯 Target: ${targetAnime} (${targetDifficulty})`);
+            console.log(`📊 Tracker status:`, {
+                usedQuestions: questionTracker.usedQuestions.size,
+                usedConcepts: questionTracker.usedConcepts.size,
+                usedPatterns: questionTracker.usedPatterns.size,
+                recentAnime: questionTracker.lastUsedAnime
+            });
 
-STEP 1 - ANIME KNOWLEDGE CHECK:
-- What specific anime are you going to ask about?
-- List 3-5 VERIFIED facts you know about this anime
-- Choose ONE fact that you are 100% certain is accurate
+            // STEP 1: AI Planning with uniqueness constraints
+            const planningPrompt = `You are creating an anime quiz question. First, let me give you STRICT UNIQUENESS CONSTRAINTS:
 
-STEP 2 - QUESTION PLANNING:
-- What specific aspect will you ask about?
-- What is the CORRECT answer?
-- List 3 WRONG but plausible alternatives
+TARGET ANIME: ${targetAnime}
+TARGET DIFFICULTY: ${targetDifficulty}
 
-STEP 3 - VERIFICATION:
-- Double-check: Is your correct answer 100% factually accurate?
-- Are your wrong answers actually wrong?
+FORBIDDEN CONCEPTS (you CANNOT ask about these - they've been used):
+${Array.from(questionTracker.usedConcepts).join(', ')}
 
-Show me your thinking process. Don't create the final question yet - just show your reasoning.`;
+FORBIDDEN PATTERNS (avoid these question starts):
+${Array.from(questionTracker.usedPatterns).join(', ')}
+
+RECENT ANIME USED: ${questionTracker.lastUsedAnime.join(', ')}
+
+YOUR TASK:
+1. Think of 3 DIFFERENT aspects of ${targetAnime} you could ask about
+2. For each aspect, check if it would create a UNIQUE concept (not in forbidden list)
+3. Choose the MOST UNIQUE aspect that you're 100% certain about
+4. Plan a question that uses a DIFFERENT pattern than forbidden ones
+
+Show me your planning process. Don't create the question yet - just your thinking about UNIQUENESS.`;
 
             try {
-                const thinkingResponse = await puter.ai.chat(thinkingPrompt);
-                const thinkingContent = extractAIContent(thinkingResponse);
-                console.log('AI Thinking Process:', thinkingContent);
+                const planningResponse = await puter.ai.chat(planningPrompt);
+                const planningContent = extractAIContent(planningResponse);
+                console.log('🤔 AI Planning:', planningContent);
 
-                // STEP 2: Now ask AI to create the question based on its reasoning
-                const questionPrompt = `Based on your thinking process above, now create the actual quiz question.
+                // STEP 2: Create question based on unique planning
+                const questionPrompt = `Based on your uniqueness planning above, now create the actual quiz question.
 
-Your thinking: ${thinkingContent}
+Your planning: ${planningContent}
 
-Now create the final question in this EXACT JSON format:
+Requirements:
+- Anime: ${targetAnime}
+- Difficulty: ${targetDifficulty}
+- Must be UNIQUE (not similar to any forbidden concepts)
+- Must use a FRESH question pattern
+
+Create in EXACT JSON format:
 {
-  "question": "Your question here",
+  "question": "Your unique question here",
   "options": ["Correct answer", "Wrong answer 1", "Wrong answer 2", "Wrong answer 3"],
   "answer": "Correct answer",
-  "difficulty": "${getDifficultyForMixed()}"
+  "difficulty": "${targetDifficulty}"
 }
 
-CRITICAL: 
-- The "answer" field must EXACTLY match one of the options
-- All 4 options must be completely different
-- Base this on the facts you verified in your thinking process above`;
+CRITICAL: Make this question about ${targetAnime} and ensure it's completely different from previously used concepts.`;
 
                 const questionResponse = await puter.ai.chat(questionPrompt);
                 const questionContent = extractAIContent(questionResponse);
-                console.log('AI Generated Question:', questionContent);
+                console.log('🎯 AI Generated Question:', questionContent);
 
-                return parseQuestionResponse(questionContent);
+                const parsedQuestion = parseQuestionResponse(questionContent);
+                
+                // Add anime metadata for tracking
+                parsedQuestion._metadata = {
+                    anime: targetAnime,
+                    difficulty: targetDifficulty
+                };
+
+                return parsedQuestion;
 
             } catch (error) {
-                console.error('Multi-step reasoning failed:', error);
+                console.error('Multi-step unique generation failed:', error);
                 throw error;
             }
         }
@@ -846,15 +986,25 @@ CRITICAL:
             return '';
         }
 
-        // Get focus instruction based on settings
-        function getFocusInstruction() {
+        // Select anime for question with forced variety
+        function selectAnimeForQuestion() {
             if (gameState.settings.specificAnime) {
-                return `Focus ONLY on the anime: "${gameState.settings.specificAnime}". You must have verified knowledge of this specific anime.`;
+                return gameState.settings.specificAnime;
             } else if (gameState.settings.genre) {
-                return `Focus on anime from the ${gameState.settings.genre} genre. Choose a popular anime from this genre that you know well.`;
+                // For genre, still try to get variety
+                const availableAnime = questionTracker.getAvailableAnime();
+                return availableAnime.length > 0 ? 
+                    availableAnime[Math.floor(Math.random() * availableAnime.length)] :
+                    POPULAR_ANIME[Math.floor(Math.random() * POPULAR_ANIME.length)];
             } else {
-                const randomAnime = getRandomAnime();
-                return `Focus on the anime: "${randomAnime}". You must have verified knowledge of this specific anime.`;
+                // Force anime variety for general questions
+                const availableAnime = questionTracker.getAvailableAnime();
+                if (availableAnime.length === 0) {
+                    // Reset if we've used all anime
+                    questionTracker.lastUsedAnime = [];
+                    return POPULAR_ANIME[Math.floor(Math.random() * POPULAR_ANIME.length)];
+                }
+                return availableAnime[Math.floor(Math.random() * availableAnime.length)];
             }
         }
 
@@ -1003,9 +1153,10 @@ CRITICAL:
             gameState.isAnswered = false;
             gameState.gameStartTime = Date.now();
             gameState.retryCount = 0;
-            gameState.usedAnime = new Set();
-            gameState.askedQuestions = new Set();
             gameState.nextQuestion = null;
+            
+            // CRITICAL: Reset question tracking for new game
+            questionTracker.reset();
             
             updateUI();
         }
@@ -1032,7 +1183,7 @@ CRITICAL:
                     question = gameState.nextQuestion;
                     gameState.nextQuestion = null;
                 } else {
-                    question = await fetchQuestionWithRetry();
+                    question = await fetchUniqueQuestionWithRetry();
                 }
                 
                 renderQuestion(question);
@@ -1046,16 +1197,16 @@ CRITICAL:
                 }
                 
             } catch (error) {
-                console.error('Failed to load question after retries:', error);
-                showError('The AI is having trouble creating accurate questions. Please try again.', elements.gameError);
+                console.error('Failed to load unique question after retries:', error);
+                showError('Having trouble generating unique questions. Please try again.', elements.gameError);
             }
         }
 
         async function preloadNextQuestion() {
             elements.preloader.style.display = 'block';
             try {
-                gameState.nextQuestion = await fetchQuestionWithRetry();
-                console.log('Next question preloaded');
+                gameState.nextQuestion = await fetchUniqueQuestionWithRetry();
+                console.log('Next unique question preloaded');
             } catch (error) {
                 console.log('Failed to preload next question:', error);
             } finally {
@@ -1063,36 +1214,41 @@ CRITICAL:
             }
         }
 
-        async function fetchQuestionWithRetry() {
+        async function fetchUniqueQuestionWithRetry() {
             for (let attempt = 1; attempt <= CONFIG.MAX_RETRIES; attempt++) {
                 try {
-                    console.log(`Multi-step AI reasoning, attempt ${attempt}/${CONFIG.MAX_RETRIES}`);
+                    console.log(`Generating unique question, attempt ${attempt}/${CONFIG.MAX_RETRIES}`);
                     
-                    // Use the revolutionary multi-step reasoning system
-                    const question = await generateQuestionWithReasoning();
+                    // Generate question with uniqueness constraints
+                    const question = await generateUniqueQuestionWithReasoning();
                     
-                    // Check for duplicates
-                    if (isQuestionDuplicate(question)) {
-                        console.log('Duplicate question detected, retrying...');
-                        throw new Error('Duplicate question');
+                    // Extract anime from metadata
+                    const anime = question._metadata?.anime || 'Unknown';
+                    const difficulty = question._metadata?.difficulty || 'Easy';
+                    
+                    // Check for ALL types of duplicates
+                    if (questionTracker.isDuplicate(question, anime, difficulty)) {
+                        console.log('🔄 Question failed uniqueness check, retrying...');
+                        throw new Error('Failed uniqueness check');
                     }
                     
+                    // Check for duplicate options
                     if (hasDuplicateOptions(question.options)) {
-                        console.log('Duplicate options detected, retrying...');
+                        console.log('🔄 Duplicate options detected, retrying...');
                         throw new Error('Duplicate options');
                     }
                     
                     // Validate question format
                     if (!validateQuestion(question)) {
-                        console.log('Question validation failed, retrying...');
+                        console.log('🔄 Question validation failed, retrying...');
                         throw new Error('Invalid question format');
                     }
                     
-                    // Mark this question as used
-                    gameState.askedQuestions.add(normalizeString(question.question));
+                    // Mark as used to prevent future duplicates
+                    questionTracker.markAsUsed(question, anime, difficulty);
                     gameState.currentQuestion = question;
                     
-                    console.log('✅ Question successfully generated with multi-step reasoning!');
+                    console.log('✅ UNIQUE question successfully generated!');
                     return question;
                     
                 } catch (error) {
@@ -1102,8 +1258,8 @@ CRITICAL:
                         throw error;
                     }
                     
-                    // Longer delay for better reasoning
-                    await new Promise(resolve => setTimeout(resolve, CONFIG.RETRY_DELAY * attempt));
+                    // Longer delay for better uniqueness generation
+                    await new Promise(resolve => setTimeout(resolve, CONFIG.RETRY_DELAY * Math.min(attempt, 3)));
                 }
             }
         }
@@ -1129,19 +1285,6 @@ CRITICAL:
                 console.error('JSON parse failed:', parseError);
                 throw new Error('Could not parse JSON from content: ' + content);
             }
-        }
-
-        function getRandomAnime() {
-            const availableAnime = POPULAR_ANIME.filter(anime => !gameState.usedAnime.has(anime));
-            
-            if (availableAnime.length === 0) {
-                gameState.usedAnime.clear();
-                return POPULAR_ANIME[Math.floor(Math.random() * POPULAR_ANIME.length)];
-            }
-            
-            const selectedAnime = availableAnime[Math.floor(Math.random() * availableAnime.length)];
-            gameState.usedAnime.add(selectedAnime);
-            return selectedAnime;
         }
 
         function getDifficultyForMixed() {
@@ -1173,14 +1316,6 @@ CRITICAL:
             
             if (!question.options.every(opt => typeof opt === 'string' && opt.length > 0)) {
                 console.error('Invalid option format:', question.options);
-                return false;
-            }
-            
-            // Check for duplicate options
-            const normalizedOptions = question.options.map(opt => normalizeString(opt));
-            const uniqueOptions = new Set(normalizedOptions);
-            if (uniqueOptions.size !== question.options.length) {
-                console.error('Duplicate options found:', question.options);
                 return false;
             }
             
