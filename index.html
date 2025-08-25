@@ -14,10 +14,10 @@
             --mushroom: #dedbd2;
             --sage: #b0c4b1;
             --slate: #4a5759;
-            --focus-color: #007acc;
             --success: #4CAF50;
             --error: #F44336;
             --warning: #FFC107;
+            --focus-color: #007acc;
         }
 
         * {
@@ -38,6 +38,7 @@
             -webkit-text-size-adjust: 100%;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+            touch-action: manipulation;
         }
 
         body::before {
@@ -53,7 +54,16 @@
             z-index: -1;
         }
 
-        /* Enhanced Animations with GPU acceleration */
+        .made-by {
+            position: fixed;
+            bottom: 10px;
+            right: 15px;
+            font-size: 0.7rem;
+            color: rgba(74, 87, 89, 0.7);
+            z-index: 1000;
+            font-weight: 500;
+        }
+
         @keyframes gradientShift {
             0%, 100% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
@@ -64,7 +74,6 @@
             100% { transform: translate3d(0, -50px, 0); }
         }
 
-        /* Enhanced Focus Styles */
         *:focus {
             outline: 3px solid var(--focus-color);
             outline-offset: 2px;
@@ -154,23 +163,30 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* Progress Bar */
         .progress-container {
             width: 100%;
-            height: 6px;
-            background: var(--mushroom);
+            height: 8px;
+            background: rgba(255, 255, 255, 0.3);
             border-radius: 10px;
             overflow: hidden;
             margin-bottom: 1.5rem;
             position: relative;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .progress-bar {
             height: 100%;
-            background: linear-gradient(90deg, var(--sage), var(--rose));
+            background: linear-gradient(90deg, var(--sage), var(--rose), var(--sage));
+            background-size: 200% 100%;
             border-radius: 10px;
-            transition: width 0.3s ease;
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
             width: 0%;
+            animation: progressShine 2s linear infinite;
+        }
+
+        @keyframes progressShine {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
         }
 
         .auth-text {
@@ -215,40 +231,52 @@
 
         .difficulty-selector {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-            gap: 0.8rem;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
             margin-top: 0.5rem;
         }
 
         .difficulty-btn {
-            padding: 1rem;
-            border: 2px solid var(--mushroom);
+            padding: 1.2rem;
+            border: 3px solid var(--mushroom);
             border-radius: 15px;
             background: white;
             color: var(--slate);
             font-size: 0.9rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             overflow: hidden;
-            min-height: 48px; /* Touch target */
+            min-height: 56px;
             will-change: transform;
+            touch-action: manipulation;
+        }
+
+        .difficulty-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: left 0.4s;
+        }
+
+        .difficulty-btn:hover::before {
+            left: 100%;
         }
 
         .difficulty-btn:hover {
             border-color: var(--rose);
             background: var(--pearl);
-            transform: translateY(-2px);
-        }
-
-        .difficulty-btn:focus {
-            outline: 3px solid var(--focus-color);
-            outline-offset: 2px;
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
         }
 
         .difficulty-btn:active {
-            transform: scale(0.98);
+            transform: translateY(-1px) scale(0.98);
         }
 
         .difficulty-btn.selected {
@@ -256,24 +284,26 @@
             background: linear-gradient(135deg, var(--rose), var(--sage));
             color: white;
             transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
         }
 
         .custom-input {
             width: 100%;
-            padding: 1rem;
-            border: 2px solid var(--mushroom);
+            padding: 1.2rem;
+            border: 3px solid var(--mushroom);
             border-radius: 15px;
             font-size: 1rem;
             background: white;
             color: var(--slate);
             transition: all 0.3s ease;
-            min-height: 48px;
+            min-height: 56px;
         }
 
         .custom-input:focus {
             outline: none;
             border-color: var(--rose);
             box-shadow: 0 0 0 3px rgba(237,175,184,0.2);
+            transform: scale(1.02);
         }
 
         .game-container {
@@ -293,13 +323,14 @@
         .score-display, .question-counter {
             background: linear-gradient(135deg, var(--rose), var(--sage));
             color: white;
-            padding: 0.8rem 1.5rem;
-            border-radius: 20px;
+            padding: 1rem 2rem;
+            border-radius: 25px;
             font-weight: bold;
-            font-size: 1rem;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            font-size: 1.1rem;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
             position: relative;
             overflow: hidden;
+            will-change: transform;
         }
 
         .score-display::before, .question-counter::before {
@@ -310,7 +341,7 @@
             width: 100%;
             height: 100%;
             background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-            animation: shine 2s infinite;
+            animation: shine 2.5s infinite;
         }
 
         @keyframes shine {
@@ -320,154 +351,220 @@
 
         .timer-container {
             width: 100%;
-            height: 8px;
-            background: var(--mushroom);
+            height: 12px;
+            background: rgba(255, 255, 255, 0.4);
             border-radius: 10px;
             overflow: hidden;
             margin: 1rem 0;
             position: relative;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .timer-bar {
             height: 100%;
-            background: linear-gradient(90deg, var(--success), var(--warning), var(--error));
+            background: linear-gradient(90deg, var(--success) 0%, var(--warning) 50%, var(--error) 100%);
             border-radius: 10px;
             transition: width 0.1s linear;
             width: 100%;
             will-change: width;
+            position: relative;
+        }
+
+        .timer-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+            animation: timerShine 1.5s ease-in-out infinite;
+        }
+
+        @keyframes timerShine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
         }
 
         .question-card {
             background: white;
-            border-radius: 20px;
-            padding: 1.5rem;
+            border-radius: 25px;
+            padding: 2rem;
             margin-bottom: 1.5rem;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            border-left: 5px solid var(--rose);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.12);
+            border-left: 6px solid var(--rose);
             will-change: transform, opacity;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .question-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(237,175,184,0.03), transparent);
+            animation: cardGlow 4s ease-in-out infinite alternate;
+        }
+
+        @keyframes cardGlow {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
         }
 
         .question-text {
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             font-weight: 600;
             color: var(--slate);
-            line-height: 1.5;
+            line-height: 1.6;
             margin-bottom: 1rem;
+            position: relative;
+            z-index: 1;
         }
 
         .difficulty-badge {
             display: inline-block;
-            padding: 0.4rem 1rem;
-            border-radius: 15px;
-            font-size: 0.8rem;
+            padding: 0.6rem 1.2rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
             font-weight: bold;
             margin-bottom: 1rem;
+            animation: badgePulse 3s ease-in-out infinite;
+            position: relative;
+            z-index: 1;
+        }
+
+        @keyframes badgePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
         }
 
         .difficulty-Easy {
-            background: #E8F5E8;
+            background: linear-gradient(135deg, #E8F5E8, #C8E6C9);
             color: #2E7D32;
+            box-shadow: 0 4px 15px rgba(46,125,50,0.3);
         }
 
         .difficulty-Medium {
-            background: #FFF3E0;
+            background: linear-gradient(135deg, #FFF3E0, #FFE0B2);
             color: #F57C00;
+            box-shadow: 0 4px 15px rgba(245,124,0,0.3);
         }
 
         .difficulty-Hard {
-            background: #FFEBEE;
+            background: linear-gradient(135deg, #FFEBEE, #FFCDD2);
             color: #C62828;
+            box-shadow: 0 4px 15px rgba(198,40,40,0.3);
         }
 
         .answers-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-            margin-top: 1rem;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
         }
 
         .answer-btn {
-            background: white;
-            border: 2px solid var(--mushroom);
-            border-radius: 15px;
-            padding: 1rem;
-            font-size: 0.95rem;
+            background: linear-gradient(145deg, white, #fafafa);
+            border: 3px solid var(--mushroom);
+            border-radius: 20px;
+            padding: 1.5rem;
+            font-size: 1rem;
             color: var(--slate);
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             text-align: left;
             font-weight: 500;
             position: relative;
             overflow: hidden;
-            line-height: 1.4;
-            min-height: 60px; /* Better touch target */
+            line-height: 1.5;
+            min-height: 70px;
             display: flex;
             align-items: center;
             will-change: transform;
+            touch-action: manipulation;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        .answer-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 100%;
+            background: linear-gradient(135deg, var(--pearl), var(--rose));
+            transition: width 0.4s ease;
+            z-index: -1;
+        }
+
+        .answer-btn:hover::before {
+            width: 100%;
         }
 
         .answer-btn:hover {
             border-color: var(--rose);
-            background: var(--pearl);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-
-        .answer-btn:focus {
-            outline: 3px solid var(--focus-color);
-            outline-offset: 2px;
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+            color: var(--slate);
         }
 
         .answer-btn:active {
-            transform: scale(0.98);
+            transform: translateY(-2px) scale(0.98);
         }
 
         .answer-btn.correct {
-            background: #E8F5E8;
+            background: linear-gradient(135deg, #E8F5E8, #C8E6C9);
             border-color: var(--success);
             color: #2E7D32;
-            animation: correctPulse 0.6s ease-in-out;
+            transform: scale(1.05);
+            animation: correctPulse 0.8s ease-in-out;
+            box-shadow: 0 10px 25px rgba(76,175,80,0.3);
         }
 
         @keyframes correctPulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(76,175,80,0.4); }
+            50% { transform: scale(1.1); box-shadow: 0 0 0 20px rgba(76,175,80,0); }
+            100% { transform: scale(1.05); box-shadow: 0 0 0 0 rgba(76,175,80,0); }
         }
 
         .answer-btn.incorrect {
-            background: #FFEBEE;
+            background: linear-gradient(135deg, #FFEBEE, #FFCDD2);
             border-color: var(--error);
             color: #C62828;
             animation: incorrectShake 0.6s ease-in-out;
+            box-shadow: 0 10px 25px rgba(244,67,54,0.3);
         }
 
         @keyframes incorrectShake {
             0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
+            25% { transform: translateX(-10px) rotate(-2deg); }
+            75% { transform: translateX(10px) rotate(2deg); }
         }
 
         .answer-btn.disabled {
             cursor: not-allowed;
-            opacity: 0.6;
+            opacity: 0.7;
         }
 
         .btn {
             background: linear-gradient(135deg, var(--rose), var(--sage));
             color: white;
             border: none;
-            border-radius: 20px;
-            padding: 1rem 2rem;
-            font-size: 1rem;
+            border-radius: 25px;
+            padding: 1.2rem 2.5rem;
+            font-size: 1.1rem;
             font-weight: bold;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
             position: relative;
             overflow: hidden;
-            min-height: 48px;
+            min-height: 56px;
             will-change: transform;
+            touch-action: manipulation;
         }
 
         .btn::before {
@@ -486,13 +583,8 @@
         }
 
         .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
-        }
-
-        .btn:focus {
-            outline: 3px solid var(--focus-color);
-            outline-offset: 2px;
+            transform: translateY(-4px) scale(1.05);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
         }
 
         .btn:active {
@@ -500,7 +592,7 @@
         }
 
         .btn.secondary {
-            background: var(--mushroom);
+            background: linear-gradient(135deg, var(--mushroom), var(--sage));
             color: var(--slate);
         }
 
@@ -511,27 +603,32 @@
         }
 
         .error-container {
-            background: #FFEBEE;
-            border: 2px solid var(--error);
-            border-radius: 15px;
-            padding: 1rem;
-            margin: 1rem 0;
+            background: linear-gradient(135deg, #FFEBEE, #FFCDD2);
+            border: 3px solid var(--error);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
             text-align: center;
-            role: alert;
+            animation: errorPulse 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes errorPulse {
+            0% { box-shadow: 0 0 0 0 rgba(244,67,54,0.4); }
+            100% { box-shadow: 0 0 0 10px rgba(244,67,54,0); }
         }
 
         .error-message {
             color: #C62828;
             font-weight: 600;
             margin-bottom: 1rem;
-            font-size: 0.9rem;
+            font-size: 1rem;
         }
 
         .loading {
             display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 2px solid var(--mushroom);
+            width: 25px;
+            height: 25px;
+            border: 3px solid rgba(237,175,184,0.3);
             border-radius: 50%;
             border-top-color: var(--rose);
             animation: spin 1s ease-in-out infinite;
@@ -543,103 +640,140 @@
 
         .loading-container {
             text-align: center;
-            padding: 2rem;
+            padding: 3rem;
         }
 
         .loading-text {
-            margin-top: 1rem;
-            font-size: 1rem;
+            margin-top: 1.5rem;
+            font-size: 1.2rem;
             color: var(--slate);
+            animation: loadingPulse 1.5s ease-in-out infinite alternate;
         }
 
-        /* Network Status */
-        .network-status {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            z-index: 1000;
-            display: none;
+        @keyframes loadingPulse {
+            0% { opacity: 0.6; }
+            100% { opacity: 1; }
         }
 
-        .network-status.offline {
-            background: var(--error);
-            color: white;
-            display: block;
-        }
-
-        /* Toast Notifications */
         .toast {
             position: fixed;
-            bottom: 20px;
+            bottom: 30px;
             left: 50%;
             transform: translateX(-50%);
             background: var(--slate);
             color: white;
-            padding: 1rem 2rem;
-            border-radius: 25px;
+            padding: 1.2rem 2.5rem;
+            border-radius: 30px;
             font-weight: 600;
+            font-size: 1rem;
             z-index: 1000;
             opacity: 0;
-            transition: opacity 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
         }
 
         .toast.show {
             opacity: 1;
+            transform: translateX(-50%) translateY(0);
         }
 
         .toast.success {
-            background: var(--success);
+            background: linear-gradient(135deg, var(--success), #66BB6A);
         }
 
         .toast.error {
-            background: var(--error);
+            background: linear-gradient(135deg, var(--error), #EF5350);
         }
 
-        /* Enhanced Animations */
+        .toast.warning {
+            background: linear-gradient(135deg, var(--warning), #FFCA28);
+            color: var(--slate);
+        }
+
+        .bonus-indicator {
+            position: absolute;
+            top: -40px;
+            right: 20px;
+            background: linear-gradient(135deg, var(--warning), #FFCA28);
+            color: var(--slate);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            animation: bonusBounce 0.6s ease-out;
+            box-shadow: 0 4px 15px rgba(255,193,7,0.4);
+        }
+
+        @keyframes bonusBounce {
+            0% { opacity: 0; transform: scale(0) translateY(20px); }
+            50% { opacity: 1; transform: scale(1.2) translateY(-10px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
         .fade-in {
-            animation: fadeIn 0.5s ease-out forwards;
+            animation: fadeIn 0.8s ease-out forwards;
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from { 
+                opacity: 0; 
+                transform: translateY(30px) scale(0.95); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0) scale(1); 
+            }
         }
 
         .slide-in-left {
-            animation: slideInLeft 0.4s ease-out forwards;
+            animation: slideInLeft 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
 
         @keyframes slideInLeft {
-            from { opacity: 0; transform: translateX(-30px); }
-            to { opacity: 1; transform: translateX(0); }
+            from { 
+                opacity: 0; 
+                transform: translateX(-50px) rotate(-5deg) scale(0.9); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateX(0) rotate(0deg) scale(1); 
+            }
         }
 
         .slide-in-right {
-            animation: slideInRight 0.4s ease-out forwards;
+            animation: slideInRight 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
 
         @keyframes slideInRight {
-            from { opacity: 0; transform: translateX(30px); }
-            to { opacity: 1; transform: translateX(0); }
+            from { 
+                opacity: 0; 
+                transform: translateX(50px) rotate(5deg) scale(0.9); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateX(0) rotate(0deg) scale(1); 
+            }
         }
 
         .final-score-display {
-            font-size: 2rem;
+            font-size: 3rem;
             font-weight: bold;
             background: linear-gradient(135deg, var(--rose), var(--sage));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin: 1.5rem 0;
+            margin: 2rem 0;
             text-align: center;
+            animation: scoreGlow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes scoreGlow {
+            0% { filter: brightness(1); transform: scale(1); }
+            100% { filter: brightness(1.2); transform: scale(1.05); }
         }
 
         .celebration-text {
-            font-size: 2rem;
+            font-size: 2.5rem;
             font-weight: 800;
             background: linear-gradient(135deg, var(--rose), var(--sage));
             -webkit-background-clip: text;
@@ -647,6 +781,30 @@
             background-clip: text;
             margin-bottom: 2rem;
             text-align: center;
+            position: relative;
+        }
+
+        .celebration-text::before {
+            content: '🎊';
+            position: absolute;
+            left: -60px;
+            top: 0;
+            font-size: 2rem;
+            animation: celebrate 2s ease-in-out infinite;
+        }
+
+        .celebration-text::after {
+            content: '🎉';
+            position: absolute;
+            right: -60px;
+            top: 0;
+            font-size: 2rem;
+            animation: celebrate 2s ease-in-out infinite reverse;
+        }
+
+        @keyframes celebrate {
+            0%, 100% { transform: rotate(-15deg) scale(1); }
+            50% { transform: rotate(15deg) scale(1.2); }
         }
 
         .retry-info {
@@ -660,7 +818,6 @@
             color: var(--slate);
         }
 
-        /* Mobile Responsive */
         @media (max-width: 768px) {
             .container {
                 padding: 15px;
@@ -677,13 +834,13 @@
             
             .answers-grid {
                 grid-template-columns: 1fr;
-                gap: 0.8rem;
+                gap: 1.2rem;
             }
             
             .game-info {
                 flex-direction: column;
                 text-align: center;
-                gap: 0.8rem;
+                gap: 1rem;
             }
             
             .difficulty-selector {
@@ -691,18 +848,29 @@
             }
 
             .question-text {
-                font-size: 1.1rem;
+                font-size: 1.2rem;
             }
 
             .answer-btn {
-                padding: 1.2rem;
-                font-size: 0.9rem;
-                min-height: 56px; /* Larger touch target on mobile */
+                padding: 1.3rem;
+                font-size: 0.95rem;
+                min-height: 65px;
             }
 
             .btn {
-                min-height: 56px; /* Better touch targets */
-                padding: 1.2rem 2rem;
+                min-height: 60px;
+                padding: 1.4rem 2rem;
+                font-size: 1rem;
+            }
+
+            .score-display, .question-counter {
+                padding: 0.8rem 1.5rem;
+                font-size: 1rem;
+            }
+
+            .celebration-text::before,
+            .celebration-text::after {
+                display: none;
             }
         }
 
@@ -712,13 +880,13 @@
             }
             
             .question-text {
-                font-size: 1rem;
+                font-size: 1.1rem;
             }
             
             .answer-btn {
-                padding: 1rem;
-                font-size: 0.85rem;
-                min-height: 60px;
+                padding: 1.2rem;
+                font-size: 0.9rem;
+                min-height: 65px;
             }
 
             .difficulty-selector {
@@ -726,16 +894,21 @@
             }
 
             .score-display, .question-counter {
-                padding: 0.6rem 1rem;
-                font-size: 0.9rem;
+                padding: 0.7rem 1.2rem;
+                font-size: 0.95rem;
+            }
+
+            .btn {
+                min-height: 56px;
+                padding: 1.2rem 1.8rem;
             }
         }
 
-        @media (max-height: 600px) {
+        @media (max-height: 600px) and (orientation: landscape) {
             .container {
                 padding: 10px;
                 justify-content: flex-start;
-                padding-top: 2rem;
+                padding-top: 1rem;
             }
             
             .game-header {
@@ -743,12 +916,15 @@
             }
             
             .game-title {
-                font-size: 2rem;
+                font-size: 1.8rem;
                 margin-bottom: 0.25rem;
+            }
+            
+            .card-container {
+                padding: 1.5rem;
             }
         }
 
-        /* Reduced motion for accessibility */
         @media (prefers-reduced-motion: reduce) {
             * {
                 animation-duration: 0.01ms !important;
@@ -757,7 +933,6 @@
             }
         }
 
-        /* High contrast mode support */
         @media (prefers-contrast: high) {
             .card-container {
                 border: 3px solid var(--slate);
@@ -768,13 +943,11 @@
             }
         }
 
-        /* Initial state to prevent flash */
         .initial-hide {
             opacity: 0;
             visibility: hidden;
         }
 
-        /* Skip link for screen readers */
         .skip-link {
             position: absolute;
             top: -40px;
@@ -793,12 +966,8 @@
     </style>
 </head>
 <body>
+    <div class="made-by">Made by Shresth</div>
     <a href="#main-content" class="skip-link">Skip to main content</a>
-    
-    <div class="network-status offline" id="network-status" role="status" aria-live="polite">
-        <span class="sr-only">Network status:</span>
-        You're offline. Some features may not work.
-    </div>
 
     <div class="container" id="main-content">
         <header class="game-header">
@@ -875,7 +1044,6 @@
                 </div>
 
                 <div id="question-container" role="region" aria-live="polite" aria-label="Current question">
-                    <!-- Questions will be loaded here -->
                 </div>
 
                 <div id="loading-container" class="loading-container" style="display: none;" role="status" aria-live="polite">
@@ -899,11 +1067,11 @@
             <div class="final-score-display" role="status" aria-live="polite">
                 Score: <span id="final-score">0</span>
             </div>
-            <p style="font-size: 1.1rem; margin-bottom: 2rem; color: var(--slate); text-align: center;">
+            <p style="font-size: 1.2rem; margin-bottom: 2rem; color: var(--slate); text-align: center;">
                 You conquered <span id="correct-count">0</span> out of <span id="total-count">10</span> questions!
             </p>
             
-            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+            <div style="display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap;">
                 <button id="play-again-btn" class="btn">Challenge Again</button>
                 <button id="back-to-setup-btn" class="btn secondary">Change Settings</button>
             </div>
@@ -915,12 +1083,6 @@
     <script>
         'use strict';
 
-        /**
-         * Enhanced Anime Quiz Game with performance optimizations and accessibility
-         * @version 2.0.0
-         */
-
-        // Constants and Configuration
         const CONSTANTS = {
             POPULAR_ANIME: [
                 "Naruto", "One Piece", "Attack on Titan", "Dragon Ball Z", "Demon Slayer", 
@@ -936,7 +1098,7 @@
             TIMER_DURATIONS: { easy: 15, medium: 20, hard: 30 },
             POINTS: { easy: 10, medium: 20, hard: 40 },
             QUICK_ANSWER_BONUS: { easy: 5, medium: 10, hard: 15 },
-            QUICK_ANSWER_THRESHOLD: 0.7, // 70% of time remaining
+            QUICK_ANSWER_THRESHOLD: 0.7,
             LOCAL_STORAGE_KEYS: {
                 SETTINGS: 'animeSenpai_settings',
                 SESSION: 'animeSenpai_session',
@@ -946,7 +1108,6 @@
             DEBOUNCE_DELAY: 150
         };
 
-        // Enhanced Game State Management
         class GameStateManager {
             constructor() {
                 this.reset();
@@ -1016,7 +1177,6 @@
                     const sessionData = JSON.parse(saved);
                     const age = Date.now() - sessionData.timestamp;
                     
-                    // Session expires after 1 hour
                     if (age > 3600000) {
                         localStorage.removeItem(CONSTANTS.LOCAL_STORAGE_KEYS.SESSION);
                         return null;
@@ -1038,11 +1198,7 @@
             }
         }
 
-        // Utility Functions
         const Utils = {
-            /**
-             * Secure string escaping for JavaScript
-             */
             safeJsQuote: (str) => {
                 if (typeof str !== 'string') return '';
                 
@@ -1059,18 +1215,12 @@
                     .replace(/\t/g, ' ');
             },
 
-            /**
-             * Sanitize HTML content
-             */
             sanitizeHtml: (str) => {
                 const temp = document.createElement('div');
                 temp.textContent = str;
                 return temp.innerHTML;
             },
 
-            /**
-             * Debounce function calls
-             */
             debounce: (func, wait) => {
                 let timeout;
                 return function executedFunction(...args) {
@@ -1083,14 +1233,8 @@
                 };
             },
 
-            /**
-             * Check network connectivity
-             */
             isOnline: () => navigator.onLine,
 
-            /**
-             * Show toast notification
-             */
             showToast: (message, type = 'info') => {
                 const toast = elements.toast;
                 toast.textContent = message;
@@ -1101,18 +1245,12 @@
                 }, CONSTANTS.TOAST_DURATION);
             },
 
-            /**
-             * Update progress bar
-             */
             updateProgress: (current, total) => {
                 const percentage = (current / total) * 100;
                 elements.progressBar.style.width = `${percentage}%`;
                 elements.progressBar.parentElement.setAttribute('aria-valuenow', percentage);
             },
 
-            /**
-             * Announce to screen readers
-             */
             announce: (message) => {
                 const announcement = document.createElement('div');
                 announcement.setAttribute('aria-live', 'polite');
@@ -1127,47 +1265,12 @@
             }
         };
 
-        // Network Status Manager
-        class NetworkManager {
-            constructor() {
-                this.setupNetworkListeners();
-                this.updateNetworkStatus();
-            }
-
-            setupNetworkListeners() {
-                window.addEventListener('online', () => {
-                    this.updateNetworkStatus();
-                    Utils.showToast('Connection restored', 'success');
-                });
-
-                window.addEventListener('offline', () => {
-                    this.updateNetworkStatus();
-                    Utils.showToast('You are offline', 'error');
-                });
-            }
-
-            updateNetworkStatus() {
-                const statusElement = elements.networkStatus;
-                if (Utils.isOnline()) {
-                    statusElement.style.display = 'none';
-                    statusElement.classList.remove('offline');
-                } else {
-                    statusElement.style.display = 'block';
-                    statusElement.classList.add('offline');
-                }
-            }
-        }
-
-        // Enhanced Question Manager
         class QuestionManager {
             constructor(gameState) {
                 this.gameState = gameState;
                 this.isPreloading = false;
             }
 
-            /**
-             * Get random anime ensuring variety
-             */
             getRandomAnime() {
                 const availableAnime = CONSTANTS.POPULAR_ANIME.filter(anime => 
                     !this.gameState.usedAnime.has(anime)
@@ -1183,9 +1286,6 @@
                 return selectedAnime;
             }
 
-            /**
-             * Build enhanced system prompt
-             */
             buildSystemPrompt() {
                 let difficultyInstruction = '';
                 let focusInstruction = '';
@@ -1211,53 +1311,43 @@
                     animeSelectionInstruction = `Focus on "${randomAnime}" for this question.`;
                 }
 
-                return `Create a quiz question about anime. You MUST return ONLY a valid JSON object with no additional text, explanations, or formatting whatsoever.
+                return `Create an anime quiz question. Return ONLY valid JSON with no extra text.
 
 ${focusInstruction}
 ${difficultyInstruction}
 ${animeSelectionInstruction}
 
-CRITICAL ACCURACY REQUIREMENTS:
-1. Before finalizing your question, mentally verify the correct answer is 100% factually accurate
-2. Double-check that your correct answer exactly matches one of the four options
-3. Ensure all four options are plausible and well-formatted (no spelling errors)
-4. Use proper spelling, grammar, and character names throughout
-5. Avoid ambiguous questions where multiple answers could be correct
-6. For character names, use the most commonly known spellings
-7. Make distractors challenging but clearly wrong to knowledgeable fans
-8. Ensure cultural accuracy and respect for source material
+ENHANCED QUALITY REQUIREMENTS:
+1. Questions must be factually accurate and well-researched
+2. For Easy: Ask about main characters, basic plot, major story arcs, primary relationships, main abilities
+3. For Medium: Ask about secondary characters, specific techniques, story details, episode-specific events
+4. For Hard: Ask about minor characters, voice actors, studios, specific episodes, detailed lore
+5. All four options must be plausible and challenging
+6. Avoid repetitive "Who is the protagonist" questions - diversify question types
+7. Include questions about: character relationships, abilities, story arcs, settings, themes, techniques
 
-Quality guidelines by difficulty:
-- Easy: Main protagonist names, basic plot elements, obvious facts (Who is the main character of...)
-- Medium: Secondary characters, specific abilities/techniques, story arcs (What is the name of...technique)
-- Hard: Minor characters, specific episodes, studio info, voice actors (Which studio animated...)
+Vary question types:
+- Character identification and relationships
+- Plot events and story arcs  
+- Abilities, techniques, and powers
+- Settings and locations
+- Themes and concepts
+- Production details (for Hard)
 
-Examples of EXCELLENT questions:
-- Easy: "Who is the main protagonist of Naruto?" 
-- Medium: "What is the name of Tanjiro's breathing style in Demon Slayer?"
-- Hard: "Which animation studio produced the first season of Attack on Titan?"
-
-Create a factually correct anime quiz question with exactly four plausible options where one is definitively correct.
-
-Return exactly this JSON format with no other text:
+Return this JSON format:
 {
-  "question": "Your specific question here",
-  "options": ["Option A", "Option B", "Option C", "Option D"],
+  "question": "Specific, engaging question",
+  "options": ["Option A", "Option B", "Option C", "Option D"], 
   "answer": "Exact match to one option",
   "difficulty": "Easy" | "Medium" | "Hard"
 }`;
             }
 
-            /**
-             * Parse question response with enhanced error handling
-             */
             parseQuestionResponse(content) {
                 let cleanContent = content.trim();
                 
-                // Remove markdown code blocks
                 cleanContent = cleanContent.replace(/``````\n?/g, '');
                 
-                // Extract JSON object
                 const jsonStartIndex = cleanContent.indexOf('{');
                 if (jsonStartIndex > 0) {
                     cleanContent = cleanContent.substring(jsonStartIndex);
@@ -1273,7 +1363,6 @@ Return exactly this JSON format with no other text:
                 } catch (parseError) {
                     console.error('JSON parse failed, trying regex extraction...');
                     
-                    // Multiple fallback parsing strategies
                     const strategies = [
                         () => {
                             const match = cleanContent.match(/\{[^{}]*\}/);
@@ -1290,7 +1379,6 @@ Return exactly this JSON format with no other text:
                             return null;
                         },
                         () => {
-                            // Try to extract JSON from between first { and last }
                             const start = content.indexOf('{');
                             const end = content.lastIndexOf('}');
                             if (start !== -1 && end !== -1 && end > start) {
@@ -1313,9 +1401,6 @@ Return exactly this JSON format with no other text:
                 }
             }
 
-            /**
-             * Enhanced question validation
-             */
             validateQuestion(question) {
                 if (!question || typeof question !== 'object') {
                     console.error('Question is not an object:', question);
@@ -1347,7 +1432,6 @@ Return exactly this JSON format with no other text:
                     return false;
                 }
 
-                // Additional content validation
                 if (question.question.length > 200) {
                     console.error('Question too long:', question.question.length);
                     return false;
@@ -1361,14 +1445,10 @@ Return exactly this JSON format with no other text:
                 return true;
             }
 
-            /**
-             * Fetch question with caching and preloading
-             */
             async fetchQuestion() {
                 console.log('Fetching question...');
                 const systemPrompt = this.buildSystemPrompt();
                 
-                // Check cache first
                 const cacheKey = this.generateCacheKey(systemPrompt);
                 if (this.gameState.questionCache.has(cacheKey)) {
                     console.log('Using cached question');
@@ -1396,7 +1476,6 @@ Return exactly this JSON format with no other text:
                         throw new Error('Invalid question format from response');
                     }
 
-                    // Cache the question
                     this.gameState.questionCache.set(cacheKey, questionData);
                     
                     return questionData;
@@ -1407,11 +1486,7 @@ Return exactly this JSON format with no other text:
                 }
             }
 
-            /**
-             * Generate cache key for questions
-             */
             generateCacheKey(prompt) {
-                // Simple hash function for cache key
                 let hash = 0;
                 for (let i = 0; i < prompt.length; i++) {
                     const char = prompt.charCodeAt(i);
@@ -1421,9 +1496,6 @@ Return exactly this JSON format with no other text:
                 return hash.toString();
             }
 
-            /**
-             * Preload next question
-             */
             async preloadNextQuestion() {
                 if (this.isPreloading) return;
                 
@@ -1438,29 +1510,21 @@ Return exactly this JSON format with no other text:
                 }
             }
 
-            /**
-             * Get question with preloading support
-             */
             async getQuestion() {
                 if (this.gameState.preloadedQuestion) {
                     const question = this.gameState.preloadedQuestion;
                     this.gameState.preloadedQuestion = null;
                     
-                    // Start preloading next question
                     this.preloadNextQuestion();
                     
                     return question;
                 }
                 
                 const question = await this.fetchQuestion();
-                // Start preloading next question
                 this.preloadNextQuestion();
                 return question;
             }
 
-            /**
-             * Fetch question with retry logic
-             */
             async fetchQuestionWithRetry() {
                 for (let attempt = 1; attempt <= CONSTANTS.MAX_RETRIES; attempt++) {
                     try {
@@ -1479,12 +1543,9 @@ Return exactly this JSON format with no other text:
             }
         }
 
-        // Initialize managers and state
         const gameState = new GameStateManager();
         const questionManager = new QuestionManager(gameState);
-        const networkManager = new NetworkManager();
 
-        // Enhanced DOM Elements with proper caching
         const elements = (() => {
             const elementIds = [
                 'auth-container', 'setup-container', 'game-container', 'game-complete-container',
@@ -1492,7 +1553,7 @@ Return exactly this JSON format with no other text:
                 'start-quiz-btn', 'score', 'current-question', 'total-questions', 'timer-bar',
                 'progress-bar', 'question-container', 'loading-container', 'game-error',
                 'retry-question-btn', 'end-game-btn', 'final-score', 'correct-count', 'total-count',
-                'play-again-btn', 'back-to-setup-btn', 'game-header', 'network-status', 'toast'
+                'play-again-btn', 'back-to-setup-btn', 'game-header', 'toast'
             ];
 
             const els = {};
@@ -1500,22 +1561,17 @@ Return exactly this JSON format with no other text:
                 els[id.replace(/-([a-z])/g, (g) => g[1].toUpperCase())] = document.getElementById(id);
             });
 
-            // Add difficulty buttons
             els.difficultyBtns = document.querySelectorAll('.difficulty-btn');
             
             return els;
         })();
 
-        // Enhanced Event Management
         class EventManager {
             constructor() {
                 this.listeners = new Map();
                 this.setupEventListeners();
             }
 
-            /**
-             * Add event listener with cleanup tracking
-             */
             addListener(element, event, handler, options = {}) {
                 const boundHandler = handler.bind(this);
                 element.addEventListener(event, boundHandler, options);
@@ -1528,9 +1584,6 @@ Return exactly this JSON format with no other text:
                 return boundHandler;
             }
 
-            /**
-             * Remove all listeners for cleanup
-             */
             cleanup() {
                 for (const [element, listeners] of this.listeners) {
                     listeners.forEach(({ event, handler, options }) => {
@@ -1540,17 +1593,12 @@ Return exactly this JSON format with no other text:
                 this.listeners.clear();
             }
 
-            /**
-             * Setup all event listeners
-             */
             setupEventListeners() {
                 console.log('Setting up enhanced event listeners...');
                 
-                // Auth events
                 this.addListener(elements.loginBtn, 'click', handleLogin);
                 this.addListener(elements.retryAuthBtn, 'click', handleLogin);
                 
-                // Setup events
                 elements.difficultyBtns.forEach(btn => {
                     this.addListener(btn, 'click', () => selectDifficulty(btn));
                     this.addListener(btn, 'keydown', (e) => {
@@ -1563,7 +1611,6 @@ Return exactly this JSON format with no other text:
 
                 this.addListener(elements.startQuizBtn, 'click', Utils.debounce(handleQuizStart, CONSTANTS.DEBOUNCE_DELAY));
                 
-                // Game events
                 this.addListener(elements.retryQuestionBtn, 'click', () => {
                     gameState.retryCount = 0;
                     loadNextQuestion();
@@ -1572,10 +1619,8 @@ Return exactly this JSON format with no other text:
                 this.addListener(elements.playAgainBtn, 'click', restartGame);
                 this.addListener(elements.backToSetupBtn, 'click', showSetupScreen);
 
-                // Keyboard navigation
                 this.addListener(document, 'keydown', handleKeyboard);
 
-                // Prevent accidental page leave
                 this.addListener(window, 'beforeunload', (e) => {
                     if (gameState.currentQuestionIndex > 0 && gameState.currentQuestionIndex < gameState.totalQuestions) {
                         e.preventDefault();
@@ -1584,23 +1629,18 @@ Return exactly this JSON format with no other text:
                     }
                 });
 
-                // Handle page visibility change
                 this.addListener(document, 'visibilitychange', () => {
                     if (document.hidden && gameState.timer) {
-                        // Pause timer when page is hidden
                         clearInterval(gameState.timer);
                     }
                 });
 
-                // Orientation change handling
                 this.addListener(window, 'orientationchange', Utils.debounce(() => {
-                    // Handle orientation change
                     setTimeout(() => {
                         window.scrollTo(0, 0);
                     }, 100);
                 }, 100));
 
-                // Input handling for accessibility
                 [elements.specificAnime, elements.animeGenre].forEach(input => {
                     this.addListener(input, 'focus', () => {
                         if (typeof gsap !== 'undefined') {
@@ -1618,13 +1658,9 @@ Return exactly this JSON format with no other text:
 
         const eventManager = new EventManager();
 
-        /**
-         * Enhanced initialization with session recovery
-         */
         document.addEventListener('DOMContentLoaded', async () => {
             console.log('DOM loaded, initializing enhanced game...');
             
-            // Wait for dependencies
             if (typeof gsap === 'undefined') {
                 console.log('Waiting for GSAP to load...');
                 setTimeout(() => initializeGame(), 100);
@@ -1637,14 +1673,12 @@ Return exactly this JSON format with no other text:
         async function initializeGame() {
             console.log('Initializing enhanced game...');
             
-            // Check dependencies
             if (typeof puter === 'undefined') {
                 console.error('PuterJS is not available');
                 showError('PuterJS is not available. Please check your internet connection.');
                 return;
             }
 
-            // Self-check for critical functions
             try {
                 if (!puter.auth || !puter.ai) {
                     throw new Error('Critical PuterJS services not available');
@@ -1655,7 +1689,6 @@ Return exactly this JSON format with no other text:
                 return;
             }
 
-            // Initialize UI
             gsap.to(elements.gameHeader, {
                 opacity: 1,
                 y: 0,
@@ -1665,7 +1698,6 @@ Return exactly this JSON format with no other text:
 
             elements.totalQuestions.textContent = CONSTANTS.QUESTIONS_PER_SESSION;
 
-            // Try to recover session first
             const savedSession = gameState.loadSession();
             if (savedSession && savedSession.currentQuestionIndex > 0) {
                 const resume = confirm('You have an interrupted session. Would you like to continue where you left off?');
@@ -1675,13 +1707,11 @@ Return exactly this JSON format with no other text:
                 }
             }
 
-            // Try auto sign-in
             try {
                 console.log('Attempting auto sign-in...');
                 const user = await puter.auth.getUser();
                 if (user) {
                     console.log('Auto sign-in successful');
-                    // Apply saved settings
                     applySettings(gameState.settings);
                     setTimeout(() => showSetupScreen(), 10);
                     return;
@@ -1690,13 +1720,9 @@ Return exactly this JSON format with no other text:
                 console.log('Auto sign-in failed:', error);
             }
 
-            // Show manual login
             showAuthContainer();
         }
 
-        /**
-         * Recover interrupted session
-         */
         async function recoverSession(sessionData) {
             try {
                 gameState.score = sessionData.score;
@@ -1715,9 +1741,6 @@ Return exactly this JSON format with no other text:
             }
         }
 
-        /**
-         * Apply settings to UI
-         */
         function applySettings(settings) {
             elements.specificAnime.value = settings.specificAnime || '';
             elements.animeGenre.value = settings.genre || '';
@@ -1732,9 +1755,6 @@ Return exactly this JSON format with no other text:
             });
         }
 
-        /**
-         * Enhanced difficulty selection with accessibility
-         */
         function selectDifficulty(selectedBtn) {
             elements.difficultyBtns.forEach(btn => {
                 btn.classList.remove('selected');
@@ -1749,11 +1769,7 @@ Return exactly this JSON format with no other text:
             console.log('Selected difficulty:', gameState.settings.difficulty);
         }
 
-        /**
-         * Enhanced keyboard navigation
-         */
         function handleKeyboard(e) {
-            // Game navigation
             if (elements.gameContainer.style.display !== 'none' && !gameState.isAnswered) {
                 const answerBtns = document.querySelectorAll('.answer-btn:not(.disabled)');
                 if (e.key >= '1' && e.key <= '4') {
@@ -1765,7 +1781,6 @@ Return exactly this JSON format with no other text:
                 }
             }
 
-            // General escape key handling
             if (e.key === 'Escape') {
                 if (elements.gameContainer.style.display !== 'none') {
                     const shouldEnd = confirm('Are you sure you want to end the quiz?');
@@ -1776,9 +1791,6 @@ Return exactly this JSON format with no other text:
             }
         }
 
-        /**
-         * Enhanced login with state persistence
-         */
         async function handleLogin() {
             console.log('Handling enhanced login...');
             try {
@@ -1789,7 +1801,6 @@ Return exactly this JSON format with no other text:
                 await puter.auth.signIn();
                 console.log('Sign in successful');
                 
-                // Save auth state
                 try {
                     localStorage.setItem(CONSTANTS.LOCAL_STORAGE_KEYS.AUTH_STATE, JSON.stringify({
                         timestamp: Date.now(),
@@ -1821,14 +1832,12 @@ Return exactly this JSON format with no other text:
                     { opacity: 1, scale: 1, rotationY: 0, duration: 0.8, ease: "power3.out" }
                 );
 
-                // Animate form elements
                 gsap.fromTo('.form-group', 
                     { opacity: 0, y: 20 },
                     { opacity: 1, y: 0, duration: 0.6, stagger: 0.15, delay: 0.3 }
                 );
             }
 
-            // Focus first interactive element
             setTimeout(() => {
                 elements.difficultyBtns[0].focus();
             }, 100);
@@ -1837,7 +1846,6 @@ Return exactly this JSON format with no other text:
         async function handleQuizStart() {
             console.log('Handling enhanced quiz start...');
             
-            // Prevent double-clicks
             elements.startQuizBtn.disabled = true;
             
             gameState.settings.specificAnime = elements.specificAnime.value.trim();
@@ -1846,7 +1854,6 @@ Return exactly this JSON format with no other text:
             
             console.log('Quiz settings:', gameState.settings);
             
-            // Validate settings
             if (gameState.settings.specificAnime && gameState.settings.genre) {
                 Utils.showToast('Please choose either specific anime OR genre, not both', 'error');
                 elements.startQuizBtn.disabled = false;
@@ -1872,7 +1879,6 @@ Return exactly this JSON format with no other text:
             Utils.updateProgress(0, gameState.totalQuestions);
             gameState.gameStartTime = Date.now();
             
-            // Start preloading first question
             questionManager.preloadNextQuestion();
         }
 
@@ -1880,7 +1886,6 @@ Return exactly this JSON format with no other text:
             elements.score.textContent = gameState.score;
             elements.currentQuestion.textContent = gameState.currentQuestionIndex + 1;
             
-            // Enhanced score animation
             if (typeof gsap !== 'undefined') {
                 gsap.fromTo(elements.score.parentElement, 
                     { scale: 1 }, 
@@ -1894,13 +1899,9 @@ Return exactly this JSON format with no other text:
                 );
             }
 
-            // Update progress
             Utils.updateProgress(gameState.currentQuestionIndex, gameState.totalQuestions);
         }
 
-        /**
-         * Enhanced question loading with preloading and caching
-         */
         async function loadNextQuestion() {
             console.log('Loading next question...');
             if (gameState.currentQuestionIndex >= CONSTANTS.QUESTIONS_PER_SESSION) {
@@ -1919,7 +1920,6 @@ Return exactly this JSON format with no other text:
                 elements.currentQuestion.textContent = gameState.currentQuestionIndex;
                 gameState.retryCount = 0;
                 
-                // Save session progress
                 gameState.saveSession();
                 
                 Utils.announce(`Question ${gameState.currentQuestionIndex} of ${gameState.totalQuestions}`);
@@ -1929,9 +1929,6 @@ Return exactly this JSON format with no other text:
             }
         }
 
-        /**
-         * Enhanced question rendering with accessibility
-         */
         function renderQuestion(question) {
             console.log('Rendering enhanced question:', question);
             hideLoading();
@@ -1966,7 +1963,6 @@ Return exactly this JSON format with no other text:
             
             elements.questionContainer.innerHTML = questionHTML;
 
-            // Enhanced entrance animation
             if (typeof gsap !== 'undefined') {
                 gsap.fromTo('.question-card', 
                     { opacity: 0, scale: 0.95, y: 30 },
@@ -1974,16 +1970,12 @@ Return exactly this JSON format with no other text:
                 );
             }
 
-            // Focus first answer for accessibility
             setTimeout(() => {
                 const firstAnswer = document.querySelector('.answer-btn');
                 if (firstAnswer) firstAnswer.focus();
             }, 100);
         }
 
-        /**
-         * Handle answer selection via keyboard
-         */
         function handleAnswerKeydown(event, buttonElement) {
             if (event.key === 'Enter' || event.key === ' ') {
                 event.preventDefault();
@@ -1991,17 +1983,11 @@ Return exactly this JSON format with no other text:
             }
         }
 
-        /**
-         * Safe answer selection with accessibility
-         */
         function selectAnswerSafe(buttonElement) {
             const selectedAnswer = buttonElement.getAttribute('data-answer');
             selectAnswer(selectedAnswer);
         }
 
-        /**
-         * Enhanced timer with visual improvements
-         */
         function startTimer(difficulty) {
             clearInterval(gameState.timer);
             
@@ -2018,7 +2004,6 @@ Return exactly this JSON format with no other text:
                 gameState.timeLeft--;
                 updateTimerBar(duration);
                 
-                // Warning at 25% time remaining
                 if (gameState.timeLeft === Math.floor(duration * 0.25)) {
                     Utils.announce('Time running out!');
                 }
@@ -2036,7 +2021,6 @@ Return exactly this JSON format with no other text:
             const percentage = (gameState.timeLeft / totalTime) * 100;
             elements.timerBar.style.width = `${percentage}%`;
             
-            // Enhanced timer urgency animation
             if (percentage < 25 && typeof gsap !== 'undefined') {
                 gsap.to('.timer-container', {
                     scale: 1.02,
@@ -2047,9 +2031,6 @@ Return exactly this JSON format with no other text:
             }
         }
 
-        /**
-         * Enhanced answer selection with animations and scoring
-         */
         function selectAnswer(selectedAnswer) {
             console.log('Answer selected:', selectedAnswer);
             if (gameState.isAnswered) return;
@@ -2057,7 +2038,6 @@ Return exactly this JSON format with no other text:
             gameState.isAnswered = true;
             clearInterval(gameState.timer);
             
-            // Stop timer animation
             if (typeof gsap !== 'undefined') {
                 gsap.killTweensOf('.timer-container');
                 gsap.set('.timer-container', { scale: 1 });
@@ -2066,7 +2046,6 @@ Return exactly this JSON format with no other text:
             const answerBtns = document.querySelectorAll('.answer-btn');
             const isCorrect = selectedAnswer === gameState.currentQuestion.answer;
             
-            // Calculate quick answer bonus
             const answerTime = Date.now() - gameState.questionStartTime;
             const timeAllowed = gameState.timeLeft + (answerTime / 1000);
             const wasQuickAnswer = (gameState.timeLeft / timeAllowed) >= CONSTANTS.QUICK_ANSWER_THRESHOLD;
@@ -2092,11 +2071,11 @@ Return exactly this JSON format with no other text:
                 const difficulty = gameState.currentQuestion.difficulty.toLowerCase();
                 let points = CONSTANTS.POINTS[difficulty];
                 
-                // Quick answer bonus
                 if (wasQuickAnswer) {
                     const bonus = CONSTANTS.QUICK_ANSWER_BONUS[difficulty];
                     points += bonus;
                     Utils.showToast(`Correct! +${bonus} quick bonus!`, 'success');
+                    showBonusIndicator(bonus);
                 } else {
                     Utils.showToast('Correct!', 'success');
                 }
@@ -2105,7 +2084,6 @@ Return exactly this JSON format with no other text:
                 updateUI();
                 Utils.announce(`Correct answer! You earned ${points} points.`);
                 
-                // Enhanced celebration
                 createSuccessParticles();
             } else {
                 Utils.showToast('Incorrect. Try the next one!', 'error');
@@ -2117,12 +2095,25 @@ Return exactly this JSON format with no other text:
             }, 2500);
         }
 
-        /**
-         * Enhanced success particles with better performance
-         */
+        function showBonusIndicator(bonus) {
+            const indicator = document.createElement('div');
+            indicator.className = 'bonus-indicator';
+            indicator.textContent = `+${bonus} Quick Bonus!`;
+            
+            const scoreDisplay = elements.score.parentElement;
+            scoreDisplay.style.position = 'relative';
+            scoreDisplay.appendChild(indicator);
+            
+            setTimeout(() => {
+                if (scoreDisplay.contains(indicator)) {
+                    scoreDisplay.removeChild(indicator);
+                }
+            }, 2000);
+        }
+
         function createSuccessParticles() {
             const emojis = ['🎉', '⭐', '✨', '🌟', '🎊', '💫', '🔥', '💯'];
-            const particleCount = window.innerWidth < 768 ? 6 : 12; // Fewer particles on mobile
+            const particleCount = window.innerWidth < 768 ? 4 : 8;
             
             for (let i = 0; i < particleCount; i++) {
                 const particle = document.createElement('div');
@@ -2186,9 +2177,6 @@ Return exactly this JSON format with no other text:
             }, 2500);
         }
 
-        /**
-         * Enhanced game completion
-         */
         function endGame() {
             console.log('Ending enhanced game...');
             clearInterval(gameState.timer);
@@ -2199,7 +2187,6 @@ Return exactly this JSON format with no other text:
             hideGameContainer();
             showGameCompleteContainer();
             
-            // Clear saved session
             gameState.clearSession();
             
             const percentage = Math.round((gameState.correctAnswers / gameState.totalQuestions) * 100);
@@ -2222,7 +2209,6 @@ Return exactly this JSON format with no other text:
             Utils.showToast(message, 'success');
             Utils.announce(`Game complete! Final score: ${gameState.score} points. ${message}`);
 
-            // Enhanced completion animation
             if (typeof gsap !== 'undefined') {
                 gsap.fromTo(elements.finalScore, 
                     { scale: 0, rotation: -180 },
@@ -2239,7 +2225,6 @@ Return exactly this JSON format with no other text:
             loadNextQuestion();
         }
 
-        // Enhanced UI Helper Functions with better animations
         function showAuthContainer() {
             elements.authContainer.classList.remove('initial-hide');
             elements.authContainer.style.display = 'block';
@@ -2385,7 +2370,6 @@ Return exactly this JSON format with no other text:
             }
         }
 
-        // Enhanced cleanup on page unload
         window.addEventListener('beforeunload', () => {
             clearInterval(gameState.timer);
             if (typeof gsap !== 'undefined') {
@@ -2393,13 +2377,11 @@ Return exactly this JSON format with no other text:
             }
             eventManager.cleanup();
             
-            // Save current state if in progress
             if (gameState.currentQuestionIndex > 0 && gameState.currentQuestionIndex < gameState.totalQuestions) {
                 gameState.saveSession();
             }
         });
 
-        // Performance monitoring (development only)
         if (typeof performance !== 'undefined' && performance.mark) {
             performance.mark('game-initialization-complete');
             console.log('Game initialization complete');
