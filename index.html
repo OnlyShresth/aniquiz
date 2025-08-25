@@ -542,6 +542,22 @@
             opacity: 0.7;
             z-index: 1000;
         }
+
+        /* DEBUG: Visible debug info for testing */
+        .debug-panel {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            font-family: monospace;
+            max-width: 300px;
+            z-index: 9999;
+            display: none; /* Enable for debugging */
+        }
     </style>
 </head>
 <body>
@@ -650,6 +666,9 @@
     </div>
 
     <div id="preloader" class="preloader" style="display: none;"></div>
+    
+    <!-- DEBUG PANEL (hidden by default) -->
+    <div id="debug-panel" class="debug-panel"></div>
 
     <script>
         'use strict';
@@ -678,7 +697,8 @@
                 easy: 10,
                 medium: 20,
                 hard: 40
-            }
+            },
+            DEBUG_MODE: false // Set to true for debugging
         };
 
         // ENHANCED TRACKING SYSTEM
@@ -686,7 +706,7 @@
             usedQuestions: new Set(),
             usedConcepts: new Set(),
             usedAnime: new Set(),
-            questionHashes: new Set(), // Track semantic hashes
+            questionHashes: new Set(),
             questionCount: 0,
 
             reset: function() {
@@ -793,7 +813,7 @@
             }
         };
 
-        // DOM Elements (same as before)
+        // DOM Elements
         const elements = {
             authContainer: document.getElementById('auth-container'),
             setupContainer: document.getElementById('setup-container'),
@@ -821,7 +841,8 @@
             playAgainBtn: document.getElementById('play-again-btn'),
             backToSetupBtn: document.getElementById('back-to-setup-btn'),
             gameHeader: document.querySelector('.game-header'),
-            preloader: document.getElementById('preloader')
+            preloader: document.getElementById('preloader'),
+            debugPanel: document.getElementById('debug-panel')
         };
 
         // Utility functions
@@ -845,6 +866,17 @@
             const normalizedOptions = options.map(opt => normalizeString(opt));
             const uniqueOptions = new Set(normalizedOptions);
             return uniqueOptions.size !== options.length;
+        }
+
+        // DEBUG: Update debug panel
+        function updateDebugInfo(info) {
+            if (CONFIG.DEBUG_MODE && elements.debugPanel) {
+                elements.debugPanel.style.display = 'block';
+                elements.debugPanel.innerHTML = `
+                    <strong>DEBUG INFO:</strong><br>
+                    ${Object.entries(info).map(([key, value]) => `${key}: ${JSON.stringify(value)}`).join('<br>')}
+                `;
+            }
         }
 
         // REVOLUTIONARY: AI FACT-VERIFICATION SYSTEM
@@ -899,8 +931,8 @@ Do not explain. Just: ✅ CORRECT or ❌ WRONG`;
             console.log(`🎯 Target: ${targetAnime} (${targetDifficulty})`);
 
             // Get list of forbidden concepts to avoid
-            const forbiddenConcepts = Array.from(questionTracker.usedConcepts).slice(-5); // Last 5 concepts
-            const forbiddenHashes = Array.from(questionTracker.questionHashes).slice(-5); // Last 5 hashes
+            const forbiddenConcepts = Array.from(questionTracker.usedConcepts).slice(-5);
+            const forbiddenHashes = Array.from(questionTracker.questionHashes).slice(-5);
 
             // ENHANCED PROMPT with better constraints
             const prompt = `Create a ${targetDifficulty} anime trivia question about "${targetAnime}".
@@ -1056,7 +1088,7 @@ Return ONLY this JSON format:
             }
         }
 
-        // Initialize the game (same as before)
+        // Initialize the game
         document.addEventListener('DOMContentLoaded', async () => {
             console.log('DOM loaded, initializing game...');
             
@@ -1232,8 +1264,19 @@ Return ONLY this JSON format:
             hideLoading();
             gameState.isAnswered = false;
             
-            const safeQuestion = safeJsQuote(question.question);
-            const safeOptions = question.options.map(option => safeJsQuote(option));
+            // CRITICAL BUG FIX: Store question data for accurate comparison
+            console.log('=== RENDER QUESTION DEBUG ===');
+            console.log('Question object:', question);
+            console.log('Correct answer:', question.answer);
+            console.log('All options:', question.options);
+            
+            // Update debug info
+            updateDebugInfo({
+                question: question.question,
+                correctAnswer: question.answer,
+                allOptions: question.options,
+                answerIndex: question.options.indexOf(question.answer)
+            });
             
             const questionHTML = `
                 <div class="question-card fade-in">
@@ -1242,7 +1285,9 @@ Return ONLY this JSON format:
                     <div class="answers-grid">
                         ${question.options.map((option, index) => `
                             <button class="answer-btn ${index % 2 === 0 ? 'slide-in-left' : 'slide-in-right'}" 
-                                    onclick="selectAnswerSafe(${index})"
+                                    data-option-index="${index}"
+                                    data-option-text="${option}"
+                                    onclick="selectAnswerFixed(${index})"
                                     style="animation-delay: ${index * 0.1}s">
                                 ${option}
                             </button>
@@ -1252,11 +1297,76 @@ Return ONLY this JSON format:
             `;
             
             elements.questionContainer.innerHTML = questionHTML;
+            console.log('=== RENDER COMPLETE ===');
         }
 
-        function selectAnswerSafe(optionIndex) {
-            const selectedAnswerText = gameState.currentQuestion.options[optionIndex];
-            selectAnswer(selectedAnswerText, document.querySelectorAll('.answer-btn')[optionIndex]);
+        // CRITICAL FIX: New answer selection function with proper index handling
+        function selectAnswerFixed(optionIndex) {
+            console.log('=== ANSWER SELECTION DEBUG ===');
+            console.log('Selected option index:', optionIndex);
+            console.log('Question object:', gameState.currentQuestion);
+            console.log('Selected option text:', gameState.currentQuestion.options[optionIndex]);
+            console.log('Correct answer:', gameState.currentQuestion.answer);
+            
+            if (gameState.isAnswered) return;
+            
+            gameState.isAnswered = true;
+            clearInterval(gameState.timer);
+            
+            const answerBtns = document.querySelectorAll('.answer-btn');
+            const selectedOptionText = gameState.currentQuestion.options[optionIndex];
+            const correctAnswer = gameState.currentQuestion.answer;
+            
+            // CRITICAL FIX: Use exact string comparison
+            const isCorrect = selectedOptionText === correctAnswer;
+            console.log('Is answer correct?', isCorrect);
+            console.log('Comparison:', `"${selectedOptionText}" === "${correctAnswer}"`);
+            
+            // Update debug info
+            updateDebugInfo({
+                selectedIndex: optionIndex,
+                selectedText: selectedOptionText,
+                correctAnswer: correctAnswer,
+                isCorrect: isCorrect,
+                comparison: `"${selectedOptionText}" === "${correctAnswer}"`
+            });
+            
+            // Apply styling to all buttons
+            answerBtns.forEach((btn, index) => {
+                btn.classList.add('disabled');
+                const currentOptionText = gameState.currentQuestion.options[index];
+                
+                // ALWAYS mark the correct answer in green
+                if (currentOptionText === correctAnswer) {
+                    btn.classList.add('correct');
+                    console.log('Marked correct button:', index, currentOptionText);
+                }
+                
+                // Mark selected incorrect answer in red
+                if (index === optionIndex && !isCorrect) {
+                    btn.classList.add('incorrect');
+                    console.log('Marked incorrect button:', index, currentOptionText);
+                }
+                
+                // Fade other options
+                if (currentOptionText !== correctAnswer && index !== optionIndex) {
+                    btn.classList.add('neutral');
+                }
+            });
+            
+            if (isCorrect) {
+                gameState.correctAnswers++;
+                const difficulty = gameState.currentQuestion.difficulty.toLowerCase();
+                gameState.score += CONFIG.POINTS[difficulty];
+                updateUI();
+                console.log('Score updated. New score:', gameState.score);
+            }
+            
+            console.log('=== ANSWER SELECTION COMPLETE ===');
+            
+            setTimeout(() => {
+                loadNextQuestion();
+            }, 2500);
         }
 
         function startTimer(difficulty) {
@@ -1286,53 +1396,17 @@ Return ONLY this JSON format:
             elements.timerBar.style.width = `${percentage}%`;
         }
 
-        function selectAnswer(selectedAnswerText, selectedButton) {
-            if (gameState.isAnswered) return;
-            
-            gameState.isAnswered = true;
-            clearInterval(gameState.timer);
-            
-            const answerBtns = document.querySelectorAll('.answer-btn');
-            const isCorrect = selectedAnswerText === gameState.currentQuestion.answer;
-            
-            answerBtns.forEach((btn, index) => {
-                btn.classList.add('disabled');
-                const currentOptionText = gameState.currentQuestion.options[index];
-                
-                if (currentOptionText === gameState.currentQuestion.answer) {
-                    btn.classList.add('correct');
-                }
-                
-                if (btn === selectedButton && !isCorrect) {
-                    btn.classList.add('incorrect');
-                }
-                
-                if (currentOptionText !== gameState.currentQuestion.answer && btn !== selectedButton) {
-                    btn.classList.add('neutral');
-                }
-            });
-            
-            if (isCorrect) {
-                gameState.correctAnswers++;
-                const difficulty = gameState.currentQuestion.difficulty.toLowerCase();
-                gameState.score += CONFIG.POINTS[difficulty];
-                updateUI();
-            }
-            
-            setTimeout(() => {
-                loadNextQuestion();
-            }, 2500);
-        }
-
         function timeUp() {
             gameState.isAnswered = true;
             
             const answerBtns = document.querySelectorAll('.answer-btn');
+            const correctAnswer = gameState.currentQuestion.answer;
+            
             answerBtns.forEach((btn, index) => {
                 btn.classList.add('disabled');
                 const currentOptionText = gameState.currentQuestion.options[index];
                 
-                if (currentOptionText === gameState.currentQuestion.answer) {
+                if (currentOptionText === correctAnswer) {
                     btn.classList.add('correct');
                 } else {
                     btn.classList.add('neutral');
