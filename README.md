@@ -2,6 +2,8 @@
 
 A modern, interactive anime trivia quiz game built with pure HTML, CSS, and JavaScript. Test your anime knowledge with dynamically generated questions powered by AI.
 
+🚀 **[Live Demo](https://anisenpai.vercel.app/)**
+
 ## What It Does
 
 **Anime Senpai** is an intelligent anime quiz application that creates unique trivia questions in real-time. The game features:
@@ -36,6 +38,11 @@ A modern, interactive anime trivia quiz game built with pure HTML, CSS, and Java
 - **AI Language Models**: Dynamic question generation and content validation
 - **Real-time Processing**: Instant question generation and validation
 
+### Deployment
+- **Vercel**: Edge-optimized hosting with global CDN
+- **Continuous Deployment**: Automated builds from Git repository
+- **Performance Optimization**: Built-in caching and compression
+
 ### Architecture
 - **Single Page Application**: No page refreshes, smooth user experience
 - **Event-Driven Design**: Modular component system with clean separation of concerns
@@ -54,3 +61,4 @@ A modern, interactive anime trivia quiz game built with pure HTML, CSS, and Java
 - **Efficient Caching**: Smart state management reduces redundant API calls
 - **Optimized Rendering**: Minimal DOM manipulation with hardware acceleration
 - **Progressive Enhancement**: Graceful degradation for older browsers
+- **Global CDN**: Fast loading times worldwide via Vercel's edge network
