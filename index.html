@@ -301,22 +301,21 @@
         }
 
         .answer-btn.correct {
-            background: #E8F5E8;
-            border-color: #4CAF50;
-            color: #2E7D32;
-            font-weight: 600;
+            background: #E8F5E8 !important;
+            border-color: #4CAF50 !important;
+            color: #2E7D32 !important;
+            font-weight: 600 !important;
         }
 
         .answer-btn.incorrect {
-            background: #FFEBEE;
-            border-color: #F44336;
-            color: #C62828;
-            font-weight: 600;
+            background: #FFEBEE !important;
+            border-color: #F44336 !important;
+            color: #C62828 !important;
+            font-weight: 600 !important;
         }
 
         .answer-btn.disabled {
             cursor: not-allowed;
-            opacity: 0.7;
         }
 
         .answer-btn.neutral {
@@ -543,6 +542,20 @@
             opacity: 0.7;
             z-index: 1000;
         }
+
+        /* Debug info for testing */
+        .debug-info {
+            position: fixed;
+            top: 50px;
+            right: 10px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 10px;
+            max-width: 200px;
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -651,6 +664,7 @@
     </div>
 
     <div id="preloader" class="preloader" style="display: none;"></div>
+    <div id="debug-info" class="debug-info"></div>
 
     <script>
         'use strict';
@@ -664,6 +678,22 @@
             "Vinland Saga", "Promised Neverland", "Haikyuu", "Fire Force", "Black Clover",
             "Dr. Stone", "Steins;Gate", "Your Name", "Spirited Away", "Princess Mononoke"
         ];
+
+        // Question type templates to prevent repetition
+        const QUESTION_TYPES = {
+            Easy: [
+                "character_name", "main_protagonist", "appearance", "setting", "genre", 
+                "basic_plot", "character_relationship", "obvious_trait", "main_goal", "power_type"
+            ],
+            Medium: [
+                "special_technique", "secondary_character", "organization", "weapon_name", 
+                "story_arc", "character_backstory", "ability_details", "episode_event", "villain_name", "rank_title"
+            ],
+            Hard: [
+                "studio", "voice_actor", "release_year", "creator", "episode_title", 
+                "production_detail", "manga_fact", "franchise_info", "staff_member", "technical_detail"
+            ]
+        };
 
         // Configuration
         const CONFIG = {
@@ -696,6 +726,7 @@
             gameStartTime: null,
             retryCount: 0,
             usedAnime: new Set(),
+            usedQuestionTypes: new Set(),
             settings: {
                 difficulty: 'mixed',
                 specificAnime: '',
@@ -731,7 +762,8 @@
             playAgainBtn: document.getElementById('play-again-btn'),
             backToSetupBtn: document.getElementById('back-to-setup-btn'),
             gameHeader: document.querySelector('.game-header'),
-            preloader: document.getElementById('preloader')
+            preloader: document.getElementById('preloader'),
+            debugInfo: document.getElementById('debug-info')
         };
 
         // Secure string escaping for JavaScript
@@ -751,6 +783,14 @@
                 .replace(/\n/g, ' ')
                 .replace(/\r/g, ' ')
                 .replace(/\t/g, ' ');
+        }
+
+        // Normalize strings for accurate comparison
+        function normalizeString(str) {
+            return str.toString().trim().toLowerCase()
+                .replace(/[^\w\s]/g, '')  // Remove punctuation
+                .replace(/\s+/g, ' ')     // Normalize whitespace
+                .trim();
         }
 
         // Initialize the game
@@ -900,6 +940,7 @@
             gameState.gameStartTime = Date.now();
             gameState.retryCount = 0;
             gameState.usedAnime = new Set();
+            gameState.usedQuestionTypes = new Set();
             gameState.nextQuestion = null;
             
             updateUI();
@@ -1079,6 +1120,24 @@
             return difficulties[Math.floor(Math.random() * difficulties.length)];
         }
 
+        function getQuestionType(difficulty) {
+            const availableTypes = QUESTION_TYPES[difficulty].filter(type => 
+                !gameState.usedQuestionTypes.has(`${difficulty}-${type}`)
+            );
+            
+            if (availableTypes.length === 0) {
+                // Reset if all types have been used for this difficulty
+                QUESTION_TYPES[difficulty].forEach(type => {
+                    gameState.usedQuestionTypes.delete(`${difficulty}-${type}`);
+                });
+                return QUESTION_TYPES[difficulty][Math.floor(Math.random() * QUESTION_TYPES[difficulty].length)];
+            }
+            
+            const selectedType = availableTypes[Math.floor(Math.random() * availableTypes.length)];
+            gameState.usedQuestionTypes.add(`${difficulty}-${selectedType}`);
+            return selectedType;
+        }
+
         function buildSystemPrompt() {
             let difficultyInstruction = '';
             let focusInstruction = '';
@@ -1093,6 +1152,9 @@
                 difficultyInstruction = `The difficulty must be exactly "${targetDifficulty}".`;
             }
 
+            // Get a unique question type for variety
+            const questionType = getQuestionType(targetDifficulty);
+
             if (gameState.settings.specificAnime) {
                 focusInstruction = `Create questions ONLY about the anime "${gameState.settings.specificAnime}".`;
                 animeSelectionInstruction = `Focus exclusively on "${gameState.settings.specificAnime}".`;
@@ -1105,50 +1167,70 @@
                 animeSelectionInstruction = `Focus on "${randomAnime}" for this question.`;
             }
 
-            const varietyPrompts = {
-                Easy: [
-                    "Ask about main characters, their names, appearances, or basic traits",
-                    "Ask about the anime's setting, world, or basic plot elements", 
-                    "Ask about character relationships or basic story facts",
-                    "Ask about obvious visual elements or anime genres"
-                ],
-                Medium: [
-                    "Ask about special abilities, techniques, or powers",
-                    "Ask about supporting characters or secondary protagonists",
-                    "Ask about specific story arcs, episodes, or battles",
-                    "Ask about character backstories or motivations"
-                ],
-                Hard: [
-                    "Ask about production details, studios, or release years",
-                    "Ask about voice actors, creators, or staff",
-                    "Ask about specific episode numbers, titles, or minor details",
-                    "Ask about manga origins, spin-offs, or franchise details"
-                ]
+            // Detailed question type specifications
+            const questionSpecs = {
+                // Easy
+                character_name: "Ask about the name of a main character",
+                main_protagonist: "Ask about who the main protagonist is",
+                appearance: "Ask about character appearance (hair color, clothing, etc.)",
+                setting: "Ask about where the anime takes place",
+                genre: "Ask about the anime's genre or category",
+                basic_plot: "Ask about the basic storyline or premise",
+                character_relationship: "Ask about relationships between main characters",
+                obvious_trait: "Ask about obvious character traits or personalities",
+                main_goal: "Ask about the main character's primary goal or mission",
+                power_type: "Ask about the type of powers or abilities featured",
+                
+                // Medium
+                special_technique: "Ask about specific techniques, abilities, or special moves",
+                secondary_character: "Ask about secondary or supporting characters",
+                organization: "Ask about groups, organizations, or teams in the anime",
+                weapon_name: "Ask about specific weapons or tools used",
+                story_arc: "Ask about specific story arcs or major events",
+                character_backstory: "Ask about character backgrounds or origins",
+                ability_details: "Ask about detailed aspects of powers or abilities",
+                episode_event: "Ask about specific events that happen in episodes",
+                villain_name: "Ask about antagonists or villains",
+                rank_title: "Ask about character ranks, titles, or positions",
+                
+                // Hard
+                studio: "Ask about the animation studio that produced the anime",
+                voice_actor: "Ask about voice actors (seiyuu) who play characters",
+                release_year: "Ask about when the anime was first released",
+                creator: "Ask about the original creator or mangaka",
+                episode_title: "Ask about specific episode titles or numbers",
+                production_detail: "Ask about production details, staff, or behind-the-scenes",
+                manga_fact: "Ask about the original manga source material",
+                franchise_info: "Ask about spin-offs, sequels, or related media",
+                staff_member: "Ask about directors, producers, or other staff",
+                technical_detail: "Ask about technical aspects like animation techniques"
             };
 
-            const varietyPrompt = varietyPrompts[targetDifficulty][Math.floor(Math.random() * varietyPrompts[targetDifficulty].length)];
+            const questionSpec = questionSpecs[questionType] || "Ask a varied question about the anime";
 
-            return `Create a quiz question about anime. You MUST return ONLY a valid JSON object with no additional text, explanations, or formatting whatsoever.
+            return `Create an anime quiz question. Return ONLY a valid JSON object with no additional text.
 
 ${focusInstruction}
 ${difficultyInstruction}
 ${animeSelectionInstruction}
 
-VARIETY REQUIREMENT: ${varietyPrompt}
+SPECIFIC QUESTION TYPE: ${questionSpec}
 
-CRITICAL ACCURACY REQUIREMENTS:
-1. Before finalizing your question, mentally verify the correct answer is 100% factually accurate
-2. Double-check that your correct answer exactly matches one of the four options
-3. Ensure all four options are plausible and well-formatted (no spelling errors)
-4. Use proper spelling, grammar, and character names throughout
-5. Avoid repetitive question patterns - vary your question types
-6. For character names, use the most commonly known spellings
+CRITICAL REQUIREMENTS:
+1. The question must be factually accurate and verifiable
+2. Create exactly 4 multiple choice options
+3. The correct answer must EXACTLY match one of the 4 options (word for word)
+4. Make the wrong options plausible but definitely incorrect
+5. Use proper spelling and grammar
+6. Avoid questions that have been asked before by varying the specific focus
 
-Return exactly this JSON format with no other text:
+ANSWER MATCHING: The "answer" field must be an exact character-by-character match with one of the "options" array elements.
+
+Return exactly this JSON format:
 {
   "question": "Your specific question here",
-  "options": ["Option A", "Option B", "Option C", "Option D"],
-  "answer": "Exact match to one option",
+  "options": ["Option 1", "Option 2", "Option 3", "Option 4"],
+  "answer": "Option X (exact match to one of the options above)",
   "difficulty": "${targetDifficulty}"
 }`;
         }
@@ -1176,6 +1258,7 @@ Return exactly this JSON format with no other text:
             
             if (typeof question.answer !== 'string' || !question.options.includes(question.answer)) {
                 console.error('Invalid answer:', question.answer, 'Options:', question.options);
+                console.error('Answer not found in options - exact match required');
                 return false;
             }
             
@@ -1202,8 +1285,9 @@ Return exactly this JSON format with no other text:
                     <div class="answers-grid">
                         ${question.options.map((option, index) => `
                             <button class="answer-btn ${index % 2 === 0 ? 'slide-in-left' : 'slide-in-right'}" 
-                                    data-answer="${safeOptions[index]}"
-                                    onclick="selectAnswerSafe(this)"
+                                    data-answer-index="${index}"
+                                    data-answer-text="${safeOptions[index]}"
+                                    onclick="selectAnswerSafe(this, ${index})"
                                     style="animation-delay: ${index * 0.1}s">
                                 ${option}
                             </button>
@@ -1213,11 +1297,17 @@ Return exactly this JSON format with no other text:
             `;
             
             elements.questionContainer.innerHTML = questionHTML;
+
+            // Debug info (can be enabled for testing)
+            // elements.debugInfo.innerHTML = `
+            //     Correct Answer: "${question.answer}"<br>
+            //     Options: ${JSON.stringify(question.options, null, 2)}
+            // `;
         }
 
-        function selectAnswerSafe(buttonElement) {
-            const selectedAnswer = buttonElement.getAttribute('data-answer');
-            selectAnswer(selectedAnswer, buttonElement);
+        function selectAnswerSafe(buttonElement, optionIndex) {
+            const selectedAnswerText = gameState.currentQuestion.options[optionIndex];
+            selectAnswer(selectedAnswerText, buttonElement, optionIndex);
         }
 
         function startTimer(difficulty) {
@@ -1250,9 +1340,12 @@ Return exactly this JSON format with no other text:
             elements.timerBar.style.width = `${percentage}%`;
         }
 
-        function selectAnswer(selectedAnswer, selectedButton) {
-            console.log('Answer selected:', selectedAnswer);
+        function selectAnswer(selectedAnswerText, selectedButton, optionIndex) {
+            console.log('=== ANSWER SELECTION DEBUG ===');
+            console.log('Selected answer text:', selectedAnswerText);
             console.log('Correct answer:', gameState.currentQuestion.answer);
+            console.log('Selected option index:', optionIndex);
+            console.log('All options:', gameState.currentQuestion.options);
             
             if (gameState.isAnswered) return;
             
@@ -1260,26 +1353,30 @@ Return exactly this JSON format with no other text:
             clearInterval(gameState.timer);
             
             const answerBtns = document.querySelectorAll('.answer-btn');
-            const isCorrect = selectedAnswer === gameState.currentQuestion.answer;
             
-            // FIXED: Always show the correct answer
-            answerBtns.forEach(btn => {
+            // Find correct answer using exact string match
+            const isCorrect = selectedAnswerText === gameState.currentQuestion.answer;
+            console.log('Is correct?', isCorrect);
+            
+            // Process all buttons
+            answerBtns.forEach((btn, index) => {
                 btn.classList.add('disabled');
-                const btnAnswer = btn.getAttribute('data-answer');
-                const btnText = btn.textContent.trim();
+                const currentOptionText = gameState.currentQuestion.options[index];
                 
-                // Mark the correct answer
-                if (btnText === gameState.currentQuestion.answer) {
+                // Mark correct answer (always show this)
+                if (currentOptionText === gameState.currentQuestion.answer) {
                     btn.classList.add('correct');
+                    console.log('Marked correct:', currentOptionText);
                 }
                 
-                // Mark the incorrect selection (if different from correct)
+                // Mark incorrect selection (only if different from correct)
                 if (btn === selectedButton && !isCorrect) {
                     btn.classList.add('incorrect');
+                    console.log('Marked incorrect:', currentOptionText);
                 }
                 
                 // Fade other options
-                if (btnText !== gameState.currentQuestion.answer && btn !== selectedButton) {
+                if (currentOptionText !== gameState.currentQuestion.answer && btn !== selectedButton) {
                     btn.classList.add('neutral');
                 }
             });
@@ -1289,7 +1386,10 @@ Return exactly this JSON format with no other text:
                 const difficulty = gameState.currentQuestion.difficulty.toLowerCase();
                 gameState.score += CONFIG.POINTS[difficulty];
                 updateUI();
+                console.log('Score updated:', gameState.score);
             }
+            
+            console.log('=== END DEBUG ===');
             
             setTimeout(() => {
                 loadNextQuestion();
@@ -1301,11 +1401,11 @@ Return exactly this JSON format with no other text:
             gameState.isAnswered = true;
             
             const answerBtns = document.querySelectorAll('.answer-btn');
-            answerBtns.forEach(btn => {
+            answerBtns.forEach((btn, index) => {
                 btn.classList.add('disabled');
-                const btnText = btn.textContent.trim();
+                const currentOptionText = gameState.currentQuestion.options[index];
                 
-                if (btnText === gameState.currentQuestion.answer) {
+                if (currentOptionText === gameState.currentQuestion.answer) {
                     btn.classList.add('correct');
                 } else {
                     btn.classList.add('neutral');
