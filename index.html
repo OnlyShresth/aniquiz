@@ -41,7 +41,6 @@
             width: 100%;
             height: 100%;
             background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="petals" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="0.8" fill="rgba(237,175,184,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23petals)"/></svg>') repeat;
-            animation: float 15s linear infinite;
             pointer-events: none;
             z-index: -1;
         }
@@ -49,11 +48,6 @@
         @keyframes gradientShift {
             0%, 100% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
-        }
-
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            100% { transform: translateY(-50px); }
         }
 
         .container {
@@ -83,24 +77,12 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            animation: titleShimmer 3s ease-in-out infinite;
-        }
-
-        @keyframes titleShimmer {
-            0%, 100% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
         }
 
         .game-subtitle {
             font-size: 1.1rem;
             color: var(--slate);
             opacity: 0.8;
-            animation: subtitleFloat 4s ease-in-out infinite;
-        }
-
-        @keyframes subtitleFloat {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-3px); }
         }
 
         .card-container {
@@ -115,25 +97,6 @@
             overflow: hidden;
             border: 2px solid rgba(237,175,184,0.3);
             margin: 20px auto;
-            transform: translateX(0);
-            transition: all 0.3s ease;
-        }
-
-        .card-container::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: conic-gradient(from 0deg, transparent, rgba(237,175,184,0.1), transparent);
-            animation: rotate 8s linear infinite;
-            z-index: -1;
-        }
-
-        @keyframes rotate {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
         }
 
         .auth-text {
@@ -149,12 +112,6 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
             margin-bottom: 1rem;
-            animation: titleGlow 2s ease-in-out infinite alternate;
-        }
-
-        @keyframes titleGlow {
-            0% { filter: brightness(1); }
-            100% { filter: brightness(1.2); }
         }
 
         .auth-subtitle {
@@ -172,12 +129,6 @@
 
         .form-group {
             position: relative;
-            animation: slideInUp 0.6s ease-out;
-        }
-
-        @keyframes slideInUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
         }
 
         .form-label {
@@ -204,31 +155,14 @@
             font-size: 0.9rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: all 0.2s ease;
             position: relative;
-            overflow: hidden;
-        }
-
-        .difficulty-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-            transition: left 0.5s;
-        }
-
-        .difficulty-btn:hover::before {
-            left: 100%;
         }
 
         .difficulty-btn:hover {
             border-color: var(--rose);
             background: var(--pearl);
-            transform: translateY(-5px) scale(1.05);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
         }
 
         .difficulty-btn.selected {
@@ -236,12 +170,6 @@
             background: linear-gradient(135deg, var(--rose), var(--sage));
             color: white;
             transform: scale(1.05);
-            animation: selectedPulse 2s ease-in-out infinite;
-        }
-
-        @keyframes selectedPulse {
-            0%, 100% { box-shadow: 0 5px 15px rgba(237,175,184,0.3); }
-            50% { box-shadow: 0 8px 25px rgba(237,175,184,0.5); }
         }
 
         .custom-input {
@@ -252,18 +180,13 @@
             font-size: 1rem;
             background: white;
             color: var(--slate);
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
         }
 
         .custom-input:focus {
             outline: none;
             border-color: var(--rose);
             box-shadow: 0 0 0 3px rgba(237,175,184,0.2);
-            transform: scale(1.02);
-        }
-
-        .custom-input:hover {
-            border-color: var(--sage);
         }
 
         .game-container {
@@ -288,24 +211,6 @@
             font-weight: bold;
             font-size: 1rem;
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .score-display::after, .question-counter::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            animation: infoShine 3s infinite;
-        }
-
-        @keyframes infoShine {
-            0% { left: -100%; }
-            100% { left: 100%; }
         }
 
         .timer-container {
@@ -316,12 +221,6 @@
             overflow: hidden;
             margin: 1rem 0;
             position: relative;
-            animation: timerPulse 0.5s ease-in-out;
-        }
-
-        @keyframes timerPulse {
-            0% { transform: scaleX(0); }
-            100% { transform: scaleX(1); }
         }
 
         .timer-bar {
@@ -330,23 +229,6 @@
             border-radius: 10px;
             transition: width 0.1s linear;
             width: 100%;
-            position: relative;
-        }
-
-        .timer-bar::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
-            animation: timerGlow 2s ease-in-out infinite;
-        }
-
-        @keyframes timerGlow {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
         }
 
         .question-card {
@@ -356,24 +238,6 @@
             margin-bottom: 1.5rem;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
             border-left: 5px solid var(--rose);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .question-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(45deg, transparent, rgba(237,175,184,0.03), transparent);
-            animation: questionGlow 4s ease-in-out infinite;
-        }
-
-        @keyframes questionGlow {
-            0%, 100% { opacity: 0; }
-            50% { opacity: 1; }
         }
 
         .question-text {
@@ -382,8 +246,6 @@
             color: var(--slate);
             line-height: 1.5;
             margin-bottom: 1rem;
-            position: relative;
-            z-index: 1;
         }
 
         .difficulty-badge {
@@ -393,14 +255,6 @@
             font-size: 0.8rem;
             font-weight: bold;
             margin-bottom: 1rem;
-            position: relative;
-            z-index: 1;
-            animation: badgeFloat 3s ease-in-out infinite;
-        }
-
-        @keyframes badgeFloat {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-2px); }
         }
 
         .difficulty-Easy {
@@ -433,69 +287,40 @@
             font-size: 0.95rem;
             color: var(--slate);
             cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: all 0.2s ease;
             text-align: left;
             font-weight: 500;
             position: relative;
-            overflow: hidden;
             line-height: 1.4;
-        }
-
-        .answer-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, var(--pearl), transparent);
-            transition: left 0.3s;
-        }
-
-        .answer-btn:hover::before {
-            left: 100%;
         }
 
         .answer-btn:hover {
             border-color: var(--rose);
             background: var(--pearl);
-            transform: translateY(-5px) scale(1.02);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-        }
-
-        .answer-btn:active {
-            transform: translateY(-2px) scale(0.98);
+            transform: translateY(-2px);
         }
 
         .answer-btn.correct {
             background: #E8F5E8;
             border-color: #4CAF50;
             color: #2E7D32;
-            animation: correctAnswer 0.8s ease-in-out;
-        }
-
-        @keyframes correctAnswer {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1.05); }
+            font-weight: 600;
         }
 
         .answer-btn.incorrect {
             background: #FFEBEE;
             border-color: #F44336;
             color: #C62828;
-            animation: incorrectShake 0.6s ease-in-out;
-        }
-
-        @keyframes incorrectShake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-10px); }
-            75% { transform: translateX(10px); }
+            font-weight: 600;
         }
 
         .answer-btn.disabled {
             cursor: not-allowed;
-            opacity: 0.6;
+            opacity: 0.7;
+        }
+
+        .answer-btn.neutral {
+            opacity: 0.5;
         }
 
         .btn {
@@ -507,34 +332,13 @@
             font-size: 1rem;
             font-weight: bold;
             cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: all 0.2s ease;
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-            transition: left 0.6s;
-        }
-
-        .btn:hover::before {
-            left: 100%;
         }
 
         .btn:hover {
-            transform: translateY(-5px) scale(1.05);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
-        }
-
-        .btn:active {
-            transform: translateY(-2px) scale(1.02);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
         }
 
         .btn.secondary {
@@ -549,12 +353,6 @@
             padding: 1rem;
             margin: 1rem 0;
             text-align: center;
-            animation: errorPulse 2s ease-in-out infinite alternate;
-        }
-
-        @keyframes errorPulse {
-            0% { box-shadow: 0 0 0 0 rgba(244,67,54,0.4); }
-            100% { box-shadow: 0 0 0 10px rgba(244,67,54,0); }
         }
 
         .error-message {
@@ -587,39 +385,33 @@
             margin-top: 1rem;
             font-size: 1rem;
             color: var(--slate);
-            animation: loadingPulse 1.5s ease-in-out infinite alternate;
-        }
-
-        @keyframes loadingPulse {
-            0% { opacity: 0.6; }
-            100% { opacity: 1; }
         }
 
         .fade-in {
-            animation: fadeIn 0.6s ease-out forwards;
+            animation: fadeIn 0.4s ease-out forwards;
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(30px) scale(0.95); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .slide-in-left {
-            animation: slideInLeft 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            animation: slideInLeft 0.3s ease-out forwards;
         }
 
         @keyframes slideInLeft {
-            from { opacity: 0; transform: translateX(-50px) rotate(-5deg); }
-            to { opacity: 1; transform: translateX(0) rotate(0deg); }
+            from { opacity: 0; transform: translateX(-30px); }
+            to { opacity: 1; transform: translateX(0); }
         }
 
         .slide-in-right {
-            animation: slideInRight 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            animation: slideInRight 0.3s ease-out forwards;
         }
 
         @keyframes slideInRight {
-            from { opacity: 0; transform: translateX(50px) rotate(5deg); }
-            to { opacity: 1; transform: translateX(0) rotate(0deg); }
+            from { opacity: 0; transform: translateX(30px); }
+            to { opacity: 1; transform: translateX(0); }
         }
 
         .final-score-display {
@@ -631,12 +423,6 @@
             background-clip: text;
             margin: 1.5rem 0;
             text-align: center;
-            animation: scoreGlow 2s ease-in-out infinite alternate;
-        }
-
-        @keyframes scoreGlow {
-            0% { filter: brightness(1); transform: scale(1); }
-            100% { filter: brightness(1.2); transform: scale(1.05); }
         }
 
         .celebration-text {
@@ -648,26 +434,6 @@
             background-clip: text;
             margin-bottom: 2rem;
             text-align: center;
-            position: relative;
-        }
-
-        .celebration-text::before {
-            content: '🎉';
-            position: absolute;
-            left: -50px;
-            animation: celebrate 2s ease-in-out infinite;
-        }
-
-        .celebration-text::after {
-            content: '🎊';
-            position: absolute;
-            right: -50px;
-            animation: celebrate 2s ease-in-out infinite reverse;
-        }
-
-        @keyframes celebrate {
-            0%, 100% { transform: rotate(-15deg) scale(1); }
-            50% { transform: rotate(15deg) scale(1.2); }
         }
 
         .retry-info {
@@ -684,7 +450,7 @@
         /* Mobile Responsive */
         @media (max-width: 768px) {
             .container {
-                padding: 10px;
+                padding: 15px;
             }
             
             .game-title {
@@ -694,7 +460,6 @@
             .card-container {
                 padding: 1.5rem;
                 margin: 10px;
-                max-width: 95%;
             }
             
             .answers-grid {
@@ -710,7 +475,6 @@
             
             .difficulty-selector {
                 grid-template-columns: 1fr 1fr;
-                gap: 1rem;
             }
 
             .question-text {
@@ -720,11 +484,6 @@
             .answer-btn {
                 padding: 1rem;
                 font-size: 1rem;
-            }
-
-            .btn {
-                padding: 1rem 1.5rem;
-                font-size: 0.95rem;
             }
         }
 
@@ -744,22 +503,11 @@
 
             .difficulty-selector {
                 grid-template-columns: 1fr;
-                gap: 0.8rem;
             }
 
             .score-display, .question-counter {
                 padding: 0.6rem 1rem;
                 font-size: 0.9rem;
-            }
-
-            .card-container {
-                padding: 1rem;
-                margin: 5px;
-            }
-
-            .celebration-text::before,
-            .celebration-text::after {
-                display: none;
             }
         }
 
@@ -772,11 +520,6 @@
             
             .btn {
                 padding: 1.2rem 2rem;
-                font-size: 1.1rem;
-            }
-            
-            .difficulty-btn {
-                padding: 1.2rem;
             }
         }
 
@@ -922,31 +665,6 @@
             "Dr. Stone", "Steins;Gate", "Your Name", "Spirited Away", "Princess Mononoke"
         ];
 
-        // Enhanced question templates for variety
-        const QUESTION_TEMPLATES = {
-            easy: [
-                "Who is the main protagonist of {anime}?",
-                "What is the primary genre of {anime}?",
-                "In {anime}, what is the main character's goal?",
-                "What color is {character}'s hair in {anime}?",
-                "What type of power does the main character have in {anime}?"
-            ],
-            medium: [
-                "What is the name of {character}'s special technique in {anime}?",
-                "Which organization does {character} belong to in {anime}?",
-                "What is the name of {character}'s weapon in {anime}?",
-                "In {anime}, what is the name of the main villain?",
-                "What is {character}'s rank or title in {anime}?"
-            ],
-            hard: [
-                "Which animation studio produced {anime}?",
-                "Who is the voice actor for {character} in {anime}?",
-                "In which year was {anime} first released?",
-                "What is the name of episode {number} in {anime}?",
-                "Who is the manga creator of {anime}?"
-            ]
-        };
-
         // Configuration
         const CONFIG = {
             QUESTIONS_PER_SESSION: 10,
@@ -971,7 +689,7 @@
             totalQuestions: CONFIG.QUESTIONS_PER_SESSION,
             correctAnswers: 0,
             currentQuestion: null,
-            nextQuestion: null, // Preloaded question
+            nextQuestion: null,
             timer: null,
             timeLeft: 0,
             isAnswered: false,
@@ -1020,7 +738,6 @@
         function safeJsQuote(str) {
             if (typeof str !== 'string') return '';
             
-            // HTML escape first
             const htmlEscaped = str
                 .replace(/&/g, '&amp;')
                 .replace(/</g, '&lt;')
@@ -1028,7 +745,6 @@
                 .replace(/"/g, '&quot;')
                 .replace(/'/g, '&#x27;');
             
-            // JavaScript escape for single quotes
             return htmlEscaped
                 .replace(/\\/g, '\\\\')
                 .replace(/'/g, "\\'")
@@ -1041,7 +757,6 @@
         document.addEventListener('DOMContentLoaded', async () => {
             console.log('DOM loaded, initializing game...');
             
-            // Wait for GSAP to load if needed
             if (typeof gsap === 'undefined') {
                 console.log('Waiting for GSAP to load...');
                 setTimeout(() => initializeGame(), 100);
@@ -1054,28 +769,22 @@
         async function initializeGame() {
             console.log('Initializing game...');
             
-            // Check if Puter is available
             if (typeof puter === 'undefined') {
                 console.error('PuterJS is not available');
                 showError('PuterJS is not available. Please check your internet connection.');
                 return;
             }
 
-            // Animate header entrance
+            // Simple header animation
             gsap.to(elements.gameHeader, {
                 opacity: 1,
-                y: 0,
-                duration: 1.5,
-                ease: "power3.out"
+                duration: 1,
+                ease: "power2.out"
             });
 
-            // Set total questions display
             elements.totalQuestions.textContent = CONFIG.QUESTIONS_PER_SESSION;
-
-            // Setup event listeners
             setupEventListeners();
 
-            // Try auto sign-in first
             try {
                 console.log('Attempting auto sign-in...');
                 const user = await puter.auth.getUser();
@@ -1088,7 +797,6 @@
                 console.log('Auto sign-in failed:', error);
             }
 
-            // Show manual login immediately
             console.log('Showing auth container');
             showAuthContainer();
         }
@@ -1099,18 +807,8 @@
             elements.loginBtn.addEventListener('click', handleLogin);
             elements.retryAuthBtn.addEventListener('click', handleLogin);
             
-            // Difficulty selection with animation
-            elements.difficultyBtns.forEach((btn, index) => {
+            elements.difficultyBtns.forEach(btn => {
                 btn.addEventListener('click', () => selectDifficulty(btn));
-                // Stagger animation
-                gsap.set(btn, { opacity: 0, y: 20 });
-                gsap.to(btn, { 
-                    opacity: 1, 
-                    y: 0, 
-                    duration: 0.5, 
-                    delay: index * 0.1,
-                    ease: "back.out(1.7)"
-                });
             });
 
             elements.startQuizBtn.addEventListener('click', handleQuizStart);
@@ -1122,26 +820,16 @@
             elements.playAgainBtn.addEventListener('click', restartGame);
             elements.backToSetupBtn.addEventListener('click', showSetupScreen);
 
-            // Keyboard support
             document.addEventListener('keydown', handleKeyboard);
         }
 
         function selectDifficulty(selectedBtn) {
             elements.difficultyBtns.forEach(btn => {
                 btn.classList.remove('selected');
-                gsap.to(btn, { scale: 1, duration: 0.3 });
             });
             
             selectedBtn.classList.add('selected');
             gameState.settings.difficulty = selectedBtn.dataset.difficulty;
-            
-            // Animate selection
-            gsap.to(selectedBtn, { 
-                scale: 1.05, 
-                duration: 0.3,
-                ease: "back.out(1.7)"
-            });
-            
             console.log('Selected difficulty:', gameState.settings.difficulty);
         }
 
@@ -1180,8 +868,8 @@
             elements.setupContainer.style.display = 'block';
             if (typeof gsap !== 'undefined') {
                 gsap.fromTo(elements.setupContainer, 
-                    { opacity: 0, scale: 0.8, rotationY: -90 }, 
-                    { opacity: 1, scale: 1, rotationY: 0, duration: 0.8, ease: "power3.out" }
+                    { opacity: 0, y: 20 }, 
+                    { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }
                 );
             }
         }
@@ -1192,15 +880,7 @@
             gameState.settings.genre = elements.animeGenreInput.value.trim();
             
             console.log('Quiz settings:', gameState.settings);
-            
-            // Animate button press
-            gsap.to(elements.startQuizBtn, {
-                scale: 0.95,
-                duration: 0.1,
-                yoyo: true,
-                repeat: 1,
-                onComplete: startGame
-            });
+            startGame();
         }
 
         function startGame() {
@@ -1228,18 +908,6 @@
         function updateUI() {
             elements.score.textContent = gameState.score;
             elements.currentQuestion.textContent = gameState.currentQuestionIndex + 1;
-            
-            // Animate score update with bounce
-            gsap.fromTo(elements.score.parentElement, 
-                { scale: 1 }, 
-                { 
-                    scale: 1.1, 
-                    duration: 0.2, 
-                    ease: "back.out(2)",
-                    yoyo: true, 
-                    repeat: 1 
-                }
-            );
         }
 
         async function loadNextQuestion() {
@@ -1255,7 +923,6 @@
             try {
                 let question;
                 
-                // Use preloaded question if available
                 if (gameState.nextQuestion) {
                     question = gameState.nextQuestion;
                     gameState.nextQuestion = null;
@@ -1269,7 +936,6 @@
                 elements.currentQuestion.textContent = gameState.currentQuestionIndex;
                 gameState.retryCount = 0;
                 
-                // Preload next question if not the last one
                 if (gameState.currentQuestionIndex < CONFIG.QUESTIONS_PER_SESSION) {
                     preloadNextQuestion();
                 }
@@ -1353,7 +1019,6 @@
         function parseQuestionResponse(content) {
             let cleanContent = content.trim();
             
-            // Remove markdown code blocks
             cleanContent = cleanContent.replace(/``````\n?/g, '');
             
             const jsonStartIndex = cleanContent.indexOf('{');
@@ -1420,7 +1085,6 @@
             let animeSelectionInstruction = '';
             let targetDifficulty;
 
-            // Handle difficulty - Fixed mixed mode
             if (gameState.settings.difficulty === 'mixed') {
                 targetDifficulty = getDifficultyForMixed();
                 difficultyInstruction = `The difficulty must be exactly "${targetDifficulty}".`;
@@ -1429,7 +1093,6 @@
                 difficultyInstruction = `The difficulty must be exactly "${targetDifficulty}".`;
             }
 
-            // Handle specific anime focus
             if (gameState.settings.specificAnime) {
                 focusInstruction = `Create questions ONLY about the anime "${gameState.settings.specificAnime}".`;
                 animeSelectionInstruction = `Focus exclusively on "${gameState.settings.specificAnime}".`;
@@ -1442,7 +1105,6 @@
                 animeSelectionInstruction = `Focus on "${randomAnime}" for this question.`;
             }
 
-            // Enhanced variety prompts
             const varietyPrompts = {
                 Easy: [
                     "Ask about main characters, their names, appearances, or basic traits",
@@ -1481,16 +1143,6 @@ CRITICAL ACCURACY REQUIREMENTS:
 4. Use proper spelling, grammar, and character names throughout
 5. Avoid repetitive question patterns - vary your question types
 6. For character names, use the most commonly known spellings
-
-Quality guidelines by difficulty:
-- Easy: Main protagonist names, basic plot elements, obvious facts, character appearances
-- Medium: Secondary characters, specific abilities/techniques, story arcs, character relationships
-- Hard: Minor characters, specific episodes, studio info, voice actors, production details
-
-Examples of GOOD varied questions:
-- Easy: "What color is Naruto's signature outfit?", "Where does the story of Attack on Titan take place?"
-- Medium: "What is the name of Ichigo's zanpakuto in Bleach?", "Which Hashira does Tanjiro first encounter?"
-- Hard: "Which studio animated Cowboy Bebop?", "Who composed the music for Spirited Away?"
 
 Return exactly this JSON format with no other text:
 {
@@ -1552,7 +1204,7 @@ Return exactly this JSON format with no other text:
                             <button class="answer-btn ${index % 2 === 0 ? 'slide-in-left' : 'slide-in-right'}" 
                                     data-answer="${safeOptions[index]}"
                                     onclick="selectAnswerSafe(this)"
-                                    style="animation-delay: ${index * 0.15}s">
+                                    style="animation-delay: ${index * 0.1}s">
                                 ${option}
                             </button>
                         `).join('')}
@@ -1565,7 +1217,7 @@ Return exactly this JSON format with no other text:
 
         function selectAnswerSafe(buttonElement) {
             const selectedAnswer = buttonElement.getAttribute('data-answer');
-            selectAnswer(selectedAnswer);
+            selectAnswer(selectedAnswer, buttonElement);
         }
 
         function startTimer(difficulty) {
@@ -1579,12 +1231,6 @@ Return exactly this JSON format with no other text:
             }
             
             gameState.timeLeft = duration;
-            
-            // Animate timer start
-            gsap.fromTo(elements.timerBar, 
-                { width: '0%' },
-                { width: '100%', duration: 0.3, ease: "power2.out" }
-            );
             
             gameState.timer = setInterval(() => {
                 gameState.timeLeft--;
@@ -1602,44 +1248,39 @@ Return exactly this JSON format with no other text:
         function updateTimerBar(totalTime) {
             const percentage = (gameState.timeLeft / totalTime) * 100;
             elements.timerBar.style.width = `${percentage}%`;
-            
-            // Add urgency animation when time is low
-            if (percentage < 30 && percentage > 0) {
-                gsap.to('.timer-container', {
-                    scale: 1.02,
-                    duration: 0.2,
-                    yoyo: true,
-                    repeat: -1,
-                    ease: "power2.inOut"
-                });
-            }
         }
 
-        function selectAnswer(selectedAnswer) {
+        function selectAnswer(selectedAnswer, selectedButton) {
             console.log('Answer selected:', selectedAnswer);
+            console.log('Correct answer:', gameState.currentQuestion.answer);
+            
             if (gameState.isAnswered) return;
             
             gameState.isAnswered = true;
             clearInterval(gameState.timer);
             
-            // Stop urgency animation
-            gsap.killTweensOf('.timer-container');
-            gsap.set('.timer-container', { scale: 1 });
-            
             const answerBtns = document.querySelectorAll('.answer-btn');
             const isCorrect = selectedAnswer === gameState.currentQuestion.answer;
             
+            // FIXED: Always show the correct answer
             answerBtns.forEach(btn => {
                 btn.classList.add('disabled');
                 const btnAnswer = btn.getAttribute('data-answer');
+                const btnText = btn.textContent.trim();
                 
-                if (btnAnswer === gameState.currentQuestion.answer) {
+                // Mark the correct answer
+                if (btnText === gameState.currentQuestion.answer) {
                     btn.classList.add('correct');
-                } else if (btnAnswer === selectedAnswer && !isCorrect) {
+                }
+                
+                // Mark the incorrect selection (if different from correct)
+                if (btn === selectedButton && !isCorrect) {
                     btn.classList.add('incorrect');
-                } else {
-                    // Fade out other options
-                    gsap.to(btn, { opacity: 0.4, duration: 0.3 });
+                }
+                
+                // Fade other options
+                if (btnText !== gameState.currentQuestion.answer && btn !== selectedButton) {
+                    btn.classList.add('neutral');
                 }
             });
             
@@ -1648,40 +1289,11 @@ Return exactly this JSON format with no other text:
                 const difficulty = gameState.currentQuestion.difficulty.toLowerCase();
                 gameState.score += CONFIG.POINTS[difficulty];
                 updateUI();
-                
-                // Create success particles
-                createSuccessParticles();
             }
             
             setTimeout(() => {
                 loadNextQuestion();
-            }, 2000);
-        }
-
-        function createSuccessParticles() {
-            const emojis = ['🎉', '⭐', '✨', '🌟', '💫'];
-            for (let i = 0; i < 8; i++) {
-                const particle = document.createElement('div');
-                particle.innerHTML = emojis[Math.floor(Math.random() * emojis.length)];
-                particle.style.position = 'fixed';
-                particle.style.fontSize = '1.5rem';
-                particle.style.pointerEvents = 'none';
-                particle.style.zIndex = '9999';
-                particle.style.left = Math.random() * window.innerWidth + 'px';
-                particle.style.top = window.innerHeight + 'px';
-                
-                document.body.appendChild(particle);
-                
-                gsap.to(particle, {
-                    y: -window.innerHeight - 50,
-                    x: (Math.random() - 0.5) * 200,
-                    rotation: Math.random() * 360,
-                    scale: Math.random() * 0.5 + 0.5,
-                    duration: 2.5,
-                    ease: "power2.out",
-                    onComplete: () => particle.remove()
-                });
-            }
+            }, 2500);
         }
 
         function timeUp() {
@@ -1691,22 +1303,23 @@ Return exactly this JSON format with no other text:
             const answerBtns = document.querySelectorAll('.answer-btn');
             answerBtns.forEach(btn => {
                 btn.classList.add('disabled');
-                if (btn.getAttribute('data-answer') === gameState.currentQuestion.answer) {
+                const btnText = btn.textContent.trim();
+                
+                if (btnText === gameState.currentQuestion.answer) {
                     btn.classList.add('correct');
                 } else {
-                    gsap.to(btn, { opacity: 0.4, duration: 0.3 });
+                    btn.classList.add('neutral');
                 }
             });
             
             setTimeout(() => {
                 loadNextQuestion();
-            }, 2000);
+            }, 2500);
         }
 
         function endGame() {
             console.log('Ending game...');
             clearInterval(gameState.timer);
-            gsap.killTweensOf('.timer-container');
             elements.preloader.style.display = 'none';
             
             hideGameContainer();
@@ -1725,14 +1338,14 @@ Return exactly this JSON format with no other text:
             loadNextQuestion();
         }
 
-        // UI Helper Functions with improved animations
+        // UI Helper Functions - Minimalist animations
         function showAuthContainer() {
             elements.authContainer.classList.remove('initial-hide');
             elements.authContainer.style.display = 'block';
             if (typeof gsap !== 'undefined') {
                 gsap.fromTo(elements.authContainer, 
-                    { opacity: 0, scale: 0.8, y: 50 }, 
-                    { opacity: 1, scale: 1, y: 0, duration: 0.8, ease: "back.out(1.7)" }
+                    { opacity: 0, y: 20 }, 
+                    { opacity: 1, y: 0, duration: 0.4 }
                 );
             } else {
                 elements.authContainer.style.opacity = '1';
@@ -1743,10 +1356,8 @@ Return exactly this JSON format with no other text:
             if (typeof gsap !== 'undefined') {
                 gsap.to(elements.authContainer, {
                     opacity: 0,
-                    scale: 0.8,
-                    y: -50,
-                    duration: 0.5,
-                    ease: "back.in(1.7)",
+                    y: -20,
+                    duration: 0.3,
                     onComplete: () => {
                         elements.authContainer.style.display = 'none';
                     }
@@ -1760,10 +1371,8 @@ Return exactly this JSON format with no other text:
             if (typeof gsap !== 'undefined') {
                 gsap.to(elements.setupContainer, {
                     opacity: 0,
-                    scale: 0.8,
-                    rotationY: 90,
-                    duration: 0.5,
-                    ease: "back.in(1.7)",
+                    y: -20,
+                    duration: 0.3,
                     onComplete: () => {
                         elements.setupContainer.style.display = 'none';
                     }
@@ -1777,8 +1386,8 @@ Return exactly this JSON format with no other text:
             elements.gameContainer.style.display = 'block';
             if (typeof gsap !== 'undefined') {
                 gsap.fromTo(elements.gameContainer, 
-                    { opacity: 0, y: 100, scale: 0.9 }, 
-                    { opacity: 1, y: 0, scale: 1, duration: 0.8, ease: "power3.out" }
+                    { opacity: 0, y: 20 }, 
+                    { opacity: 1, y: 0, duration: 0.4 }
                 );
             }
         }
@@ -1787,9 +1396,8 @@ Return exactly this JSON format with no other text:
             if (typeof gsap !== 'undefined') {
                 gsap.to(elements.gameContainer, {
                     opacity: 0,
-                    scale: 0.9,
-                    y: -50,
-                    duration: 0.5,
+                    y: -20,
+                    duration: 0.3,
                     onComplete: () => {
                         elements.gameContainer.style.display = 'none';
                     }
@@ -1803,14 +1411,8 @@ Return exactly this JSON format with no other text:
             elements.gameCompleteContainer.style.display = 'block';
             if (typeof gsap !== 'undefined') {
                 gsap.fromTo(elements.gameCompleteContainer, 
-                    { opacity: 0, scale: 0.8, rotationX: -90 }, 
-                    { opacity: 1, scale: 1, rotationX: 0, duration: 1, ease: "back.out(1.7)" }
-                );
-                
-                // Animate final score with delay
-                gsap.fromTo('.final-score-display', 
-                    { scale: 0, rotation: -180 },
-                    { scale: 1, rotation: 0, duration: 0.8, delay: 0.5, ease: "back.out(2)" }
+                    { opacity: 0, y: 20 }, 
+                    { opacity: 1, y: 0, duration: 0.4 }
                 );
             }
         }
@@ -1819,8 +1421,8 @@ Return exactly this JSON format with no other text:
             if (typeof gsap !== 'undefined') {
                 gsap.to(elements.gameCompleteContainer, {
                     opacity: 0,
-                    scale: 0.8,
-                    duration: 0.5,
+                    y: -20,
+                    duration: 0.3,
                     onComplete: () => {
                         elements.gameCompleteContainer.style.display = 'none';
                     }
@@ -1833,13 +1435,6 @@ Return exactly this JSON format with no other text:
         function showLoading() {
             elements.loadingContainer.style.display = 'block';
             elements.questionContainer.style.display = 'none';
-            
-            if (typeof gsap !== 'undefined') {
-                gsap.fromTo('.loading', 
-                    { scale: 0, rotation: 0 },
-                    { scale: 1, rotation: 360, duration: 0.5, ease: "back.out(1.7)" }
-                );
-            }
         }
 
         function hideLoading() {
@@ -1852,31 +1447,12 @@ Return exactly this JSON format with no other text:
             if (container) {
                 container.style.display = 'block';
                 container.querySelector('.error-message').textContent = message;
-                
-                if (typeof gsap !== 'undefined') {
-                    gsap.fromTo(container, 
-                        { opacity: 0, scale: 0.9, y: 20 },
-                        { opacity: 1, scale: 1, y: 0, duration: 0.5, ease: "back.out(1.7)" }
-                    );
-                }
             }
         }
 
         function hideError(container) {
             if (container) {
-                if (typeof gsap !== 'undefined') {
-                    gsap.to(container, {
-                        opacity: 0,
-                        scale: 0.9,
-                        y: -20,
-                        duration: 0.3,
-                        onComplete: () => {
-                            container.style.display = 'none';
-                        }
-                    });
-                } else {
-                    container.style.display = 'none';
-                }
+                container.style.display = 'none';
             }
         }
 
