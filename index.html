@@ -619,13 +619,13 @@
 
                 <div id="loading-container" class="loading-container" style="display: none;">
                     <div class="loading"></div>
-                    <p class="loading-text">Creating question...</p>
+                    <p class="loading-text">Creating unique question...</p>
                 </div>
 
                 <div id="game-error" class="error-container" style="display: none;">
                     <div class="error-message"></div>
                     <div class="retry-info">
-                        Working to generate the perfect question for you...
+                        Ensuring each question is completely unique...
                     </div>
                     <button id="retry-question-btn" class="btn secondary">Retry Question</button>
                     <button id="end-game-btn" class="btn">End Challenge</button>
@@ -667,7 +667,7 @@
         // Configuration
         const CONFIG = {
             QUESTIONS_PER_SESSION: 10,
-            MAX_RETRIES: 15, // Reduced since we removed fact checking
+            MAX_RETRIES: 15,
             RETRY_DELAY: 600,
             TIMER_DURATIONS: {
                 easy: 15,
@@ -681,12 +681,14 @@
             }
         };
 
-        // ENHANCED TRACKING SYSTEM
+        // ENHANCED TRACKING SYSTEM WITH FULL QUESTION HISTORY
         let questionTracker = {
             usedQuestions: new Set(),
             usedConcepts: new Set(),
             usedAnime: new Set(),
             questionHashes: new Set(),
+            // NEW: Store complete question history for AI reference
+            questionHistory: [],
             questionCount: 0,
 
             reset: function() {
@@ -694,6 +696,7 @@
                 this.usedConcepts.clear();
                 this.usedAnime.clear();
                 this.questionHashes.clear();
+                this.questionHistory = [];
                 this.questionCount = 0;
                 console.log('🔄 Question tracker reset');
             },
@@ -737,9 +740,36 @@
                 this.usedConcepts.add(concept);
                 this.usedAnime.add(normalizeString(targetAnime));
                 this.questionHashes.add(questionHash);
+
+                // NEW: Store the full question text for AI reference
+                this.questionHistory.push({
+                    question: question.question,
+                    anime: targetAnime,
+                    difficulty: question.difficulty,
+                    timestamp: Date.now()
+                });
+
                 this.questionCount++;
                 
                 console.log('✅ Marked as used:', concept);
+                console.log('📚 Question history length:', this.questionHistory.length);
+            },
+
+            // NEW: Get previous questions for AI prompt
+            getPreviousQuestions: function(maxCount = 5) {
+                return this.questionHistory.slice(-maxCount);
+            },
+
+            // NEW: Format previous questions for AI prompt
+            formatPreviousQuestionsForPrompt: function() {
+                const previousQuestions = this.getPreviousQuestions(5);
+                if (previousQuestions.length === 0) {
+                    return "None (this is the first question)";
+                }
+                
+                return previousQuestions.map((q, index) => 
+                    `${index + 1}. "${q.question}" (${q.anime}, ${q.difficulty})`
+                ).join('\n');
             },
 
             extractKeywords: function(questionText) {
@@ -786,7 +816,7 @@
             }
         };
 
-        // DOM Elements
+        // DOM Elements (same as before)
         const elements = {
             authContainer: document.getElementById('auth-container'),
             setupContainer: document.getElementById('setup-container'),
@@ -840,7 +870,7 @@
             return uniqueOptions.size !== options.length;
         }
 
-        // IMPROVED: High-quality question generation (no fact verification bottleneck)
+        // NEW: Question generation with explicit previous question avoidance
         async function generateQuestion() {
             console.log('=== GENERATING QUESTION ===');
 
@@ -849,20 +879,29 @@
             
             console.log(`🎯 Target: ${targetAnime} (${targetDifficulty})`);
 
-            // Get list of forbidden concepts to avoid
-            const forbiddenConcepts = Array.from(questionTracker.usedConcepts).slice(-5);
+            // NEW: Get previous questions for AI to avoid
+            const previousQuestions = questionTracker.formatPreviousQuestionsForPrompt();
+            console.log('📚 Previous questions to avoid:', previousQuestions);
 
-            // HIGH-QUALITY PROMPT with built-in accuracy focus
+            // ENHANCED PROMPT with explicit question history
             const prompt = `You are a professional anime trivia creator. Create a HIGH-QUALITY ${targetDifficulty} anime question about "${targetAnime}".
 
-CRITICAL REQUIREMENTS:
+🚫 CRITICAL: DO NOT CREATE QUESTIONS SIMILAR TO THESE PREVIOUS ONES:
+${previousQuestions}
+
+⚠️ AVOID RULES:
+- Do NOT reword or rephrase any of the previous questions above
+- Do NOT ask about the same topics/concepts as the previous questions
+- Do NOT use similar question structures or patterns
+- Create a COMPLETELY DIFFERENT question about a DIFFERENT aspect of ${targetAnime}
+
+REQUIREMENTS:
 - Question must be about "${targetAnime}" ONLY
 - Use ONLY well-known, basic facts about ${targetAnime}
 - Avoid obscure details, voice actors, or production info unless Hard difficulty
 - Create 4 completely different options
 - Correct answer must be OBVIOUS and WELL-KNOWN
 - Wrong answers must be plausible but clearly incorrect
-- Avoid these recent topics: ${forbiddenConcepts.join(', ')}
 
 DIFFICULTY-SPECIFIC GUIDELINES:
 Easy: Main character names, basic plot, obvious settings, main relationships
@@ -874,17 +913,18 @@ QUALITY CHECKLIST:
 ✓ Correct answer is OBVIOUSLY correct to fans
 ✓ Wrong answers are CLEARLY wrong
 ✓ All 4 options are completely different
+✓ Question is COMPLETELY DIFFERENT from all previous questions above
 
 Return ONLY this JSON:
 {
-  "question": "Clear question about well-known ${targetAnime} fact",
+  "question": "Completely unique question about ${targetAnime}",
   "options": ["Correct answer", "Wrong option 1", "Wrong option 2", "Wrong option 3"],
   "answer": "Correct answer",
   "difficulty": "${targetDifficulty}"
 }`;
 
             try {
-                console.log('Sending high-quality prompt to AI...');
+                console.log('Sending anti-duplicate prompt to AI...');
                 const response = await puter.ai.chat(prompt);
                 
                 let content;
@@ -966,7 +1006,7 @@ Return ONLY this JSON:
                 try {
                     console.log(`🔄 Attempt ${attempt}/${CONFIG.MAX_RETRIES}`);
                     
-                    // STEP 1: Generate question
+                    // STEP 1: Generate question with previous question avoidance
                     const question = await generateQuestion();
                     const anime = question._metadata?.anime || 'Unknown';
                     
@@ -988,11 +1028,11 @@ Return ONLY this JSON:
                         throw new Error('Invalid question');
                     }
                     
-                    // STEP 5: Accept question (removed fact verification bottleneck)
+                    // STEP 5: Accept question and add to history
                     questionTracker.markAsUsed(question, anime);
                     gameState.currentQuestion = question;
                     
-                    console.log('✅ Question accepted!');
+                    console.log('✅ Unique question accepted!');
                     return question;
                     
                 } catch (error) {
@@ -1007,7 +1047,7 @@ Return ONLY this JSON:
             }
         }
 
-        // Initialize the game
+        // Initialize the game (same as before)
         document.addEventListener('DOMContentLoaded', async () => {
             console.log('DOM loaded, initializing game...');
             
@@ -1164,7 +1204,7 @@ Return ONLY this JSON:
                 
             } catch (error) {
                 console.error('Failed to load question:', error);
-                showError('Unable to generate question. Please try again.', elements.gameError);
+                showError('Unable to generate unique question. Please try again.', elements.gameError);
             }
         }
 
@@ -1183,7 +1223,6 @@ Return ONLY this JSON:
             hideLoading();
             gameState.isAnswered = false;
             
-            // Store question data for accurate comparison
             console.log('=== RENDER QUESTION DEBUG ===');
             console.log('Question object:', question);
             console.log('Correct answer:', question.answer);
@@ -1211,7 +1250,7 @@ Return ONLY this JSON:
             console.log('=== RENDER COMPLETE ===');
         }
 
-        // FIXED: Answer selection function with proper index handling
+        // Answer selection function with proper index handling (same as before)
         function selectAnswerFixed(optionIndex) {
             console.log('=== ANSWER SELECTION DEBUG ===');
             console.log('Selected option index:', optionIndex);
@@ -1228,29 +1267,24 @@ Return ONLY this JSON:
             const selectedOptionText = gameState.currentQuestion.options[optionIndex];
             const correctAnswer = gameState.currentQuestion.answer;
             
-            // CRITICAL FIX: Use exact string comparison
             const isCorrect = selectedOptionText === correctAnswer;
             console.log('Is answer correct?', isCorrect);
             console.log('Comparison:', `"${selectedOptionText}" === "${correctAnswer}"`);
             
-            // Apply styling to all buttons
             answerBtns.forEach((btn, index) => {
                 btn.classList.add('disabled');
                 const currentOptionText = gameState.currentQuestion.options[index];
                 
-                // ALWAYS mark the correct answer in green
                 if (currentOptionText === correctAnswer) {
                     btn.classList.add('correct');
                     console.log('Marked correct button:', index, currentOptionText);
                 }
                 
-                // Mark selected incorrect answer in red
                 if (index === optionIndex && !isCorrect) {
                     btn.classList.add('incorrect');
                     console.log('Marked incorrect button:', index, currentOptionText);
                 }
                 
-                // Fade other options
                 if (currentOptionText !== correctAnswer && index !== optionIndex) {
                     btn.classList.add('neutral');
                 }
