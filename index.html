@@ -619,13 +619,13 @@
 
                 <div id="loading-container" class="loading-container" style="display: none;">
                     <div class="loading"></div>
-                    <p class="loading-text">Creating question...</p>
+                    <p class="loading-text">Fact-checking question...</p>
                 </div>
 
                 <div id="game-error" class="error-container" style="display: none;">
                     <div class="error-message"></div>
                     <div class="retry-info">
-                        Ensuring question accuracy. Please wait...
+                        AI is verifying facts for accuracy...
                     </div>
                     <button id="retry-question-btn" class="btn secondary">Retry Question</button>
                     <button id="end-game-btn" class="btn">End Challenge</button>
@@ -667,8 +667,8 @@
         // Configuration
         const CONFIG = {
             QUESTIONS_PER_SESSION: 10,
-            MAX_RETRIES: 20,
-            RETRY_DELAY: 1000,
+            MAX_RETRIES: 25,
+            RETRY_DELAY: 800,
             TIMER_DURATIONS: {
                 easy: 15,
                 medium: 20,
@@ -681,29 +681,51 @@
             }
         };
 
-        // SIMPLE BUT COMPREHENSIVE TRACKING SYSTEM
+        // ENHANCED TRACKING SYSTEM
         let questionTracker = {
             usedQuestions: new Set(),
             usedConcepts: new Set(),
             usedAnime: new Set(),
+            questionHashes: new Set(), // Track semantic hashes
             questionCount: 0,
 
             reset: function() {
                 this.usedQuestions.clear();
                 this.usedConcepts.clear();
                 this.usedAnime.clear();
+                this.questionHashes.clear();
                 this.questionCount = 0;
                 console.log('🔄 Question tracker reset');
+            },
+
+            // Create semantic hash of question
+            createQuestionHash: function(question, anime) {
+                const normalizedQ = normalizeString(question.question);
+                const keywords = normalizedQ.split(' ').filter(word => 
+                    word.length > 3 && 
+                    !['what', 'who', 'where', 'when', 'which', 'does', 'have', 'main', 'name', 'called', 'anime', 'series'].includes(word)
+                ).slice(0, 3).sort().join('-');
+                
+                return `${normalizeString(anime)}-${keywords}`;
             },
 
             isDuplicate: function(question, targetAnime) {
                 const normalizedQ = normalizeString(question.question);
                 
+                // Check exact question text
                 if (this.usedQuestions.has(normalizedQ)) {
                     console.log('❌ Exact duplicate question');
                     return true;
                 }
 
+                // Check semantic similarity
+                const questionHash = this.createQuestionHash(question, targetAnime);
+                if (this.questionHashes.has(questionHash)) {
+                    console.log('❌ Semantically similar question:', questionHash);
+                    return true;
+                }
+
+                // Check if asking about same concept
                 const concept = `${normalizeString(targetAnime)}-${this.extractKeywords(question.question)}`;
                 if (this.usedConcepts.has(concept)) {
                     console.log('❌ Duplicate concept:', concept);
@@ -716,10 +738,12 @@
             markAsUsed: function(question, targetAnime) {
                 const normalizedQ = normalizeString(question.question);
                 const concept = `${normalizeString(targetAnime)}-${this.extractKeywords(question.question)}`;
+                const questionHash = this.createQuestionHash(question, targetAnime);
                 
                 this.usedQuestions.add(normalizedQ);
                 this.usedConcepts.add(concept);
                 this.usedAnime.add(normalizeString(targetAnime));
+                this.questionHashes.add(questionHash);
                 this.questionCount++;
                 
                 console.log('✅ Marked as used:', concept);
@@ -729,7 +753,7 @@
                 const words = normalizeString(questionText).split(' ');
                 const keywords = words.filter(word => 
                     word.length > 3 && 
-                    !['what', 'who', 'where', 'when', 'which', 'does', 'have', 'main', 'name', 'called'].includes(word)
+                    !['what', 'who', 'where', 'when', 'which', 'does', 'have', 'main', 'name', 'called', 'anime', 'series', 'character'].includes(word)
                 ).slice(0, 2);
                 return keywords.join('-');
             },
@@ -740,6 +764,8 @@
                 );
                 
                 if (available.length === 0) {
+                    // Reset if all used
+                    this.usedAnime.clear();
                     return POPULAR_ANIME[Math.floor(Math.random() * POPULAR_ANIME.length)];
                 }
                 
@@ -821,7 +847,49 @@
             return uniqueOptions.size !== options.length;
         }
 
-        // SIMPLIFIED: Direct question generation
+        // REVOLUTIONARY: AI FACT-VERIFICATION SYSTEM
+        async function verifyFactsWithAI(question, targetAnime) {
+            console.log('🔍 Starting AI fact verification...');
+            
+            const verificationPrompt = `FACT-CHECK this anime trivia question:
+
+ANIME: "${targetAnime}"
+QUESTION: "${question.question}"
+CLAIMED CORRECT ANSWER: "${question.answer}"
+ALL OPTIONS: ${JSON.stringify(question.options)}
+
+Your job: Verify if the CLAIMED CORRECT ANSWER is factually accurate for ${targetAnime}.
+
+RESPOND WITH ONLY:
+✅ CORRECT - if the answer is 100% factually accurate
+❌ WRONG - if the answer is factually incorrect
+
+Do not explain. Just: ✅ CORRECT or ❌ WRONG`;
+
+            try {
+                const response = await puter.ai.chat(verificationPrompt);
+                let content = '';
+                
+                if (response && response.message && response.message.content) {
+                    content = response.message.content;
+                } else if (typeof response === 'string') {
+                    content = response;
+                } else if (response && response.content) {
+                    content = response.content;
+                }
+
+                const isCorrect = content.includes('✅') || content.toUpperCase().includes('CORRECT');
+                console.log('🔍 Fact verification result:', content, '→', isCorrect ? 'VERIFIED' : 'REJECTED');
+                
+                return isCorrect;
+            } catch (error) {
+                console.error('Fact verification failed:', error);
+                // If verification fails, be conservative and reject
+                return false;
+            }
+        }
+
+        // ENHANCED: Question generation with better constraints
         async function generateQuestion() {
             console.log('=== GENERATING QUESTION ===');
 
@@ -830,30 +898,35 @@
             
             console.log(`🎯 Target: ${targetAnime} (${targetDifficulty})`);
 
-            const forbiddenConcepts = Array.from(questionTracker.usedConcepts).join(', ');
+            // Get list of forbidden concepts to avoid
+            const forbiddenConcepts = Array.from(questionTracker.usedConcepts).slice(-5); // Last 5 concepts
+            const forbiddenHashes = Array.from(questionTracker.questionHashes).slice(-5); // Last 5 hashes
 
-            // SIMPLIFIED PROMPT - Direct and concise
+            // ENHANCED PROMPT with better constraints
             const prompt = `Create a ${targetDifficulty} anime trivia question about "${targetAnime}".
 
-FORBIDDEN (already used): ${forbiddenConcepts}
-
-REQUIREMENTS:
+CRITICAL CONSTRAINTS:
 - Question must be about "${targetAnime}" specifically
-- Must be factually accurate
-- 4 different options
-- Answer must exactly match one option
-- Avoid concepts: ${forbiddenConcepts}
+- Must be 100% factually accurate 
+- Avoid these recent topics: ${forbiddenConcepts.join(', ')}
+- Create 4 completely different options
+- Answer must EXACTLY match one option
 
-Return ONLY this JSON (no extra text):
+DIFFICULTY GUIDELINES:
+- Easy: Main characters, basic plot, obvious facts
+- Medium: Secondary characters, abilities, story details  
+- Hard: Voice actors, studios, production details, specific episodes
+
+Return ONLY this JSON format:
 {
-  "question": "Short, direct question about ${targetAnime}",
-  "options": ["Correct answer", "Wrong 1", "Wrong 2", "Wrong 3"],
+  "question": "Clear, specific question about ${targetAnime}",
+  "options": ["Correct answer", "Wrong option 1", "Wrong option 2", "Wrong option 3"],
   "answer": "Correct answer",
   "difficulty": "${targetDifficulty}"
 }`;
 
             try {
-                console.log('Sending prompt to AI...');
+                console.log('Sending enhanced prompt to AI...');
                 const response = await puter.ai.chat(prompt);
                 
                 let content;
@@ -933,34 +1006,46 @@ Return ONLY this JSON (no extra text):
         async function fetchQuestionWithRetry() {
             for (let attempt = 1; attempt <= CONFIG.MAX_RETRIES; attempt++) {
                 try {
-                    console.log(`Attempt ${attempt}/${CONFIG.MAX_RETRIES}`);
+                    console.log(`🔄 Attempt ${attempt}/${CONFIG.MAX_RETRIES}`);
                     
+                    // STEP 1: Generate question
                     const question = await generateQuestion();
                     const anime = question._metadata?.anime || 'Unknown';
                     
+                    // STEP 2: Check for duplicates
                     if (questionTracker.isDuplicate(question, anime)) {
                         console.log('🔄 Duplicate detected, retrying...');
                         throw new Error('Duplicate question');
                     }
                     
+                    // STEP 3: Check for duplicate options
                     if (hasDuplicateOptions(question.options)) {
                         console.log('🔄 Duplicate options, retrying...');
                         throw new Error('Duplicate options');
                     }
                     
+                    // STEP 4: Validate format
                     if (!validateQuestion(question)) {
                         console.log('🔄 Invalid format, retrying...');
                         throw new Error('Invalid question');
                     }
                     
+                    // STEP 5: CRITICAL - AI FACT VERIFICATION
+                    const isFactuallyCorrect = await verifyFactsWithAI(question, anime);
+                    if (!isFactuallyCorrect) {
+                        console.log('🔄 AI fact-check FAILED, retrying...');
+                        throw new Error('Fact verification failed');
+                    }
+                    
+                    // STEP 6: Mark as used and accept
                     questionTracker.markAsUsed(question, anime);
                     gameState.currentQuestion = question;
                     
-                    console.log('✅ Question generated successfully!');
+                    console.log('✅ Question VERIFIED and accepted!');
                     return question;
                     
                 } catch (error) {
-                    console.error(`Attempt ${attempt} failed:`, error.message);
+                    console.error(`❌ Attempt ${attempt} failed:`, error.message);
                     
                     if (attempt === CONFIG.MAX_RETRIES) {
                         throw error;
@@ -1127,8 +1212,8 @@ Return ONLY this JSON (no extra text):
                 }
                 
             } catch (error) {
-                console.error('Failed to load question:', error);
-                showError('Unable to generate question. Please try again.', elements.gameError);
+                console.error('Failed to load verified question:', error);
+                showError('Unable to generate a verified question. Please try again.', elements.gameError);
             }
         }
 
@@ -1278,7 +1363,7 @@ Return ONLY this JSON (no extra text):
             loadNextQuestion();
         }
 
-        // UI Helper Functions (simplified versions)
+        // UI Helper Functions (same as before, simplified for brevity)
         function showAuthContainer() {
             elements.authContainer.classList.remove('initial-hide');
             elements.authContainer.style.display = 'block';
