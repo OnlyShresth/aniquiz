@@ -542,22 +542,6 @@
             opacity: 0.7;
             z-index: 1000;
         }
-
-        /* DEBUG: Visible debug info for testing */
-        .debug-panel {
-            position: fixed;
-            bottom: 10px;
-            left: 10px;
-            background: rgba(0,0,0,0.8);
-            color: white;
-            padding: 10px;
-            border-radius: 5px;
-            font-size: 12px;
-            font-family: monospace;
-            max-width: 300px;
-            z-index: 9999;
-            display: none; /* Enable for debugging */
-        }
     </style>
 </head>
 <body>
@@ -635,13 +619,13 @@
 
                 <div id="loading-container" class="loading-container" style="display: none;">
                     <div class="loading"></div>
-                    <p class="loading-text">Fact-checking question...</p>
+                    <p class="loading-text">Creating question...</p>
                 </div>
 
                 <div id="game-error" class="error-container" style="display: none;">
                     <div class="error-message"></div>
                     <div class="retry-info">
-                        AI is verifying facts for accuracy...
+                        Working to generate the perfect question for you...
                     </div>
                     <button id="retry-question-btn" class="btn secondary">Retry Question</button>
                     <button id="end-game-btn" class="btn">End Challenge</button>
@@ -666,9 +650,6 @@
     </div>
 
     <div id="preloader" class="preloader" style="display: none;"></div>
-    
-    <!-- DEBUG PANEL (hidden by default) -->
-    <div id="debug-panel" class="debug-panel"></div>
 
     <script>
         'use strict';
@@ -686,8 +667,8 @@
         // Configuration
         const CONFIG = {
             QUESTIONS_PER_SESSION: 10,
-            MAX_RETRIES: 25,
-            RETRY_DELAY: 800,
+            MAX_RETRIES: 15, // Reduced since we removed fact checking
+            RETRY_DELAY: 600,
             TIMER_DURATIONS: {
                 easy: 15,
                 medium: 20,
@@ -697,8 +678,7 @@
                 easy: 10,
                 medium: 20,
                 hard: 40
-            },
-            DEBUG_MODE: false // Set to true for debugging
+            }
         };
 
         // ENHANCED TRACKING SYSTEM
@@ -742,13 +722,6 @@
                 const questionHash = this.createQuestionHash(question, targetAnime);
                 if (this.questionHashes.has(questionHash)) {
                     console.log('❌ Semantically similar question:', questionHash);
-                    return true;
-                }
-
-                // Check if asking about same concept
-                const concept = `${normalizeString(targetAnime)}-${this.extractKeywords(question.question)}`;
-                if (this.usedConcepts.has(concept)) {
-                    console.log('❌ Duplicate concept:', concept);
                     return true;
                 }
 
@@ -841,8 +814,7 @@
             playAgainBtn: document.getElementById('play-again-btn'),
             backToSetupBtn: document.getElementById('back-to-setup-btn'),
             gameHeader: document.querySelector('.game-header'),
-            preloader: document.getElementById('preloader'),
-            debugPanel: document.getElementById('debug-panel')
+            preloader: document.getElementById('preloader')
         };
 
         // Utility functions
@@ -868,60 +840,7 @@
             return uniqueOptions.size !== options.length;
         }
 
-        // DEBUG: Update debug panel
-        function updateDebugInfo(info) {
-            if (CONFIG.DEBUG_MODE && elements.debugPanel) {
-                elements.debugPanel.style.display = 'block';
-                elements.debugPanel.innerHTML = `
-                    <strong>DEBUG INFO:</strong><br>
-                    ${Object.entries(info).map(([key, value]) => `${key}: ${JSON.stringify(value)}`).join('<br>')}
-                `;
-            }
-        }
-
-        // REVOLUTIONARY: AI FACT-VERIFICATION SYSTEM
-        async function verifyFactsWithAI(question, targetAnime) {
-            console.log('🔍 Starting AI fact verification...');
-            
-            const verificationPrompt = `FACT-CHECK this anime trivia question:
-
-ANIME: "${targetAnime}"
-QUESTION: "${question.question}"
-CLAIMED CORRECT ANSWER: "${question.answer}"
-ALL OPTIONS: ${JSON.stringify(question.options)}
-
-Your job: Verify if the CLAIMED CORRECT ANSWER is factually accurate for ${targetAnime}.
-
-RESPOND WITH ONLY:
-✅ CORRECT - if the answer is 100% factually accurate
-❌ WRONG - if the answer is factually incorrect
-
-Do not explain. Just: ✅ CORRECT or ❌ WRONG`;
-
-            try {
-                const response = await puter.ai.chat(verificationPrompt);
-                let content = '';
-                
-                if (response && response.message && response.message.content) {
-                    content = response.message.content;
-                } else if (typeof response === 'string') {
-                    content = response;
-                } else if (response && response.content) {
-                    content = response.content;
-                }
-
-                const isCorrect = content.includes('✅') || content.toUpperCase().includes('CORRECT');
-                console.log('🔍 Fact verification result:', content, '→', isCorrect ? 'VERIFIED' : 'REJECTED');
-                
-                return isCorrect;
-            } catch (error) {
-                console.error('Fact verification failed:', error);
-                // If verification fails, be conservative and reject
-                return false;
-            }
-        }
-
-        // ENHANCED: Question generation with better constraints
+        // IMPROVED: High-quality question generation (no fact verification bottleneck)
         async function generateQuestion() {
             console.log('=== GENERATING QUESTION ===');
 
@@ -932,33 +851,40 @@ Do not explain. Just: ✅ CORRECT or ❌ WRONG`;
 
             // Get list of forbidden concepts to avoid
             const forbiddenConcepts = Array.from(questionTracker.usedConcepts).slice(-5);
-            const forbiddenHashes = Array.from(questionTracker.questionHashes).slice(-5);
 
-            // ENHANCED PROMPT with better constraints
-            const prompt = `Create a ${targetDifficulty} anime trivia question about "${targetAnime}".
+            // HIGH-QUALITY PROMPT with built-in accuracy focus
+            const prompt = `You are a professional anime trivia creator. Create a HIGH-QUALITY ${targetDifficulty} anime question about "${targetAnime}".
 
-CRITICAL CONSTRAINTS:
-- Question must be about "${targetAnime}" specifically
-- Must be 100% factually accurate 
-- Avoid these recent topics: ${forbiddenConcepts.join(', ')}
+CRITICAL REQUIREMENTS:
+- Question must be about "${targetAnime}" ONLY
+- Use ONLY well-known, basic facts about ${targetAnime}
+- Avoid obscure details, voice actors, or production info unless Hard difficulty
 - Create 4 completely different options
-- Answer must EXACTLY match one option
+- Correct answer must be OBVIOUS and WELL-KNOWN
+- Wrong answers must be plausible but clearly incorrect
+- Avoid these recent topics: ${forbiddenConcepts.join(', ')}
 
-DIFFICULTY GUIDELINES:
-- Easy: Main characters, basic plot, obvious facts
-- Medium: Secondary characters, abilities, story details  
-- Hard: Voice actors, studios, production details, specific episodes
+DIFFICULTY-SPECIFIC GUIDELINES:
+Easy: Main character names, basic plot, obvious settings, main relationships
+Medium: Secondary characters, abilities, story arcs, character backgrounds  
+Hard: Detailed lore, specific techniques, episode details, production facts
 
-Return ONLY this JSON format:
+QUALITY CHECKLIST:
+✓ Question is about a WELL-KNOWN fact of ${targetAnime}
+✓ Correct answer is OBVIOUSLY correct to fans
+✓ Wrong answers are CLEARLY wrong
+✓ All 4 options are completely different
+
+Return ONLY this JSON:
 {
-  "question": "Clear, specific question about ${targetAnime}",
+  "question": "Clear question about well-known ${targetAnime} fact",
   "options": ["Correct answer", "Wrong option 1", "Wrong option 2", "Wrong option 3"],
   "answer": "Correct answer",
   "difficulty": "${targetDifficulty}"
 }`;
 
             try {
-                console.log('Sending enhanced prompt to AI...');
+                console.log('Sending high-quality prompt to AI...');
                 const response = await puter.ai.chat(prompt);
                 
                 let content;
@@ -1062,18 +988,11 @@ Return ONLY this JSON format:
                         throw new Error('Invalid question');
                     }
                     
-                    // STEP 5: CRITICAL - AI FACT VERIFICATION
-                    const isFactuallyCorrect = await verifyFactsWithAI(question, anime);
-                    if (!isFactuallyCorrect) {
-                        console.log('🔄 AI fact-check FAILED, retrying...');
-                        throw new Error('Fact verification failed');
-                    }
-                    
-                    // STEP 6: Mark as used and accept
+                    // STEP 5: Accept question (removed fact verification bottleneck)
                     questionTracker.markAsUsed(question, anime);
                     gameState.currentQuestion = question;
                     
-                    console.log('✅ Question VERIFIED and accepted!');
+                    console.log('✅ Question accepted!');
                     return question;
                     
                 } catch (error) {
@@ -1244,8 +1163,8 @@ Return ONLY this JSON format:
                 }
                 
             } catch (error) {
-                console.error('Failed to load verified question:', error);
-                showError('Unable to generate a verified question. Please try again.', elements.gameError);
+                console.error('Failed to load question:', error);
+                showError('Unable to generate question. Please try again.', elements.gameError);
             }
         }
 
@@ -1264,19 +1183,11 @@ Return ONLY this JSON format:
             hideLoading();
             gameState.isAnswered = false;
             
-            // CRITICAL BUG FIX: Store question data for accurate comparison
+            // Store question data for accurate comparison
             console.log('=== RENDER QUESTION DEBUG ===');
             console.log('Question object:', question);
             console.log('Correct answer:', question.answer);
             console.log('All options:', question.options);
-            
-            // Update debug info
-            updateDebugInfo({
-                question: question.question,
-                correctAnswer: question.answer,
-                allOptions: question.options,
-                answerIndex: question.options.indexOf(question.answer)
-            });
             
             const questionHTML = `
                 <div class="question-card fade-in">
@@ -1300,7 +1211,7 @@ Return ONLY this JSON format:
             console.log('=== RENDER COMPLETE ===');
         }
 
-        // CRITICAL FIX: New answer selection function with proper index handling
+        // FIXED: Answer selection function with proper index handling
         function selectAnswerFixed(optionIndex) {
             console.log('=== ANSWER SELECTION DEBUG ===');
             console.log('Selected option index:', optionIndex);
@@ -1321,15 +1232,6 @@ Return ONLY this JSON format:
             const isCorrect = selectedOptionText === correctAnswer;
             console.log('Is answer correct?', isCorrect);
             console.log('Comparison:', `"${selectedOptionText}" === "${correctAnswer}"`);
-            
-            // Update debug info
-            updateDebugInfo({
-                selectedIndex: optionIndex,
-                selectedText: selectedOptionText,
-                correctAnswer: correctAnswer,
-                isCorrect: isCorrect,
-                comparison: `"${selectedOptionText}" === "${correctAnswer}"`
-            });
             
             // Apply styling to all buttons
             answerBtns.forEach((btn, index) => {
@@ -1437,7 +1339,7 @@ Return ONLY this JSON format:
             loadNextQuestion();
         }
 
-        // UI Helper Functions (same as before, simplified for brevity)
+        // UI Helper Functions (simplified for brevity)
         function showAuthContainer() {
             elements.authContainer.classList.remove('initial-hide');
             elements.authContainer.style.display = 'block';
