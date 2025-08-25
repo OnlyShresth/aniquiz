@@ -14,10 +14,6 @@
             --mushroom: #dedbd2;
             --sage: #b0c4b1;
             --slate: #4a5759;
-            --success: #4CAF50;
-            --error: #F44336;
-            --warning: #FFC107;
-            --focus-color: #007acc;
         }
 
         * {
@@ -35,10 +31,6 @@
             min-height: 100vh;
             overflow-x: hidden;
             position: relative;
-            -webkit-text-size-adjust: 100%;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            touch-action: manipulation;
         }
 
         body::before {
@@ -54,41 +46,14 @@
             z-index: -1;
         }
 
-        .made-by {
-            position: fixed;
-            bottom: 10px;
-            right: 15px;
-            font-size: 0.7rem;
-            color: rgba(74, 87, 89, 0.7);
-            z-index: 1000;
-            font-weight: 500;
-        }
-
         @keyframes gradientShift {
             0%, 100% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
         }
 
         @keyframes float {
-            0% { transform: translate3d(0, 0px, 0); }
-            100% { transform: translate3d(0, -50px, 0); }
-        }
-
-        *:focus {
-            outline: 3px solid var(--focus-color);
-            outline-offset: 2px;
-        }
-
-        .sr-only {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            padding: 0;
-            margin: -1px;
-            overflow: hidden;
-            clip: rect(0, 0, 0, 0);
-            white-space: nowrap;
-            border: 0;
+            0% { transform: translateY(0px); }
+            100% { transform: translateY(-50px); }
         }
 
         .container {
@@ -143,7 +108,6 @@
             position: relative;
             overflow: hidden;
             border: 2px solid rgba(237,175,184,0.3);
-            will-change: transform;
         }
 
         .card-container::before {
@@ -161,32 +125,6 @@
         @keyframes rotate {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
-        }
-
-        .progress-container {
-            width: 100%;
-            height: 8px;
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 10px;
-            overflow: hidden;
-            margin-bottom: 1.5rem;
-            position: relative;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .progress-bar {
-            height: 100%;
-            background: linear-gradient(90deg, var(--sage), var(--rose), var(--sage));
-            background-size: 200% 100%;
-            border-radius: 10px;
-            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-            width: 0%;
-            animation: progressShine 2s linear infinite;
-        }
-
-        @keyframes progressShine {
-            0% { background-position: -200% 0; }
-            100% { background-position: 200% 0; }
         }
 
         .auth-text {
@@ -231,52 +169,29 @@
 
         .difficulty-selector {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 1rem;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 0.8rem;
             margin-top: 0.5rem;
         }
 
         .difficulty-btn {
-            padding: 1.2rem;
-            border: 3px solid var(--mushroom);
+            padding: 1rem;
+            border: 2px solid var(--mushroom);
             border-radius: 15px;
             background: white;
             color: var(--slate);
             font-size: 0.9rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
-            min-height: 56px;
-            will-change: transform;
-            touch-action: manipulation;
-        }
-
-        .difficulty-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-            transition: left 0.4s;
-        }
-
-        .difficulty-btn:hover::before {
-            left: 100%;
         }
 
         .difficulty-btn:hover {
             border-color: var(--rose);
             background: var(--pearl);
-            transform: translateY(-3px) scale(1.02);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-        }
-
-        .difficulty-btn:active {
-            transform: translateY(-1px) scale(0.98);
+            transform: translateY(-2px);
         }
 
         .difficulty-btn.selected {
@@ -284,26 +199,23 @@
             background: linear-gradient(135deg, var(--rose), var(--sage));
             color: white;
             transform: scale(1.05);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
         }
 
         .custom-input {
             width: 100%;
-            padding: 1.2rem;
-            border: 3px solid var(--mushroom);
+            padding: 1rem;
+            border: 2px solid var(--mushroom);
             border-radius: 15px;
             font-size: 1rem;
             background: white;
             color: var(--slate);
             transition: all 0.3s ease;
-            min-height: 56px;
         }
 
         .custom-input:focus {
             outline: none;
             border-color: var(--rose);
             box-shadow: 0 0 0 3px rgba(237,175,184,0.2);
-            transform: scale(1.02);
         }
 
         .game-container {
@@ -323,312 +235,165 @@
         .score-display, .question-counter {
             background: linear-gradient(135deg, var(--rose), var(--sage));
             color: white;
-            padding: 1rem 2rem;
-            border-radius: 25px;
+            padding: 0.8rem 1.5rem;
+            border-radius: 20px;
             font-weight: bold;
-            font-size: 1.1rem;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-            position: relative;
-            overflow: hidden;
-            will-change: transform;
-        }
-
-        .score-display::before, .question-counter::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-            animation: shine 2.5s infinite;
-        }
-
-        @keyframes shine {
-            0% { left: -100%; }
-            100% { left: 100%; }
+            font-size: 1rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
 
         .timer-container {
             width: 100%;
-            height: 12px;
-            background: rgba(255, 255, 255, 0.4);
+            height: 8px;
+            background: var(--mushroom);
             border-radius: 10px;
             overflow: hidden;
             margin: 1rem 0;
             position: relative;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .timer-bar {
             height: 100%;
-            background: linear-gradient(90deg, var(--success) 0%, var(--warning) 50%, var(--error) 100%);
+            background: linear-gradient(90deg, #4CAF50, #FFC107, #F44336);
             border-radius: 10px;
             transition: width 0.1s linear;
             width: 100%;
-            will-change: width;
-            position: relative;
-        }
-
-        .timer-bar::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
-            animation: timerShine 1.5s ease-in-out infinite;
-        }
-
-        @keyframes timerShine {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
         }
 
         .question-card {
             background: white;
-            border-radius: 25px;
-            padding: 2rem;
+            border-radius: 20px;
+            padding: 1.5rem;
             margin-bottom: 1.5rem;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.12);
-            border-left: 6px solid var(--rose);
-            will-change: transform, opacity;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .question-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(45deg, transparent, rgba(237,175,184,0.03), transparent);
-            animation: cardGlow 4s ease-in-out infinite alternate;
-        }
-
-        @keyframes cardGlow {
-            0% { opacity: 0; }
-            100% { opacity: 1; }
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-left: 5px solid var(--rose);
         }
 
         .question-text {
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             font-weight: 600;
             color: var(--slate);
-            line-height: 1.6;
+            line-height: 1.5;
             margin-bottom: 1rem;
-            position: relative;
-            z-index: 1;
         }
 
         .difficulty-badge {
             display: inline-block;
-            padding: 0.6rem 1.2rem;
-            border-radius: 20px;
-            font-size: 0.9rem;
+            padding: 0.4rem 1rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
             font-weight: bold;
             margin-bottom: 1rem;
-            animation: badgePulse 3s ease-in-out infinite;
-            position: relative;
-            z-index: 1;
-        }
-
-        @keyframes badgePulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
         }
 
         .difficulty-Easy {
-            background: linear-gradient(135deg, #E8F5E8, #C8E6C9);
+            background: #E8F5E8;
             color: #2E7D32;
-            box-shadow: 0 4px 15px rgba(46,125,50,0.3);
         }
 
         .difficulty-Medium {
-            background: linear-gradient(135deg, #FFF3E0, #FFE0B2);
+            background: #FFF3E0;
             color: #F57C00;
-            box-shadow: 0 4px 15px rgba(245,124,0,0.3);
         }
 
         .difficulty-Hard {
-            background: linear-gradient(135deg, #FFEBEE, #FFCDD2);
+            background: #FFEBEE;
             color: #C62828;
-            box-shadow: 0 4px 15px rgba(198,40,40,0.3);
         }
 
         .answers-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 1.5rem;
-            margin-top: 1.5rem;
+            gap: 1rem;
+            margin-top: 1rem;
         }
 
         .answer-btn {
-            background: linear-gradient(145deg, white, #fafafa);
-            border: 3px solid var(--mushroom);
-            border-radius: 20px;
-            padding: 1.5rem;
-            font-size: 1rem;
+            background: white;
+            border: 2px solid var(--mushroom);
+            border-radius: 15px;
+            padding: 1rem;
+            font-size: 0.95rem;
             color: var(--slate);
             cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: all 0.3s ease;
             text-align: left;
             font-weight: 500;
             position: relative;
             overflow: hidden;
-            line-height: 1.5;
-            min-height: 70px;
-            display: flex;
-            align-items: center;
-            will-change: transform;
-            touch-action: manipulation;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-        }
-
-        .answer-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 0;
-            height: 100%;
-            background: linear-gradient(135deg, var(--pearl), var(--rose));
-            transition: width 0.4s ease;
-            z-index: -1;
-        }
-
-        .answer-btn:hover::before {
-            width: 100%;
+            line-height: 1.4;
         }
 
         .answer-btn:hover {
             border-color: var(--rose);
-            transform: translateY(-5px) scale(1.02);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
-            color: var(--slate);
-        }
-
-        .answer-btn:active {
-            transform: translateY(-2px) scale(0.98);
+            background: var(--pearl);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
 
         .answer-btn.correct {
-            background: linear-gradient(135deg, #E8F5E8, #C8E6C9);
-            border-color: var(--success);
+            background: #E8F5E8;
+            border-color: #4CAF50;
             color: #2E7D32;
-            transform: scale(1.05);
-            animation: correctPulse 0.8s ease-in-out;
-            box-shadow: 0 10px 25px rgba(76,175,80,0.3);
-        }
-
-        @keyframes correctPulse {
-            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(76,175,80,0.4); }
-            50% { transform: scale(1.1); box-shadow: 0 0 0 20px rgba(76,175,80,0); }
-            100% { transform: scale(1.05); box-shadow: 0 0 0 0 rgba(76,175,80,0); }
         }
 
         .answer-btn.incorrect {
-            background: linear-gradient(135deg, #FFEBEE, #FFCDD2);
-            border-color: var(--error);
+            background: #FFEBEE;
+            border-color: #F44336;
             color: #C62828;
-            animation: incorrectShake 0.6s ease-in-out;
-            box-shadow: 0 10px 25px rgba(244,67,54,0.3);
-        }
-
-        @keyframes incorrectShake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-10px) rotate(-2deg); }
-            75% { transform: translateX(10px) rotate(2deg); }
         }
 
         .answer-btn.disabled {
             cursor: not-allowed;
-            opacity: 0.7;
+            opacity: 0.6;
         }
 
         .btn {
             background: linear-gradient(135deg, var(--rose), var(--sage));
             color: white;
             border: none;
-            border-radius: 25px;
-            padding: 1.2rem 2.5rem;
-            font-size: 1.1rem;
+            border-radius: 20px;
+            padding: 1rem 2rem;
+            font-size: 1rem;
             font-weight: bold;
             cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
             position: relative;
             overflow: hidden;
-            min-height: 56px;
-            will-change: transform;
-            touch-action: manipulation;
-        }
-
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-            transition: left 0.6s;
-        }
-
-        .btn:hover::before {
-            left: 100%;
         }
 
         .btn:hover {
-            transform: translateY(-4px) scale(1.05);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
-        }
-
-        .btn:active {
-            transform: translateY(-1px) scale(0.98);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
         }
 
         .btn.secondary {
-            background: linear-gradient(135deg, var(--mushroom), var(--sage));
+            background: var(--mushroom);
             color: var(--slate);
         }
 
-        .btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            pointer-events: none;
-        }
-
         .error-container {
-            background: linear-gradient(135deg, #FFEBEE, #FFCDD2);
-            border: 3px solid var(--error);
-            border-radius: 20px;
-            padding: 1.5rem;
-            margin: 1.5rem 0;
+            background: #FFEBEE;
+            border: 2px solid #F44336;
+            border-radius: 15px;
+            padding: 1rem;
+            margin: 1rem 0;
             text-align: center;
-            animation: errorPulse 2s ease-in-out infinite alternate;
-        }
-
-        @keyframes errorPulse {
-            0% { box-shadow: 0 0 0 0 rgba(244,67,54,0.4); }
-            100% { box-shadow: 0 0 0 10px rgba(244,67,54,0); }
         }
 
         .error-message {
             color: #C62828;
             font-weight: 600;
             margin-bottom: 1rem;
-            font-size: 1rem;
+            font-size: 0.9rem;
         }
 
         .loading {
             display: inline-block;
-            width: 25px;
-            height: 25px;
-            border: 3px solid rgba(237,175,184,0.3);
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--mushroom);
             border-radius: 50%;
             border-top-color: var(--rose);
             animation: spin 1s ease-in-out infinite;
@@ -640,140 +405,55 @@
 
         .loading-container {
             text-align: center;
-            padding: 3rem;
+            padding: 2rem;
         }
 
         .loading-text {
-            margin-top: 1.5rem;
-            font-size: 1.2rem;
-            color: var(--slate);
-            animation: loadingPulse 1.5s ease-in-out infinite alternate;
-        }
-
-        @keyframes loadingPulse {
-            0% { opacity: 0.6; }
-            100% { opacity: 1; }
-        }
-
-        .toast {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--slate);
-            color: white;
-            padding: 1.2rem 2.5rem;
-            border-radius: 30px;
-            font-weight: 600;
+            margin-top: 1rem;
             font-size: 1rem;
-            z-index: 1000;
-            opacity: 0;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-        }
-
-        .toast.show {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0);
-        }
-
-        .toast.success {
-            background: linear-gradient(135deg, var(--success), #66BB6A);
-        }
-
-        .toast.error {
-            background: linear-gradient(135deg, var(--error), #EF5350);
-        }
-
-        .toast.warning {
-            background: linear-gradient(135deg, var(--warning), #FFCA28);
             color: var(--slate);
-        }
-
-        .bonus-indicator {
-            position: absolute;
-            top: -40px;
-            right: 20px;
-            background: linear-gradient(135deg, var(--warning), #FFCA28);
-            color: var(--slate);
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: bold;
-            animation: bonusBounce 0.6s ease-out;
-            box-shadow: 0 4px 15px rgba(255,193,7,0.4);
-        }
-
-        @keyframes bonusBounce {
-            0% { opacity: 0; transform: scale(0) translateY(20px); }
-            50% { opacity: 1; transform: scale(1.2) translateY(-10px); }
-            100% { opacity: 1; transform: scale(1) translateY(0); }
         }
 
         .fade-in {
-            animation: fadeIn 0.8s ease-out forwards;
+            animation: fadeIn 0.5s ease-out forwards;
         }
 
         @keyframes fadeIn {
-            from { 
-                opacity: 0; 
-                transform: translateY(30px) scale(0.95); 
-            }
-            to { 
-                opacity: 1; 
-                transform: translateY(0) scale(1); 
-            }
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .slide-in-left {
-            animation: slideInLeft 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            animation: slideInLeft 0.4s ease-out forwards;
         }
 
         @keyframes slideInLeft {
-            from { 
-                opacity: 0; 
-                transform: translateX(-50px) rotate(-5deg) scale(0.9); 
-            }
-            to { 
-                opacity: 1; 
-                transform: translateX(0) rotate(0deg) scale(1); 
-            }
+            from { opacity: 0; transform: translateX(-30px); }
+            to { opacity: 1; transform: translateX(0); }
         }
 
         .slide-in-right {
-            animation: slideInRight 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            animation: slideInRight 0.4s ease-out forwards;
         }
 
         @keyframes slideInRight {
-            from { 
-                opacity: 0; 
-                transform: translateX(50px) rotate(5deg) scale(0.9); 
-            }
-            to { 
-                opacity: 1; 
-                transform: translateX(0) rotate(0deg) scale(1); 
-            }
+            from { opacity: 0; transform: translateX(30px); }
+            to { opacity: 1; transform: translateX(0); }
         }
 
         .final-score-display {
-            font-size: 3rem;
+            font-size: 2rem;
             font-weight: bold;
             background: linear-gradient(135deg, var(--rose), var(--sage));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin: 2rem 0;
+            margin: 1.5rem 0;
             text-align: center;
-            animation: scoreGlow 2s ease-in-out infinite alternate;
-        }
-
-        @keyframes scoreGlow {
-            0% { filter: brightness(1); transform: scale(1); }
-            100% { filter: brightness(1.2); transform: scale(1.05); }
         }
 
         .celebration-text {
-            font-size: 2.5rem;
+            font-size: 2rem;
             font-weight: 800;
             background: linear-gradient(135deg, var(--rose), var(--sage));
             -webkit-background-clip: text;
@@ -781,30 +461,6 @@
             background-clip: text;
             margin-bottom: 2rem;
             text-align: center;
-            position: relative;
-        }
-
-        .celebration-text::before {
-            content: '🎊';
-            position: absolute;
-            left: -60px;
-            top: 0;
-            font-size: 2rem;
-            animation: celebrate 2s ease-in-out infinite;
-        }
-
-        .celebration-text::after {
-            content: '🎉';
-            position: absolute;
-            right: -60px;
-            top: 0;
-            font-size: 2rem;
-            animation: celebrate 2s ease-in-out infinite reverse;
-        }
-
-        @keyframes celebrate {
-            0%, 100% { transform: rotate(-15deg) scale(1); }
-            50% { transform: rotate(15deg) scale(1.2); }
         }
 
         .retry-info {
@@ -818,6 +474,7 @@
             color: var(--slate);
         }
 
+        /* Mobile Responsive */
         @media (max-width: 768px) {
             .container {
                 padding: 15px;
@@ -834,13 +491,13 @@
             
             .answers-grid {
                 grid-template-columns: 1fr;
-                gap: 1.2rem;
+                gap: 0.8rem;
             }
             
             .game-info {
                 flex-direction: column;
                 text-align: center;
-                gap: 1rem;
+                gap: 0.8rem;
             }
             
             .difficulty-selector {
@@ -848,29 +505,12 @@
             }
 
             .question-text {
-                font-size: 1.2rem;
+                font-size: 1.1rem;
             }
 
             .answer-btn {
-                padding: 1.3rem;
-                font-size: 0.95rem;
-                min-height: 65px;
-            }
-
-            .btn {
-                min-height: 60px;
-                padding: 1.4rem 2rem;
-                font-size: 1rem;
-            }
-
-            .score-display, .question-counter {
-                padding: 0.8rem 1.5rem;
-                font-size: 1rem;
-            }
-
-            .celebration-text::before,
-            .celebration-text::after {
-                display: none;
+                padding: 0.8rem;
+                font-size: 0.9rem;
             }
         }
 
@@ -880,13 +520,12 @@
             }
             
             .question-text {
-                font-size: 1.1rem;
+                font-size: 1rem;
             }
             
             .answer-btn {
-                padding: 1.2rem;
-                font-size: 0.9rem;
-                min-height: 65px;
+                padding: 0.7rem;
+                font-size: 0.85rem;
             }
 
             .difficulty-selector {
@@ -894,122 +533,59 @@
             }
 
             .score-display, .question-counter {
-                padding: 0.7rem 1.2rem;
-                font-size: 0.95rem;
-            }
-
-            .btn {
-                min-height: 56px;
-                padding: 1.2rem 1.8rem;
+                padding: 0.6rem 1rem;
+                font-size: 0.9rem;
             }
         }
 
-        @media (max-height: 600px) and (orientation: landscape) {
-            .container {
-                padding: 10px;
-                justify-content: flex-start;
-                padding-top: 1rem;
-            }
-            
-            .game-header {
-                margin-bottom: 1rem;
-            }
-            
-            .game-title {
-                font-size: 1.8rem;
-                margin-bottom: 0.25rem;
-            }
-            
-            .card-container {
-                padding: 1.5rem;
-            }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-            * {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
-            }
-        }
-
-        @media (prefers-contrast: high) {
-            .card-container {
-                border: 3px solid var(--slate);
-            }
-            
-            .btn {
-                border: 2px solid var(--slate);
-            }
-        }
-
+        /* Initial state to prevent flash */
         .initial-hide {
             opacity: 0;
             visibility: hidden;
         }
-
-        .skip-link {
-            position: absolute;
-            top: -40px;
-            left: 6px;
-            background: var(--slate);
-            color: white;
-            padding: 8px;
-            text-decoration: none;
-            border-radius: 4px;
-            z-index: 9999;
-        }
-
-        .skip-link:focus {
-            top: 6px;
-        }
     </style>
 </head>
 <body>
-    <div class="made-by">Made by Shresth</div>
-    <a href="#main-content" class="skip-link">Skip to main content</a>
-
-    <div class="container" id="main-content">
+    <div class="container">
         <header class="game-header">
             <h1 class="game-title">Anime Senpai</h1>
             <p class="game-subtitle">Master the Ultimate Anime Knowledge Challenge!</p>
         </header>
 
-        <div id="auth-container" class="card-container initial-hide" role="main" aria-labelledby="auth-title">
+        <div id="auth-container" class="card-container initial-hide">
             <div class="auth-text">
-                <h2 id="auth-title" class="auth-title">Welcome, Future Senpai!</h2>
+                <h2 class="auth-title">Welcome, Future Senpai!</h2>
                 <p class="auth-subtitle">Ready to prove your anime expertise? Sign in to begin your journey!</p>
             </div>
-            <button id="login-btn" class="btn" aria-describedby="auth-subtitle">Begin Your Quest</button>
-            <div id="auth-error" class="error-container" style="display: none;" role="alert">
+            <button id="login-btn" class="btn">Begin Your Quest</button>
+            <div id="auth-error" class="error-container" style="display: none;">
                 <div class="error-message">Authentication failed. Please try again.</div>
                 <button id="retry-auth-btn" class="btn secondary">Retry</button>
             </div>
         </div>
 
-        <div id="setup-container" class="card-container" style="display: none;" role="main" aria-labelledby="setup-title">
+        <div id="setup-container" class="card-container" style="display: none;">
             <div class="auth-text">
-                <h2 id="setup-title" class="auth-title">Customize Your Challenge</h2>
+                <h2 class="auth-title">Customize Your Challenge</h2>
                 <p class="auth-subtitle">Choose your difficulty and focus to create the perfect quiz!</p>
             </div>
             
-            <form class="setup-form" role="form">
-                <fieldset class="form-group">
-                    <legend class="form-label">Select Your Challenge:</legend>
-                    <div class="difficulty-selector" role="radiogroup" aria-labelledby="difficulty-label">
-                        <button type="button" class="difficulty-btn selected" data-difficulty="mixed" role="radio" aria-checked="true">Mixed</button>
-                        <button type="button" class="difficulty-btn" data-difficulty="easy" role="radio" aria-checked="false">Novice</button>
-                        <button type="button" class="difficulty-btn" data-difficulty="medium" role="radio" aria-checked="false">Otaku</button>
-                        <button type="button" class="difficulty-btn" data-difficulty="hard" role="radio" aria-checked="false">Senpai</button>
+            <div class="setup-form">
+                <div class="form-group">
+                    <label class="form-label">Select Your Challenge:</label>
+                    <div class="difficulty-selector">
+                        <button class="difficulty-btn selected" data-difficulty="mixed">Mixed</button>
+                        <button class="difficulty-btn" data-difficulty="easy">Novice</button>
+                        <button class="difficulty-btn" data-difficulty="medium">Otaku</button>
+                        <button class="difficulty-btn" data-difficulty="hard">Senpai</button>
                     </div>
-                </fieldset>
+                </div>
 
                 <div class="form-group">
                     <label class="form-label" for="specific-anime">Focus on Specific Anime:</label>
                     <input type="text" id="specific-anime" class="custom-input" 
-                           placeholder="e.g., Naruto, Attack on Titan, One Piece..."
-                           aria-describedby="anime-help">
-                    <small id="anime-help" style="color: var(--slate); opacity: 0.7; margin-top: 0.5rem; display: block; font-size: 0.85rem;">
+                           placeholder="e.g., Naruto, Attack on Titan, One Piece...">
+                    <small style="color: var(--slate); opacity: 0.7; margin-top: 0.5rem; display: block; font-size: 0.85rem;">
                         Leave empty for questions from various popular anime
                     </small>
                 </div>
@@ -1017,41 +593,37 @@
                 <div class="form-group">
                     <label class="form-label" for="anime-genre">Focus on Genre:</label>
                     <input type="text" id="anime-genre" class="custom-input" 
-                           placeholder="e.g., Shonen, Romance, Horror, Sci-Fi..."
-                           aria-describedby="genre-help">
-                    <small id="genre-help" style="color: var(--slate); opacity: 0.7; margin-top: 0.5rem; display: block; font-size: 0.85rem;">
+                           placeholder="e.g., Shonen, Romance, Horror, Sci-Fi...">
+                    <small style="color: var(--slate); opacity: 0.7; margin-top: 0.5rem; display: block; font-size: 0.85rem;">
                         Leave empty for questions from all genres
                     </small>
                 </div>
 
-                <button type="button" id="start-quiz-btn" class="btn" style="margin-top: 1rem;">Start Challenge</button>
-            </form>
+                <button id="start-quiz-btn" class="btn" style="margin-top: 1rem;">Start Challenge</button>
+            </div>
         </div>
 
-        <div id="game-container" class="game-container" style="display: none;" role="main" aria-labelledby="game-title">
+        <div id="game-container" class="game-container" style="display: none;">
             <div class="card-container">
-                <div class="progress-container" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Quiz progress">
-                    <div id="progress-bar" class="progress-bar"></div>
-                </div>
-
                 <div class="game-info">
-                    <div class="score-display" role="status" aria-live="polite">Score: <span id="score">0</span></div>
-                    <div class="question-counter" role="status" aria-live="polite">Question <span id="current-question">1</span> of <span id="total-questions">10</span></div>
+                    <div class="score-display">Score: <span id="score">0</span></div>
+                    <div class="question-counter">Question <span id="current-question">1</span> of <span id="total-questions">10</span></div>
                 </div>
                 
-                <div class="timer-container" role="timer" aria-label="Question timer">
+                <div class="timer-container">
                     <div id="timer-bar" class="timer-bar"></div>
                 </div>
 
-                <div id="question-container" role="region" aria-live="polite" aria-label="Current question">
+                <div id="question-container">
+                    <!-- Questions will be loaded here -->
                 </div>
 
-                <div id="loading-container" class="loading-container" style="display: none;" role="status" aria-live="polite">
-                    <div class="loading" aria-hidden="true"></div>
+                <div id="loading-container" class="loading-container" style="display: none;">
+                    <div class="loading"></div>
                     <p class="loading-text">Crafting your challenge...</p>
                 </div>
 
-                <div id="game-error" class="error-container" style="display: none;" role="alert">
+                <div id="game-error" class="error-container" style="display: none;">
                     <div class="error-message"></div>
                     <div class="retry-info">
                         Don't worry! Sometimes the question service needs a moment. We'll keep trying to get you great questions!
@@ -1062,605 +634,128 @@
             </div>
         </div>
 
-        <div id="game-complete-container" class="card-container" style="display: none;" role="main" aria-labelledby="complete-title">
-            <h2 id="complete-title" class="celebration-text">Challenge Complete!</h2>
-            <div class="final-score-display" role="status" aria-live="polite">
+        <div id="game-complete-container" class="card-container" style="display: none;">
+            <h2 class="celebration-text">Challenge Complete!</h2>
+            <div class="final-score-display">
                 Score: <span id="final-score">0</span>
             </div>
-            <p style="font-size: 1.2rem; margin-bottom: 2rem; color: var(--slate); text-align: center;">
+            <p style="font-size: 1.1rem; margin-bottom: 2rem; color: var(--slate); text-align: center;">
                 You conquered <span id="correct-count">0</span> out of <span id="total-count">10</span> questions!
             </p>
             
-            <div style="display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap;">
+            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
                 <button id="play-again-btn" class="btn">Challenge Again</button>
                 <button id="back-to-setup-btn" class="btn secondary">Change Settings</button>
             </div>
         </div>
     </div>
 
-    <div id="toast" class="toast" role="status" aria-live="polite"></div>
-
     <script>
         'use strict';
 
-        const CONSTANTS = {
-            POPULAR_ANIME: [
-                "Naruto", "One Piece", "Attack on Titan", "Dragon Ball Z", "Demon Slayer", 
-                "My Hero Academia", "Death Note", "Fullmetal Alchemist", "One Punch Man", "Tokyo Ghoul",
-                "Hunter x Hunter", "Bleach", "Jujutsu Kaisen", "Mob Psycho 100", "Code Geass",
-                "Cowboy Bebop", "Evangelion", "JoJo's Bizarre Adventure", "Spy x Family", "Chainsaw Man",
-                "Vinland Saga", "Promised Neverland", "Haikyuu", "Fire Force", "Black Clover",
-                "Dr. Stone", "Steins;Gate", "Your Name", "Spirited Away", "Princess Mononoke"
-            ],
+        // Top 30 Popular Anime List for variety
+        const POPULAR_ANIME = [
+            "Naruto", "One Piece", "Attack on Titan", "Dragon Ball Z", "Demon Slayer", 
+            "My Hero Academia", "Death Note", "Fullmetal Alchemist", "One Punch Man", "Tokyo Ghoul",
+            "Hunter x Hunter", "Bleach", "Jujutsu Kaisen", "Mob Psycho 100", "Code Geass",
+            "Cowboy Bebop", "Evangelion", "JoJo's Bizarre Adventure", "Spy x Family", "Chainsaw Man",
+            "Vinland Saga", "Promised Neverland", "Haikyuu", "Fire Force", "Black Clover",
+            "Dr. Stone", "Steins;Gate", "Your Name", "Spirited Away", "Princess Mononoke"
+        ];
+
+        // Configuration
+        const CONFIG = {
             QUESTIONS_PER_SESSION: 10,
-            MAX_RETRIES: 2,
-            RETRY_DELAY: 300,
-            TIMER_DURATIONS: { easy: 15, medium: 20, hard: 30 },
-            POINTS: { easy: 10, medium: 20, hard: 40 },
-            QUICK_ANSWER_BONUS: { easy: 5, medium: 10, hard: 15 },
-            QUICK_ANSWER_THRESHOLD: 0.7,
-            LOCAL_STORAGE_KEYS: {
-                SETTINGS: 'animeSenpai_settings',
-                SESSION: 'animeSenpai_session',
-                AUTH_STATE: 'animeSenpai_auth'
+            MAX_RETRIES: 2, // Reduced retries for faster loading
+            RETRY_DELAY: 500, // Reduced delay for faster loading
+            TIMER_DURATIONS: {
+                easy: 15,
+                medium: 20,
+                hard: 30
             },
-            TOAST_DURATION: 3000,
-            DEBOUNCE_DELAY: 150
-        };
-
-        class GameStateManager {
-            constructor() {
-                this.reset();
-                this.questionCache = new Map();
-                this.preloadedQuestion = null;
-            }
-
-            reset() {
-                this.score = 0;
-                this.currentQuestionIndex = 0;
-                this.totalQuestions = CONSTANTS.QUESTIONS_PER_SESSION;
-                this.correctAnswers = 0;
-                this.currentQuestion = null;
-                this.timer = null;
-                this.timeLeft = 0;
-                this.isAnswered = false;
-                this.gameStartTime = null;
-                this.retryCount = 0;
-                this.usedAnime = new Set();
-                this.questionStartTime = 0;
-                this.settings = this.loadSettings();
-            }
-
-            loadSettings() {
-                try {
-                    const saved = localStorage.getItem(CONSTANTS.LOCAL_STORAGE_KEYS.SETTINGS);
-                    return saved ? JSON.parse(saved) : {
-                        difficulty: 'mixed',
-                        specificAnime: '',
-                        genre: ''
-                    };
-                } catch (error) {
-                    console.warn('Failed to load settings:', error);
-                    return { difficulty: 'mixed', specificAnime: '', genre: '' };
-                }
-            }
-
-            saveSettings() {
-                try {
-                    localStorage.setItem(CONSTANTS.LOCAL_STORAGE_KEYS.SETTINGS, JSON.stringify(this.settings));
-                } catch (error) {
-                    console.warn('Failed to save settings:', error);
-                }
-            }
-
-            saveSession() {
-                try {
-                    const sessionData = {
-                        score: this.score,
-                        currentQuestionIndex: this.currentQuestionIndex,
-                        correctAnswers: this.correctAnswers,
-                        gameStartTime: this.gameStartTime,
-                        settings: this.settings,
-                        timestamp: Date.now()
-                    };
-                    localStorage.setItem(CONSTANTS.LOCAL_STORAGE_KEYS.SESSION, JSON.stringify(sessionData));
-                } catch (error) {
-                    console.warn('Failed to save session:', error);
-                }
-            }
-
-            loadSession() {
-                try {
-                    const saved = localStorage.getItem(CONSTANTS.LOCAL_STORAGE_KEYS.SESSION);
-                    if (!saved) return null;
-                    
-                    const sessionData = JSON.parse(saved);
-                    const age = Date.now() - sessionData.timestamp;
-                    
-                    if (age > 3600000) {
-                        localStorage.removeItem(CONSTANTS.LOCAL_STORAGE_KEYS.SESSION);
-                        return null;
-                    }
-                    
-                    return sessionData;
-                } catch (error) {
-                    console.warn('Failed to load session:', error);
-                    return null;
-                }
-            }
-
-            clearSession() {
-                try {
-                    localStorage.removeItem(CONSTANTS.LOCAL_STORAGE_KEYS.SESSION);
-                } catch (error) {
-                    console.warn('Failed to clear session:', error);
-                }
-            }
-        }
-
-        const Utils = {
-            safeJsQuote: (str) => {
-                if (typeof str !== 'string') return '';
-                
-                return str
-                    .replace(/&/g, '&amp;')
-                    .replace(/</g, '&lt;')
-                    .replace(/>/g, '&gt;')
-                    .replace(/"/g, '&quot;')
-                    .replace(/'/g, '&#x27;')
-                    .replace(/\\/g, '\\\\')
-                    .replace(/'/g, "\\'")
-                    .replace(/\n/g, ' ')
-                    .replace(/\r/g, ' ')
-                    .replace(/\t/g, ' ');
-            },
-
-            sanitizeHtml: (str) => {
-                const temp = document.createElement('div');
-                temp.textContent = str;
-                return temp.innerHTML;
-            },
-
-            debounce: (func, wait) => {
-                let timeout;
-                return function executedFunction(...args) {
-                    const later = () => {
-                        clearTimeout(timeout);
-                        func.apply(this, args);
-                    };
-                    clearTimeout(timeout);
-                    timeout = setTimeout(later, wait);
-                };
-            },
-
-            isOnline: () => navigator.onLine,
-
-            showToast: (message, type = 'info') => {
-                const toast = elements.toast;
-                toast.textContent = message;
-                toast.className = `toast ${type} show`;
-                
-                setTimeout(() => {
-                    toast.className = 'toast';
-                }, CONSTANTS.TOAST_DURATION);
-            },
-
-            updateProgress: (current, total) => {
-                const percentage = (current / total) * 100;
-                elements.progressBar.style.width = `${percentage}%`;
-                elements.progressBar.parentElement.setAttribute('aria-valuenow', percentage);
-            },
-
-            announce: (message) => {
-                const announcement = document.createElement('div');
-                announcement.setAttribute('aria-live', 'polite');
-                announcement.setAttribute('aria-atomic', 'true');
-                announcement.className = 'sr-only';
-                announcement.textContent = message;
-                document.body.appendChild(announcement);
-                
-                setTimeout(() => {
-                    document.body.removeChild(announcement);
-                }, 1000);
+            POINTS: {
+                easy: 10,
+                medium: 20,
+                hard: 40
             }
         };
 
-        class QuestionManager {
-            constructor(gameState) {
-                this.gameState = gameState;
-                this.isPreloading = false;
+        // Game State
+        let gameState = {
+            score: 0,
+            currentQuestionIndex: 0,
+            totalQuestions: CONFIG.QUESTIONS_PER_SESSION,
+            correctAnswers: 0,
+            currentQuestion: null,
+            timer: null,
+            timeLeft: 0,
+            isAnswered: false,
+            gameStartTime: null,
+            retryCount: 0,
+            usedAnime: new Set(),
+            settings: {
+                difficulty: 'mixed',
+                specificAnime: '',
+                genre: ''
             }
+        };
 
-            getRandomAnime() {
-                const availableAnime = CONSTANTS.POPULAR_ANIME.filter(anime => 
-                    !this.gameState.usedAnime.has(anime)
-                );
-                
-                if (availableAnime.length === 0) {
-                    this.gameState.usedAnime.clear();
-                    return CONSTANTS.POPULAR_ANIME[Math.floor(Math.random() * CONSTANTS.POPULAR_ANIME.length)];
-                }
-                
-                const selectedAnime = availableAnime[Math.floor(Math.random() * availableAnime.length)];
-                this.gameState.usedAnime.add(selectedAnime);
-                return selectedAnime;
-            }
+        // DOM Elements
+        const elements = {
+            authContainer: document.getElementById('auth-container'),
+            setupContainer: document.getElementById('setup-container'),
+            gameContainer: document.getElementById('game-container'),
+            gameCompleteContainer: document.getElementById('game-complete-container'),
+            loginBtn: document.getElementById('login-btn'),
+            retryAuthBtn: document.getElementById('retry-auth-btn'),
+            authError: document.getElementById('auth-error'),
+            difficultyBtns: document.querySelectorAll('.difficulty-btn'),
+            specificAnimeInput: document.getElementById('specific-anime'),
+            animeGenreInput: document.getElementById('anime-genre'),
+            startQuizBtn: document.getElementById('start-quiz-btn'),
+            score: document.getElementById('score'),
+            currentQuestion: document.getElementById('current-question'),
+            totalQuestions: document.getElementById('total-questions'),
+            timerBar: document.getElementById('timer-bar'),
+            questionContainer: document.getElementById('question-container'),
+            loadingContainer: document.getElementById('loading-container'),
+            gameError: document.getElementById('game-error'),
+            retryQuestionBtn: document.getElementById('retry-question-btn'),
+            endGameBtn: document.getElementById('end-game-btn'),
+            finalScore: document.getElementById('final-score'),
+            correctCount: document.getElementById('correct-count'),
+            totalCount: document.getElementById('total-count'),
+            playAgainBtn: document.getElementById('play-again-btn'),
+            backToSetupBtn: document.getElementById('back-to-setup-btn'),
+            gameHeader: document.querySelector('.game-header')
+        };
 
-            buildSystemPrompt() {
-                let difficultyInstruction = '';
-                let focusInstruction = '';
-                let animeSelectionInstruction = '';
-
-                if (this.gameState.settings.difficulty === 'mixed') {
-                    difficultyInstruction = `The difficulty should be randomly selected from "Easy", "Medium", or "Hard".`;
-                } else {
-                    const capitalizedDifficulty = this.gameState.settings.difficulty.charAt(0).toUpperCase() + 
-                                                this.gameState.settings.difficulty.slice(1);
-                    difficultyInstruction = `The difficulty must be exactly "${capitalizedDifficulty}".`;
-                }
-
-                if (this.gameState.settings.specificAnime) {
-                    focusInstruction = `Create questions ONLY about the anime "${this.gameState.settings.specificAnime}".`;
-                    animeSelectionInstruction = `Focus exclusively on "${this.gameState.settings.specificAnime}".`;
-                } else if (this.gameState.settings.genre) {
-                    focusInstruction = `Create questions about anime from the ${this.gameState.settings.genre} genre.`;
-                    animeSelectionInstruction = `Select from popular ${this.gameState.settings.genre} anime series.`;
-                } else {
-                    const randomAnime = this.getRandomAnime();
-                    focusInstruction = `Create a question about the anime "${randomAnime}".`;
-                    animeSelectionInstruction = `Focus on "${randomAnime}" for this question.`;
-                }
-
-                return `Create an anime quiz question. Return ONLY valid JSON with no extra text.
-
-${focusInstruction}
-${difficultyInstruction}
-${animeSelectionInstruction}
-
-ENHANCED QUALITY REQUIREMENTS:
-1. Questions must be factually accurate and well-researched
-2. For Easy: Ask about main characters, basic plot, major story arcs, primary relationships, main abilities
-3. For Medium: Ask about secondary characters, specific techniques, story details, episode-specific events
-4. For Hard: Ask about minor characters, voice actors, studios, specific episodes, detailed lore
-5. All four options must be plausible and challenging
-6. Avoid repetitive "Who is the protagonist" questions - diversify question types
-7. Include questions about: character relationships, abilities, story arcs, settings, themes, techniques
-
-Vary question types:
-- Character identification and relationships
-- Plot events and story arcs  
-- Abilities, techniques, and powers
-- Settings and locations
-- Themes and concepts
-- Production details (for Hard)
-
-Return this JSON format:
-{
-  "question": "Specific, engaging question",
-  "options": ["Option A", "Option B", "Option C", "Option D"], 
-  "answer": "Exact match to one option",
-  "difficulty": "Easy" | "Medium" | "Hard"
-}`;
-            }
-
-            parseQuestionResponse(content) {
-                let cleanContent = content.trim();
-                
-                cleanContent = cleanContent.replace(/``````\n?/g, '');
-                
-                const jsonStartIndex = cleanContent.indexOf('{');
-                if (jsonStartIndex > 0) {
-                    cleanContent = cleanContent.substring(jsonStartIndex);
-                }
-                
-                const jsonEndIndex = cleanContent.lastIndexOf('}');
-                if (jsonEndIndex >= 0 && jsonEndIndex < cleanContent.length - 1) {
-                    cleanContent = cleanContent.substring(0, jsonEndIndex + 1);
-                }
-                
-                try {
-                    return JSON.parse(cleanContent);
-                } catch (parseError) {
-                    console.error('JSON parse failed, trying regex extraction...');
-                    
-                    const strategies = [
-                        () => {
-                            const match = cleanContent.match(/\{[^{}]*\}/);
-                            return match ? JSON.parse(match[0]) : null;
-                        },
-                        () => {
-                            const lines = content.split('\n');
-                            for (const line of lines) {
-                                const trimmed = line.trim();
-                                if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
-                                    return JSON.parse(trimmed);
-                                }
-                            }
-                            return null;
-                        },
-                        () => {
-                            const start = content.indexOf('{');
-                            const end = content.lastIndexOf('}');
-                            if (start !== -1 && end !== -1 && end > start) {
-                                return JSON.parse(content.substring(start, end + 1));
-                            }
-                            return null;
-                        }
-                    ];
-
-                    for (const strategy of strategies) {
-                        try {
-                            const result = strategy();
-                            if (result) return result;
-                        } catch (e) {
-                            continue;
-                        }
-                    }
-                    
-                    throw new Error('Could not parse JSON from content: ' + content);
-                }
-            }
-
-            validateQuestion(question) {
-                if (!question || typeof question !== 'object') {
-                    console.error('Question is not an object:', question);
-                    return false;
-                }
-                
-                if (typeof question.question !== 'string' || question.question.length < 10) {
-                    console.error('Invalid question text:', question.question);
-                    return false;
-                }
-                
-                if (!Array.isArray(question.options) || question.options.length !== 4) {
-                    console.error('Invalid options array:', question.options);
-                    return false;
-                }
-                
-                if (!question.options.every(opt => typeof opt === 'string' && opt.length > 0)) {
-                    console.error('Invalid option format:', question.options);
-                    return false;
-                }
-                
-                if (typeof question.answer !== 'string' || !question.options.includes(question.answer)) {
-                    console.error('Invalid answer:', question.answer, 'Options:', question.options);
-                    return false;
-                }
-                
-                if (!['Easy', 'Medium', 'Hard'].includes(question.difficulty)) {
-                    console.error('Invalid difficulty:', question.difficulty);
-                    return false;
-                }
-
-                if (question.question.length > 200) {
-                    console.error('Question too long:', question.question.length);
-                    return false;
-                }
-
-                if (question.options.some(opt => opt.length > 100)) {
-                    console.error('Option too long');
-                    return false;
-                }
-                
-                return true;
-            }
-
-            async fetchQuestion() {
-                console.log('Fetching question...');
-                const systemPrompt = this.buildSystemPrompt();
-                
-                const cacheKey = this.generateCacheKey(systemPrompt);
-                if (this.gameState.questionCache.has(cacheKey)) {
-                    console.log('Using cached question');
-                    return this.gameState.questionCache.get(cacheKey);
-                }
-
-                try {
-                    const response = await puter.ai.chat(systemPrompt);
-                    console.log('Raw AI response structure:', response);
-                    
-                    let content;
-                    if (response && response.message && response.message.content) {
-                        content = response.message.content;
-                    } else if (typeof response === 'string') {
-                        content = response;
-                    } else if (response && response.content) {
-                        content = response.content;
-                    } else {
-                        throw new Error('Unexpected response format from AI service');
-                    }
-                    
-                    const questionData = this.parseQuestionResponse(content);
-                    
-                    if (!this.validateQuestion(questionData)) {
-                        throw new Error('Invalid question format from response');
-                    }
-
-                    this.gameState.questionCache.set(cacheKey, questionData);
-                    
-                    return questionData;
-                    
-                } catch (error) {
-                    console.error('Error in fetchQuestion:', error);
-                    throw error;
-                }
-            }
-
-            generateCacheKey(prompt) {
-                let hash = 0;
-                for (let i = 0; i < prompt.length; i++) {
-                    const char = prompt.charCodeAt(i);
-                    hash = ((hash << 5) - hash) + char;
-                    hash = hash & hash;
-                }
-                return hash.toString();
-            }
-
-            async preloadNextQuestion() {
-                if (this.isPreloading) return;
-                
-                try {
-                    this.isPreloading = true;
-                    this.gameState.preloadedQuestion = await this.fetchQuestion();
-                    console.log('Next question preloaded');
-                } catch (error) {
-                    console.warn('Failed to preload next question:', error);
-                } finally {
-                    this.isPreloading = false;
-                }
-            }
-
-            async getQuestion() {
-                if (this.gameState.preloadedQuestion) {
-                    const question = this.gameState.preloadedQuestion;
-                    this.gameState.preloadedQuestion = null;
-                    
-                    this.preloadNextQuestion();
-                    
-                    return question;
-                }
-                
-                const question = await this.fetchQuestion();
-                this.preloadNextQuestion();
-                return question;
-            }
-
-            async fetchQuestionWithRetry() {
-                for (let attempt = 1; attempt <= CONSTANTS.MAX_RETRIES; attempt++) {
-                    try {
-                        console.log(`Fetching question, attempt ${attempt}/${CONSTANTS.MAX_RETRIES}`);
-                        return await this.getQuestion();
-                    } catch (error) {
-                        console.error(`Attempt ${attempt} failed:`, error);
-                        
-                        if (attempt === CONSTANTS.MAX_RETRIES) {
-                            throw error;
-                        }
-                        
-                        await new Promise(resolve => setTimeout(resolve, CONSTANTS.RETRY_DELAY * attempt));
-                    }
-                }
-            }
-        }
-
-        const gameState = new GameStateManager();
-        const questionManager = new QuestionManager(gameState);
-
-        const elements = (() => {
-            const elementIds = [
-                'auth-container', 'setup-container', 'game-container', 'game-complete-container',
-                'login-btn', 'retry-auth-btn', 'auth-error', 'specific-anime', 'anime-genre',
-                'start-quiz-btn', 'score', 'current-question', 'total-questions', 'timer-bar',
-                'progress-bar', 'question-container', 'loading-container', 'game-error',
-                'retry-question-btn', 'end-game-btn', 'final-score', 'correct-count', 'total-count',
-                'play-again-btn', 'back-to-setup-btn', 'game-header', 'toast'
-            ];
-
-            const els = {};
-            elementIds.forEach(id => {
-                els[id.replace(/-([a-z])/g, (g) => g[1].toUpperCase())] = document.getElementById(id);
-            });
-
-            els.difficultyBtns = document.querySelectorAll('.difficulty-btn');
+        // Secure string escaping for JavaScript
+        function safeJsQuote(str) {
+            if (typeof str !== 'string') return '';
             
-            return els;
-        })();
-
-        class EventManager {
-            constructor() {
-                this.listeners = new Map();
-                this.setupEventListeners();
-            }
-
-            addListener(element, event, handler, options = {}) {
-                const boundHandler = handler.bind(this);
-                element.addEventListener(event, boundHandler, options);
-                
-                if (!this.listeners.has(element)) {
-                    this.listeners.set(element, []);
-                }
-                this.listeners.get(element).push({ event, handler: boundHandler, options });
-                
-                return boundHandler;
-            }
-
-            cleanup() {
-                for (const [element, listeners] of this.listeners) {
-                    listeners.forEach(({ event, handler, options }) => {
-                        element.removeEventListener(event, handler, options);
-                    });
-                }
-                this.listeners.clear();
-            }
-
-            setupEventListeners() {
-                console.log('Setting up enhanced event listeners...');
-                
-                this.addListener(elements.loginBtn, 'click', handleLogin);
-                this.addListener(elements.retryAuthBtn, 'click', handleLogin);
-                
-                elements.difficultyBtns.forEach(btn => {
-                    this.addListener(btn, 'click', () => selectDifficulty(btn));
-                    this.addListener(btn, 'keydown', (e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                            e.preventDefault();
-                            selectDifficulty(btn);
-                        }
-                    });
-                });
-
-                this.addListener(elements.startQuizBtn, 'click', Utils.debounce(handleQuizStart, CONSTANTS.DEBOUNCE_DELAY));
-                
-                this.addListener(elements.retryQuestionBtn, 'click', () => {
-                    gameState.retryCount = 0;
-                    loadNextQuestion();
-                });
-                this.addListener(elements.endGameBtn, 'click', endGame);
-                this.addListener(elements.playAgainBtn, 'click', restartGame);
-                this.addListener(elements.backToSetupBtn, 'click', showSetupScreen);
-
-                this.addListener(document, 'keydown', handleKeyboard);
-
-                this.addListener(window, 'beforeunload', (e) => {
-                    if (gameState.currentQuestionIndex > 0 && gameState.currentQuestionIndex < gameState.totalQuestions) {
-                        e.preventDefault();
-                        e.returnValue = 'Are you sure you want to leave? Your progress will be lost.';
-                        return e.returnValue;
-                    }
-                });
-
-                this.addListener(document, 'visibilitychange', () => {
-                    if (document.hidden && gameState.timer) {
-                        clearInterval(gameState.timer);
-                    }
-                });
-
-                this.addListener(window, 'orientationchange', Utils.debounce(() => {
-                    setTimeout(() => {
-                        window.scrollTo(0, 0);
-                    }, 100);
-                }, 100));
-
-                [elements.specificAnime, elements.animeGenre].forEach(input => {
-                    this.addListener(input, 'focus', () => {
-                        if (typeof gsap !== 'undefined') {
-                            gsap.to(input, { scale: 1.02, duration: 0.3 });
-                        }
-                    });
-                    this.addListener(input, 'blur', () => {
-                        if (typeof gsap !== 'undefined') {
-                            gsap.to(input, { scale: 1, duration: 0.3 });
-                        }
-                    });
-                });
-            }
+            // HTML escape first
+            const htmlEscaped = str
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#x27;');
+            
+            // JavaScript escape for single quotes
+            return htmlEscaped
+                .replace(/\\/g, '\\\\')
+                .replace(/'/g, "\\'")
+                .replace(/\n/g, ' ')
+                .replace(/\r/g, ' ')
+                .replace(/\t/g, ' ');
         }
 
-        const eventManager = new EventManager();
-
+        // Initialize the game
         document.addEventListener('DOMContentLoaded', async () => {
-            console.log('DOM loaded, initializing enhanced game...');
+            console.log('DOM loaded, initializing game...');
             
+            // Wait for GSAP to load if needed
             if (typeof gsap === 'undefined') {
                 console.log('Waiting for GSAP to load...');
                 setTimeout(() => initializeGame(), 100);
@@ -1671,48 +766,35 @@ Return this JSON format:
         });
 
         async function initializeGame() {
-            console.log('Initializing enhanced game...');
+            console.log('Initializing game...');
             
+            // Check if Puter is available
             if (typeof puter === 'undefined') {
                 console.error('PuterJS is not available');
                 showError('PuterJS is not available. Please check your internet connection.');
                 return;
             }
 
-            try {
-                if (!puter.auth || !puter.ai) {
-                    throw new Error('Critical PuterJS services not available');
-                }
-            } catch (error) {
-                console.error('Puter service check failed:', error);
-                showError('Required services are not available. Please try refreshing the page.');
-                return;
-            }
-
+            // Animate header entrance
             gsap.to(elements.gameHeader, {
                 opacity: 1,
                 y: 0,
-                duration: 1.5,
+                duration: 1,
                 ease: "power3.out"
             });
 
-            elements.totalQuestions.textContent = CONSTANTS.QUESTIONS_PER_SESSION;
+            // Set total questions display
+            elements.totalQuestions.textContent = CONFIG.QUESTIONS_PER_SESSION;
 
-            const savedSession = gameState.loadSession();
-            if (savedSession && savedSession.currentQuestionIndex > 0) {
-                const resume = confirm('You have an interrupted session. Would you like to continue where you left off?');
-                if (resume) {
-                    await recoverSession(savedSession);
-                    return;
-                }
-            }
+            // Setup event listeners
+            setupEventListeners();
 
+            // Try auto sign-in first
             try {
                 console.log('Attempting auto sign-in...');
                 const user = await puter.auth.getUser();
                 if (user) {
                     console.log('Auto sign-in successful');
-                    applySettings(gameState.settings);
                     setTimeout(() => showSetupScreen(), 10);
                     return;
                 }
@@ -1720,52 +802,42 @@ Return this JSON format:
                 console.log('Auto sign-in failed:', error);
             }
 
+            // Show manual login immediately
+            console.log('Showing auth container');
             showAuthContainer();
         }
 
-        async function recoverSession(sessionData) {
-            try {
-                gameState.score = sessionData.score;
-                gameState.currentQuestionIndex = sessionData.currentQuestionIndex;
-                gameState.correctAnswers = sessionData.correctAnswers;
-                gameState.gameStartTime = sessionData.gameStartTime;
-                gameState.settings = sessionData.settings;
-                
-                Utils.announce(`Resuming quiz at question ${sessionData.currentQuestionIndex + 1}`);
-                showGameContainer();
-                await loadNextQuestion();
-            } catch (error) {
-                console.error('Failed to recover session:', error);
-                gameState.clearSession();
-                showSetupScreen();
-            }
-        }
-
-        function applySettings(settings) {
-            elements.specificAnime.value = settings.specificAnime || '';
-            elements.animeGenre.value = settings.genre || '';
+        function setupEventListeners() {
+            console.log('Setting up event listeners...');
             
+            elements.loginBtn.addEventListener('click', handleLogin);
+            elements.retryAuthBtn.addEventListener('click', handleLogin);
+            
+            // Difficulty selection
             elements.difficultyBtns.forEach(btn => {
-                btn.classList.remove('selected');
-                btn.setAttribute('aria-checked', 'false');
-                if (btn.dataset.difficulty === settings.difficulty) {
-                    btn.classList.add('selected');
-                    btn.setAttribute('aria-checked', 'true');
-                }
+                btn.addEventListener('click', () => selectDifficulty(btn));
             });
+
+            elements.startQuizBtn.addEventListener('click', handleQuizStart);
+            elements.retryQuestionBtn.addEventListener('click', () => {
+                gameState.retryCount = 0; // Reset retry count
+                loadNextQuestion();
+            });
+            elements.endGameBtn.addEventListener('click', endGame);
+            elements.playAgainBtn.addEventListener('click', restartGame);
+            elements.backToSetupBtn.addEventListener('click', showSetupScreen);
+
+            // Keyboard support
+            document.addEventListener('keydown', handleKeyboard);
         }
 
         function selectDifficulty(selectedBtn) {
             elements.difficultyBtns.forEach(btn => {
                 btn.classList.remove('selected');
-                btn.setAttribute('aria-checked', 'false');
             });
             
             selectedBtn.classList.add('selected');
-            selectedBtn.setAttribute('aria-checked', 'true');
             gameState.settings.difficulty = selectedBtn.dataset.difficulty;
-            
-            Utils.announce(`Selected difficulty: ${selectedBtn.textContent}`);
             console.log('Selected difficulty:', gameState.settings.difficulty);
         }
 
@@ -1776,135 +848,78 @@ Return this JSON format:
                     const index = parseInt(e.key) - 1;
                     if (answerBtns[index]) {
                         answerBtns[index].click();
-                        answerBtns[index].focus();
-                    }
-                }
-            }
-
-            if (e.key === 'Escape') {
-                if (elements.gameContainer.style.display !== 'none') {
-                    const shouldEnd = confirm('Are you sure you want to end the quiz?');
-                    if (shouldEnd) {
-                        endGame();
                     }
                 }
             }
         }
 
         async function handleLogin() {
-            console.log('Handling enhanced login...');
+            console.log('Handling login...');
             try {
                 hideError(elements.authError);
-                elements.loginBtn.innerHTML = '<div class="loading" aria-hidden="true"></div><span class="sr-only">Signing in...</span>';
-                elements.loginBtn.disabled = true;
+                elements.loginBtn.innerHTML = '<div class="loading"></div>';
                 
                 await puter.auth.signIn();
                 console.log('Sign in successful');
-                
-                try {
-                    localStorage.setItem(CONSTANTS.LOCAL_STORAGE_KEYS.AUTH_STATE, JSON.stringify({
-                        timestamp: Date.now(),
-                        authenticated: true
-                    }));
-                } catch (e) {
-                    console.warn('Failed to save auth state:', e);
-                }
-                
-                Utils.showToast('Welcome back, Senpai!', 'success');
                 showSetupScreen();
             } catch (error) {
                 console.error('Login failed:', error);
                 showError('Login failed. Please try again.', elements.authError);
                 elements.loginBtn.textContent = 'Begin Your Quest';
-            } finally {
-                elements.loginBtn.disabled = false;
             }
         }
 
         function showSetupScreen() {
-            console.log('Showing enhanced setup screen...');
+            console.log('Showing setup screen...');
             hideAuthContainer();
             
             elements.setupContainer.style.display = 'block';
             if (typeof gsap !== 'undefined') {
                 gsap.fromTo(elements.setupContainer, 
-                    { opacity: 0, scale: 0.9, rotationY: -15 }, 
-                    { opacity: 1, scale: 1, rotationY: 0, duration: 0.8, ease: "power3.out" }
-                );
-
-                gsap.fromTo('.form-group', 
-                    { opacity: 0, y: 20 },
-                    { opacity: 1, y: 0, duration: 0.6, stagger: 0.15, delay: 0.3 }
+                    { opacity: 0, scale: 0.9 }, 
+                    { opacity: 1, scale: 1, duration: 0.5, ease: "power3.out" }
                 );
             }
-
-            setTimeout(() => {
-                elements.difficultyBtns[0].focus();
-            }, 100);
         }
 
-        async function handleQuizStart() {
-            console.log('Handling enhanced quiz start...');
-            
-            elements.startQuizBtn.disabled = true;
-            
-            gameState.settings.specificAnime = elements.specificAnime.value.trim();
-            gameState.settings.genre = elements.animeGenre.value.trim();
-            gameState.saveSettings();
+        function handleQuizStart() {
+            console.log('Handling quiz start...');
+            gameState.settings.specificAnime = elements.specificAnimeInput.value.trim();
+            gameState.settings.genre = elements.animeGenreInput.value.trim();
             
             console.log('Quiz settings:', gameState.settings);
-            
-            if (gameState.settings.specificAnime && gameState.settings.genre) {
-                Utils.showToast('Please choose either specific anime OR genre, not both', 'error');
-                elements.startQuizBtn.disabled = false;
-                return;
-            }
-            
             startGame();
         }
 
         function startGame() {
-            console.log('Starting enhanced game...');
+            console.log('Starting game...');
             hideSetupContainer();
             showGameContainer();
             
             resetGameState();
-            Utils.announce('Quiz started! Good luck!');
             loadNextQuestion();
         }
 
         function resetGameState() {
-            gameState.reset();
-            updateUI();
-            Utils.updateProgress(0, gameState.totalQuestions);
+            gameState.score = 0;
+            gameState.currentQuestionIndex = 0;
+            gameState.correctAnswers = 0;
+            gameState.isAnswered = false;
             gameState.gameStartTime = Date.now();
+            gameState.retryCount = 0;
+            gameState.usedAnime = new Set();
             
-            questionManager.preloadNextQuestion();
+            updateUI();
         }
 
         function updateUI() {
             elements.score.textContent = gameState.score;
             elements.currentQuestion.textContent = gameState.currentQuestionIndex + 1;
-            
-            if (typeof gsap !== 'undefined') {
-                gsap.fromTo(elements.score.parentElement, 
-                    { scale: 1 }, 
-                    { 
-                        scale: 1.1, 
-                        duration: 0.2,
-                        ease: "back.out(3)",
-                        yoyo: true, 
-                        repeat: 1 
-                    }
-                );
-            }
-
-            Utils.updateProgress(gameState.currentQuestionIndex, gameState.totalQuestions);
         }
 
         async function loadNextQuestion() {
             console.log('Loading next question...');
-            if (gameState.currentQuestionIndex >= CONSTANTS.QUESTIONS_PER_SESSION) {
+            if (gameState.currentQuestionIndex >= CONFIG.QUESTIONS_PER_SESSION) {
                 endGame();
                 return;
             }
@@ -1913,48 +928,262 @@ Return this JSON format:
             hideError(elements.gameError);
             
             try {
-                const question = await questionManager.fetchQuestionWithRetry();
+                const question = await fetchQuestionWithRetry();
                 renderQuestion(question);
                 startTimer(question.difficulty);
                 gameState.currentQuestionIndex++;
                 elements.currentQuestion.textContent = gameState.currentQuestionIndex;
-                gameState.retryCount = 0;
-                
-                gameState.saveSession();
-                
-                Utils.announce(`Question ${gameState.currentQuestionIndex} of ${gameState.totalQuestions}`);
+                gameState.retryCount = 0; // Reset retry count on success
             } catch (error) {
                 console.error('Failed to load question after retries:', error);
-                showError('Having trouble loading questions. This might be a temporary service issue. Please try again in a moment.', elements.gameError);
+                showError('Having trouble loading questions. This might be a temporary API limit. Please try again in a moment.', elements.gameError);
             }
         }
 
+        async function fetchQuestionWithRetry() {
+            for (let attempt = 1; attempt <= CONFIG.MAX_RETRIES; attempt++) {
+                try {
+                    console.log(`Fetching question, attempt ${attempt}/${CONFIG.MAX_RETRIES}`);
+                    const question = await fetchQuestion();
+                    return question;
+                } catch (error) {
+                    console.error(`Attempt ${attempt} failed:`, error);
+                    
+                    if (attempt === CONFIG.MAX_RETRIES) {
+                        throw error;
+                    }
+                    
+                    // Wait before retrying, with exponential backoff
+                    await new Promise(resolve => setTimeout(resolve, CONFIG.RETRY_DELAY * attempt));
+                }
+            }
+        }
+
+        async function fetchQuestion() {
+            console.log('Fetching question...');
+            const systemPrompt = buildSystemPrompt();
+            console.log('System prompt:', systemPrompt);
+
+            try {
+                const response = await puter.ai.chat(systemPrompt);
+                console.log('Raw AI response structure:', response);
+                
+                // Extract the actual content from the response
+                let content;
+                if (response && response.message && response.message.content) {
+                    content = response.message.content;
+                } else if (typeof response === 'string') {
+                    content = response;
+                } else if (response && response.content) {
+                    content = response.content;
+                } else {
+                    console.error('Unexpected response format:', response);
+                    throw new Error('Unexpected response format from AI service');
+                }
+                
+                console.log('Extracted content:', content);
+                
+                // Parse the JSON content
+                let questionData = parseQuestionResponse(content);
+                
+                console.log('Parsed question data:', questionData);
+
+                // Validate the response
+                if (!validateQuestion(questionData)) {
+                    console.error('Invalid question format:', questionData);
+                    throw new Error('Invalid question format from response');
+                }
+
+                gameState.currentQuestion = questionData;
+                return questionData;
+                
+            } catch (error) {
+                console.error('Error in fetchQuestion:', error);
+                throw error;
+            }
+        }
+
+        function parseQuestionResponse(content) {
+            // Remove common prefixes and suffixes
+            let cleanContent = content.trim();
+            
+            // Remove markdown code blocks
+            cleanContent = cleanContent.replace(/``````\n?/g, '');
+            
+            // Remove any text before the first {
+            const jsonStartIndex = cleanContent.indexOf('{');
+            if (jsonStartIndex > 0) {
+                cleanContent = cleanContent.substring(jsonStartIndex);
+            }
+            
+            // Remove any text after the last }
+            const jsonEndIndex = cleanContent.lastIndexOf('}');
+            if (jsonEndIndex >= 0 && jsonEndIndex < cleanContent.length - 1) {
+                cleanContent = cleanContent.substring(0, jsonEndIndex + 1);
+            }
+            
+            try {
+                return JSON.parse(cleanContent);
+            } catch (parseError) {
+                console.error('JSON parse failed, trying regex extraction...');
+                
+                // Try to extract JSON using regex
+                const jsonMatch = cleanContent.match(/\{[^{}]*\}/);
+                if (jsonMatch) {
+                    try {
+                        return JSON.parse(jsonMatch[0]);
+                    } catch (regexParseError) {
+                        console.error('Regex extraction also failed:', regexParseError);
+                    }
+                }
+                
+                // Last resort: try to parse line by line
+                const lines = content.split('\n');
+                for (const line of lines) {
+                    const trimmedLine = line.trim();
+                    if (trimmedLine.startsWith('{') && trimmedLine.endsWith('}')) {
+                        try {
+                            return JSON.parse(trimmedLine);
+                        } catch (lineParseError) {
+                            continue;
+                        }
+                    }
+                }
+                
+                throw new Error('Could not parse JSON from content: ' + content);
+            }
+        }
+
+        function getRandomAnime() {
+            // Get anime that haven't been used yet
+            const availableAnime = POPULAR_ANIME.filter(anime => !gameState.usedAnime.has(anime));
+            
+            // If we've used all anime, reset the used set
+            if (availableAnime.length === 0) {
+                gameState.usedAnime.clear();
+                return POPULAR_ANIME[Math.floor(Math.random() * POPULAR_ANIME.length)];
+            }
+            
+            const selectedAnime = availableAnime[Math.floor(Math.random() * availableAnime.length)];
+            gameState.usedAnime.add(selectedAnime);
+            return selectedAnime;
+        }
+
+        function buildSystemPrompt() {
+            let difficultyInstruction = '';
+            let focusInstruction = '';
+            let animeSelectionInstruction = '';
+
+            // Handle difficulty
+            if (gameState.settings.difficulty === 'mixed') {
+                difficultyInstruction = `The difficulty should be randomly selected from "Easy", "Medium", or "Hard".`;
+            } else {
+                const capitalizedDifficulty = gameState.settings.difficulty.charAt(0).toUpperCase() + gameState.settings.difficulty.slice(1);
+                difficultyInstruction = `The difficulty must be exactly "${capitalizedDifficulty}".`;
+            }
+
+            // Handle specific anime focus
+            if (gameState.settings.specificAnime) {
+                focusInstruction = `Create questions ONLY about the anime "${gameState.settings.specificAnime}".`;
+                animeSelectionInstruction = `Focus exclusively on "${gameState.settings.specificAnime}".`;
+            } else if (gameState.settings.genre) {
+                focusInstruction = `Create questions about anime from the ${gameState.settings.genre} genre.`;
+                animeSelectionInstruction = `Select from popular ${gameState.settings.genre} anime series.`;
+            } else {
+                const randomAnime = getRandomAnime();
+                focusInstruction = `Create a question about the anime "${randomAnime}".`;
+                animeSelectionInstruction = `Focus on "${randomAnime}" for this question.`;
+            }
+
+            return `Create a quiz question about anime. You MUST return ONLY a valid JSON object with no additional text, explanations, or formatting whatsoever.
+
+${focusInstruction}
+${difficultyInstruction}
+${animeSelectionInstruction}
+
+CRITICAL ACCURACY REQUIREMENTS:
+1. Before finalizing your question, mentally verify the correct answer is 100% factually accurate
+2. Double-check that your correct answer exactly matches one of the four options
+3. Ensure all four options are plausible and well-formatted (no spelling errors)
+4. Use proper spelling, grammar, and character names throughout
+5. Avoid ambiguous questions where multiple answers could be correct
+6. For character names, use the most commonly known spellings
+
+Quality guidelines by difficulty:
+- Easy: Main protagonist names, basic plot elements, obvious facts (Who is the main character of...)
+- Medium: Secondary characters, specific abilities/techniques, story arcs (What is the name of...technique)
+- Hard: Minor characters, specific episodes, studio info, voice actors (Which studio animated...)
+
+Examples of GOOD questions:
+- Easy: "Who is the main protagonist of Naruto?" 
+- Medium: "What is the name of Tanjiro's breathing style in Demon Slayer?"
+- Hard: "Which animation studio produced the first season of Attack on Titan?"
+
+Rewrite and elaborate on this requirement, then provide your answer: Create a factually correct anime quiz question with exactly four plausible options where one is definitively correct.
+
+Return exactly this JSON format with no other text:
+{
+  "question": "Your specific question here",
+  "options": ["Option A", "Option B", "Option C", "Option D"],
+  "answer": "Exact match to one option",
+  "difficulty": "Easy" | "Medium" | "Hard"
+}`;
+        }
+
+        function validateQuestion(question) {
+            if (!question || typeof question !== 'object') {
+                console.error('Question is not an object:', question);
+                return false;
+            }
+            
+            if (typeof question.question !== 'string' || question.question.length < 5) {
+                console.error('Invalid question text:', question.question);
+                return false;
+            }
+            
+            if (!Array.isArray(question.options) || question.options.length !== 4) {
+                console.error('Invalid options array:', question.options);
+                return false;
+            }
+            
+            if (!question.options.every(opt => typeof opt === 'string' && opt.length > 0)) {
+                console.error('Invalid option format:', question.options);
+                return false;
+            }
+            
+            if (typeof question.answer !== 'string' || !question.options.includes(question.answer)) {
+                console.error('Invalid answer:', question.answer, 'Options:', question.options);
+                return false;
+            }
+            
+            if (!['Easy', 'Medium', 'Hard'].includes(question.difficulty)) {
+                console.error('Invalid difficulty:', question.difficulty);
+                return false;
+            }
+            
+            return true;
+        }
+
         function renderQuestion(question) {
-            console.log('Rendering enhanced question:', question);
+            console.log('Rendering question:', question);
             hideLoading();
             gameState.isAnswered = false;
-            gameState.questionStartTime = Date.now();
-            gameState.currentQuestion = question;
             
-            const safeQuestion = Utils.sanitizeHtml(question.question);
-            const safeOptions = question.options.map(option => Utils.sanitizeHtml(option));
+            // Use the new safe quoting function
+            const safeQuestion = safeJsQuote(question.question);
+            const safeOptions = question.options.map(option => safeJsQuote(option));
             
             const questionHTML = `
-                <div class="question-card fade-in" role="region" aria-labelledby="current-question-text">
+                <div class="question-card fade-in">
                     <div class="difficulty-badge difficulty-${question.difficulty}">${question.difficulty}</div>
-                    <div id="current-question-text" class="question-text">${safeQuestion}</div>
-                    <div class="answers-grid" role="radiogroup" aria-labelledby="current-question-text">
+                    <div class="question-text">${question.question}</div>
+                    <div class="answers-grid">
                         ${question.options.map((option, index) => `
                             <button class="answer-btn ${index % 2 === 0 ? 'slide-in-left' : 'slide-in-right'}" 
-                                    data-answer="${Utils.safeJsQuote(option)}"
+                                    data-answer="${safeOptions[index]}"
                                     onclick="selectAnswerSafe(this)"
-                                    onkeydown="handleAnswerKeydown(event, this)"
-                                    style="animation-delay: ${index * 0.1}s"
-                                    role="radio"
-                                    aria-checked="false"
-                                    tabindex="0"
-                                    aria-label="Option ${index + 1}: ${Utils.sanitizeHtml(option)}">
-                                ${safeOptions[index]}
+                                    style="animation-delay: ${index * 0.1}s">
+                                ${option}
                             </button>
                         `).join('')}
                     </div>
@@ -1962,27 +1191,9 @@ Return this JSON format:
             `;
             
             elements.questionContainer.innerHTML = questionHTML;
-
-            if (typeof gsap !== 'undefined') {
-                gsap.fromTo('.question-card', 
-                    { opacity: 0, scale: 0.95, y: 30 },
-                    { opacity: 1, scale: 1, y: 0, duration: 0.6, ease: "power3.out" }
-                );
-            }
-
-            setTimeout(() => {
-                const firstAnswer = document.querySelector('.answer-btn');
-                if (firstAnswer) firstAnswer.focus();
-            }, 100);
         }
 
-        function handleAnswerKeydown(event, buttonElement) {
-            if (event.key === 'Enter' || event.key === ' ') {
-                event.preventDefault();
-                selectAnswerSafe(buttonElement);
-            }
-        }
-
+        // New safe answer selection function using data attributes
         function selectAnswerSafe(buttonElement) {
             const selectedAnswer = buttonElement.getAttribute('data-answer');
             selectAnswer(selectedAnswer);
@@ -1991,11 +1202,12 @@ Return this JSON format:
         function startTimer(difficulty) {
             clearInterval(gameState.timer);
             
+            // Determine time based on difficulty
             let duration;
             if (gameState.settings.difficulty === 'mixed') {
-                duration = CONSTANTS.TIMER_DURATIONS[difficulty.toLowerCase()];
+                duration = CONFIG.TIMER_DURATIONS[difficulty.toLowerCase()];
             } else {
-                duration = CONSTANTS.TIMER_DURATIONS[gameState.settings.difficulty];
+                duration = CONFIG.TIMER_DURATIONS[gameState.settings.difficulty];
             }
             
             gameState.timeLeft = duration;
@@ -2003,10 +1215,6 @@ Return this JSON format:
             gameState.timer = setInterval(() => {
                 gameState.timeLeft--;
                 updateTimerBar(duration);
-                
-                if (gameState.timeLeft === Math.floor(duration * 0.25)) {
-                    Utils.announce('Time running out!');
-                }
                 
                 if (gameState.timeLeft <= 0) {
                     clearInterval(gameState.timer);
@@ -2020,15 +1228,6 @@ Return this JSON format:
         function updateTimerBar(totalTime) {
             const percentage = (gameState.timeLeft / totalTime) * 100;
             elements.timerBar.style.width = `${percentage}%`;
-            
-            if (percentage < 25 && typeof gsap !== 'undefined') {
-                gsap.to('.timer-container', {
-                    scale: 1.02,
-                    duration: 0.5,
-                    repeat: -1,
-                    yoyo: true
-                });
-            }
         }
 
         function selectAnswer(selectedAnswer) {
@@ -2038,119 +1237,30 @@ Return this JSON format:
             gameState.isAnswered = true;
             clearInterval(gameState.timer);
             
-            if (typeof gsap !== 'undefined') {
-                gsap.killTweensOf('.timer-container');
-                gsap.set('.timer-container', { scale: 1 });
-            }
-            
             const answerBtns = document.querySelectorAll('.answer-btn');
             const isCorrect = selectedAnswer === gameState.currentQuestion.answer;
             
-            const answerTime = Date.now() - gameState.questionStartTime;
-            const timeAllowed = gameState.timeLeft + (answerTime / 1000);
-            const wasQuickAnswer = (gameState.timeLeft / timeAllowed) >= CONSTANTS.QUICK_ANSWER_THRESHOLD;
-            
             answerBtns.forEach(btn => {
                 btn.classList.add('disabled');
-                btn.setAttribute('aria-disabled', 'true');
                 const btnAnswer = btn.getAttribute('data-answer');
                 
                 if (btnAnswer === gameState.currentQuestion.answer) {
                     btn.classList.add('correct');
-                    btn.setAttribute('aria-checked', 'true');
                 } else if (btnAnswer === selectedAnswer && !isCorrect) {
                     btn.classList.add('incorrect');
-                    btn.setAttribute('aria-checked', 'false');
-                } else {
-                    btn.setAttribute('aria-checked', 'false');
                 }
             });
             
             if (isCorrect) {
                 gameState.correctAnswers++;
                 const difficulty = gameState.currentQuestion.difficulty.toLowerCase();
-                let points = CONSTANTS.POINTS[difficulty];
-                
-                if (wasQuickAnswer) {
-                    const bonus = CONSTANTS.QUICK_ANSWER_BONUS[difficulty];
-                    points += bonus;
-                    Utils.showToast(`Correct! +${bonus} quick bonus!`, 'success');
-                    showBonusIndicator(bonus);
-                } else {
-                    Utils.showToast('Correct!', 'success');
-                }
-                
-                gameState.score += points;
+                gameState.score += CONFIG.POINTS[difficulty];
                 updateUI();
-                Utils.announce(`Correct answer! You earned ${points} points.`);
-                
-                createSuccessParticles();
-            } else {
-                Utils.showToast('Incorrect. Try the next one!', 'error');
-                Utils.announce(`Incorrect. The correct answer was ${gameState.currentQuestion.answer}.`);
             }
             
             setTimeout(() => {
                 loadNextQuestion();
-            }, 2500);
-        }
-
-        function showBonusIndicator(bonus) {
-            const indicator = document.createElement('div');
-            indicator.className = 'bonus-indicator';
-            indicator.textContent = `+${bonus} Quick Bonus!`;
-            
-            const scoreDisplay = elements.score.parentElement;
-            scoreDisplay.style.position = 'relative';
-            scoreDisplay.appendChild(indicator);
-            
-            setTimeout(() => {
-                if (scoreDisplay.contains(indicator)) {
-                    scoreDisplay.removeChild(indicator);
-                }
             }, 2000);
-        }
-
-        function createSuccessParticles() {
-            const emojis = ['🎉', '⭐', '✨', '🌟', '🎊', '💫', '🔥', '💯'];
-            const particleCount = window.innerWidth < 768 ? 4 : 8;
-            
-            for (let i = 0; i < particleCount; i++) {
-                const particle = document.createElement('div');
-                particle.innerHTML = emojis[Math.floor(Math.random() * emojis.length)];
-                particle.style.cssText = `
-                    position: fixed;
-                    font-size: ${Math.random() * 1.5 + 1.5}rem;
-                    pointer-events: none;
-                    z-index: 9999;
-                    left: ${Math.random() * window.innerWidth}px;
-                    top: ${window.innerHeight}px;
-                `;
-                
-                document.body.appendChild(particle);
-                
-                if (typeof gsap !== 'undefined') {
-                    gsap.to(particle, {
-                        y: -window.innerHeight - 100,
-                        x: (Math.random() - 0.5) * 400,
-                        rotation: Math.random() * 720,
-                        scale: Math.random() * 1 + 0.5,
-                        duration: Math.random() * 2 + 3,
-                        ease: "power2.out",
-                        onComplete: () => {
-                            if (document.body.contains(particle)) {
-                                document.body.removeChild(particle);
-                            }
-                        }
-                    });
-                } else {
-                    setTimeout(() => {
-                        if (document.body.contains(particle)) {
-                            document.body.removeChild(particle);
-                        }
-                    }, 4000);
-                }
-            }
         }
 
         function timeUp() {
@@ -2160,78 +1270,44 @@ Return this JSON format:
             const answerBtns = document.querySelectorAll('.answer-btn');
             answerBtns.forEach(btn => {
                 btn.classList.add('disabled');
-                btn.setAttribute('aria-disabled', 'true');
                 if (btn.getAttribute('data-answer') === gameState.currentQuestion.answer) {
                     btn.classList.add('correct');
-                    btn.setAttribute('aria-checked', 'true');
-                } else {
-                    btn.setAttribute('aria-checked', 'false');
                 }
             });
             
-            Utils.showToast('Time\'s up!', 'warning');
-            Utils.announce(`Time's up! The correct answer was ${gameState.currentQuestion.answer}.`);
-            
             setTimeout(() => {
                 loadNextQuestion();
-            }, 2500);
+            }, 2000);
         }
 
         function endGame() {
-            console.log('Ending enhanced game...');
+            console.log('Ending game...');
             clearInterval(gameState.timer);
-            if (typeof gsap !== 'undefined') {
-                gsap.killTweensOf('.timer-container');
-            }
             
             hideGameContainer();
             showGameCompleteContainer();
             
-            gameState.clearSession();
-            
-            const percentage = Math.round((gameState.correctAnswers / gameState.totalQuestions) * 100);
-            let message = '';
-            
-            if (percentage >= 90) {
-                message = 'Outstanding! You are truly a Senpai!';
-            } else if (percentage >= 70) {
-                message = 'Great job! You know your anime well!';
-            } else if (percentage >= 50) {
-                message = 'Not bad! Keep watching more anime!';
-            } else {
-                message = 'Keep trying! There\'s always more to learn!';
-            }
-            
             elements.finalScore.textContent = gameState.score;
             elements.correctCount.textContent = gameState.correctAnswers;
-            elements.totalCount.textContent = CONSTANTS.QUESTIONS_PER_SESSION;
-            
-            Utils.showToast(message, 'success');
-            Utils.announce(`Game complete! Final score: ${gameState.score} points. ${message}`);
-
-            if (typeof gsap !== 'undefined') {
-                gsap.fromTo(elements.finalScore, 
-                    { scale: 0, rotation: -180 },
-                    { scale: 1, rotation: 0, duration: 1, ease: "back.out(1.7)", delay: 0.8 }
-                );
-            }
+            elements.totalCount.textContent = CONFIG.QUESTIONS_PER_SESSION;
         }
 
         function restartGame() {
-            console.log('Restarting enhanced game...');
+            console.log('Restarting game...');
             hideGameCompleteContainer();
             resetGameState();
             showGameContainer();
             loadNextQuestion();
         }
 
+        // UI Helper Functions
         function showAuthContainer() {
             elements.authContainer.classList.remove('initial-hide');
             elements.authContainer.style.display = 'block';
             if (typeof gsap !== 'undefined') {
                 gsap.fromTo(elements.authContainer, 
-                    { opacity: 0, scale: 0.9, rotationY: -30 }, 
-                    { opacity: 1, scale: 1, rotationY: 0, duration: 0.8, ease: "power3.out" }
+                    { opacity: 0, scale: 0.9 }, 
+                    { opacity: 1, scale: 1, duration: 0.5 }
                 );
             } else {
                 elements.authContainer.style.opacity = '1';
@@ -2243,8 +1319,7 @@ Return this JSON format:
                 gsap.to(elements.authContainer, {
                     opacity: 0,
                     scale: 0.9,
-                    rotationY: 30,
-                    duration: 0.4,
+                    duration: 0.3,
                     onComplete: () => {
                         elements.authContainer.style.display = 'none';
                     }
@@ -2258,9 +1333,7 @@ Return this JSON format:
             if (typeof gsap !== 'undefined') {
                 gsap.to(elements.setupContainer, {
                     opacity: 0,
-                    scale: 0.9,
-                    y: -30,
-                    duration: 0.4,
+                    duration: 0.3,
                     onComplete: () => {
                         elements.setupContainer.style.display = 'none';
                     }
@@ -2274,8 +1347,8 @@ Return this JSON format:
             elements.gameContainer.style.display = 'block';
             if (typeof gsap !== 'undefined') {
                 gsap.fromTo(elements.gameContainer, 
-                    { opacity: 0, y: 50, scale: 0.95 }, 
-                    { opacity: 1, y: 0, scale: 1, duration: 0.8, ease: "power3.out" }
+                    { opacity: 0, y: 30 }, 
+                    { opacity: 1, y: 0, duration: 0.5 }
                 );
             }
         }
@@ -2284,9 +1357,7 @@ Return this JSON format:
             if (typeof gsap !== 'undefined') {
                 gsap.to(elements.gameContainer, {
                     opacity: 0,
-                    scale: 0.95,
-                    y: -30,
-                    duration: 0.4,
+                    duration: 0.3,
                     onComplete: () => {
                         elements.gameContainer.style.display = 'none';
                     }
@@ -2300,8 +1371,8 @@ Return this JSON format:
             elements.gameCompleteContainer.style.display = 'block';
             if (typeof gsap !== 'undefined') {
                 gsap.fromTo(elements.gameCompleteContainer, 
-                    { opacity: 0, scale: 0.8, rotationX: -30 }, 
-                    { opacity: 1, scale: 1, rotationX: 0, duration: 1, ease: "power3.out" }
+                    { opacity: 0, scale: 0.9 }, 
+                    { opacity: 1, scale: 1, duration: 0.5 }
                 );
             }
         }
@@ -2310,8 +1381,7 @@ Return this JSON format:
             if (typeof gsap !== 'undefined') {
                 gsap.to(elements.gameCompleteContainer, {
                     opacity: 0,
-                    scale: 0.8,
-                    duration: 0.4,
+                    duration: 0.3,
                     onComplete: () => {
                         elements.gameCompleteContainer.style.display = 'none';
                     }
@@ -2324,13 +1394,6 @@ Return this JSON format:
         function showLoading() {
             elements.loadingContainer.style.display = 'block';
             elements.questionContainer.style.display = 'none';
-            
-            if (typeof gsap !== 'undefined') {
-                gsap.fromTo('.loading', 
-                    { scale: 0, rotation: 0 },
-                    { scale: 1, rotation: 360, duration: 0.6, ease: "back.out(1.7)" }
-                );
-            }
         }
 
         function hideLoading() {
@@ -2339,53 +1402,32 @@ Return this JSON format:
         }
 
         function showError(message, container = null) {
-            console.log('Showing enhanced error:', message);
+            console.log('Showing error:', message);
             if (container) {
                 container.style.display = 'block';
                 container.querySelector('.error-message').textContent = message;
-                
-                if (typeof gsap !== 'undefined') {
-                    gsap.fromTo(container, 
-                        { opacity: 0, scale: 0.9 },
-                        { opacity: 1, scale: 1, duration: 0.4 }
-                    );
-                }
             }
-            
-            Utils.showToast(message, 'error');
         }
 
         function hideError(container) {
-            if (container && typeof gsap !== 'undefined') {
-                gsap.to(container, {
-                    opacity: 0,
-                    scale: 0.9,
-                    duration: 0.3,
-                    onComplete: () => {
-                        container.style.display = 'none';
-                    }
-                });
-            } else if (container) {
+            if (container) {
                 container.style.display = 'none';
             }
         }
 
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Handle page cleanup
         window.addEventListener('beforeunload', () => {
             clearInterval(gameState.timer);
             if (typeof gsap !== 'undefined') {
                 gsap.killTweensOf("*");
             }
-            eventManager.cleanup();
-            
-            if (gameState.currentQuestionIndex > 0 && gameState.currentQuestionIndex < gameState.totalQuestions) {
-                gameState.saveSession();
-            }
         });
-
-        if (typeof performance !== 'undefined' && performance.mark) {
-            performance.mark('game-initialization-complete');
-            console.log('Game initialization complete');
-        }
     </script>
 </body>
 </html>
