@@ -95,6 +95,12 @@
             font-size: 1.1rem;
             color: var(--slate);
             opacity: 0.8;
+            animation: subtitleFloat 4s ease-in-out infinite;
+        }
+
+        @keyframes subtitleFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-3px); }
         }
 
         .card-container {
@@ -108,6 +114,9 @@
             position: relative;
             overflow: hidden;
             border: 2px solid rgba(237,175,184,0.3);
+            margin: 20px auto;
+            transform: translateX(0);
+            transition: all 0.3s ease;
         }
 
         .card-container::before {
@@ -140,6 +149,12 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
             margin-bottom: 1rem;
+            animation: titleGlow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes titleGlow {
+            0% { filter: brightness(1); }
+            100% { filter: brightness(1.2); }
         }
 
         .auth-subtitle {
@@ -157,6 +172,12 @@
 
         .form-group {
             position: relative;
+            animation: slideInUp 0.6s ease-out;
+        }
+
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .form-label {
@@ -183,15 +204,31 @@
             font-size: 0.9rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             position: relative;
             overflow: hidden;
+        }
+
+        .difficulty-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .difficulty-btn:hover::before {
+            left: 100%;
         }
 
         .difficulty-btn:hover {
             border-color: var(--rose);
             background: var(--pearl);
-            transform: translateY(-2px);
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
         }
 
         .difficulty-btn.selected {
@@ -199,6 +236,12 @@
             background: linear-gradient(135deg, var(--rose), var(--sage));
             color: white;
             transform: scale(1.05);
+            animation: selectedPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes selectedPulse {
+            0%, 100% { box-shadow: 0 5px 15px rgba(237,175,184,0.3); }
+            50% { box-shadow: 0 8px 25px rgba(237,175,184,0.5); }
         }
 
         .custom-input {
@@ -216,6 +259,11 @@
             outline: none;
             border-color: var(--rose);
             box-shadow: 0 0 0 3px rgba(237,175,184,0.2);
+            transform: scale(1.02);
+        }
+
+        .custom-input:hover {
+            border-color: var(--sage);
         }
 
         .game-container {
@@ -240,6 +288,24 @@
             font-weight: bold;
             font-size: 1rem;
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .score-display::after, .question-counter::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            animation: infoShine 3s infinite;
+        }
+
+        @keyframes infoShine {
+            0% { left: -100%; }
+            100% { left: 100%; }
         }
 
         .timer-container {
@@ -250,6 +316,12 @@
             overflow: hidden;
             margin: 1rem 0;
             position: relative;
+            animation: timerPulse 0.5s ease-in-out;
+        }
+
+        @keyframes timerPulse {
+            0% { transform: scaleX(0); }
+            100% { transform: scaleX(1); }
         }
 
         .timer-bar {
@@ -258,6 +330,23 @@
             border-radius: 10px;
             transition: width 0.1s linear;
             width: 100%;
+            position: relative;
+        }
+
+        .timer-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+            animation: timerGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes timerGlow {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
         }
 
         .question-card {
@@ -267,6 +356,24 @@
             margin-bottom: 1.5rem;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
             border-left: 5px solid var(--rose);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .question-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(237,175,184,0.03), transparent);
+            animation: questionGlow 4s ease-in-out infinite;
+        }
+
+        @keyframes questionGlow {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
         }
 
         .question-text {
@@ -275,6 +382,8 @@
             color: var(--slate);
             line-height: 1.5;
             margin-bottom: 1rem;
+            position: relative;
+            z-index: 1;
         }
 
         .difficulty-badge {
@@ -284,6 +393,14 @@
             font-size: 0.8rem;
             font-weight: bold;
             margin-bottom: 1rem;
+            position: relative;
+            z-index: 1;
+            animation: badgeFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes badgeFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-2px); }
         }
 
         .difficulty-Easy {
@@ -316,7 +433,7 @@
             font-size: 0.95rem;
             color: var(--slate);
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             text-align: left;
             font-weight: 500;
             position: relative;
@@ -324,23 +441,56 @@
             line-height: 1.4;
         }
 
+        .answer-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, var(--pearl), transparent);
+            transition: left 0.3s;
+        }
+
+        .answer-btn:hover::before {
+            left: 100%;
+        }
+
         .answer-btn:hover {
             border-color: var(--rose);
             background: var(--pearl);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        .answer-btn:active {
+            transform: translateY(-2px) scale(0.98);
         }
 
         .answer-btn.correct {
             background: #E8F5E8;
             border-color: #4CAF50;
             color: #2E7D32;
+            animation: correctAnswer 0.8s ease-in-out;
+        }
+
+        @keyframes correctAnswer {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1.05); }
         }
 
         .answer-btn.incorrect {
             background: #FFEBEE;
             border-color: #F44336;
             color: #C62828;
+            animation: incorrectShake 0.6s ease-in-out;
+        }
+
+        @keyframes incorrectShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
         }
 
         .answer-btn.disabled {
@@ -357,15 +507,34 @@
             font-size: 1rem;
             font-weight: bold;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
             position: relative;
             overflow: hidden;
         }
 
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.6s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
         .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+        }
+
+        .btn:active {
+            transform: translateY(-2px) scale(1.02);
         }
 
         .btn.secondary {
@@ -380,6 +549,12 @@
             padding: 1rem;
             margin: 1rem 0;
             text-align: center;
+            animation: errorPulse 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes errorPulse {
+            0% { box-shadow: 0 0 0 0 rgba(244,67,54,0.4); }
+            100% { box-shadow: 0 0 0 10px rgba(244,67,54,0); }
         }
 
         .error-message {
@@ -412,33 +587,39 @@
             margin-top: 1rem;
             font-size: 1rem;
             color: var(--slate);
+            animation: loadingPulse 1.5s ease-in-out infinite alternate;
+        }
+
+        @keyframes loadingPulse {
+            0% { opacity: 0.6; }
+            100% { opacity: 1; }
         }
 
         .fade-in {
-            animation: fadeIn 0.5s ease-out forwards;
+            animation: fadeIn 0.6s ease-out forwards;
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from { opacity: 0; transform: translateY(30px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
         .slide-in-left {
-            animation: slideInLeft 0.4s ease-out forwards;
+            animation: slideInLeft 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
 
         @keyframes slideInLeft {
-            from { opacity: 0; transform: translateX(-30px); }
-            to { opacity: 1; transform: translateX(0); }
+            from { opacity: 0; transform: translateX(-50px) rotate(-5deg); }
+            to { opacity: 1; transform: translateX(0) rotate(0deg); }
         }
 
         .slide-in-right {
-            animation: slideInRight 0.4s ease-out forwards;
+            animation: slideInRight 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
 
         @keyframes slideInRight {
-            from { opacity: 0; transform: translateX(30px); }
-            to { opacity: 1; transform: translateX(0); }
+            from { opacity: 0; transform: translateX(50px) rotate(5deg); }
+            to { opacity: 1; transform: translateX(0) rotate(0deg); }
         }
 
         .final-score-display {
@@ -450,6 +631,12 @@
             background-clip: text;
             margin: 1.5rem 0;
             text-align: center;
+            animation: scoreGlow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes scoreGlow {
+            0% { filter: brightness(1); transform: scale(1); }
+            100% { filter: brightness(1.2); transform: scale(1.05); }
         }
 
         .celebration-text {
@@ -461,6 +648,26 @@
             background-clip: text;
             margin-bottom: 2rem;
             text-align: center;
+            position: relative;
+        }
+
+        .celebration-text::before {
+            content: '🎉';
+            position: absolute;
+            left: -50px;
+            animation: celebrate 2s ease-in-out infinite;
+        }
+
+        .celebration-text::after {
+            content: '🎊';
+            position: absolute;
+            right: -50px;
+            animation: celebrate 2s ease-in-out infinite reverse;
+        }
+
+        @keyframes celebrate {
+            0%, 100% { transform: rotate(-15deg) scale(1); }
+            50% { transform: rotate(15deg) scale(1.2); }
         }
 
         .retry-info {
@@ -477,7 +684,7 @@
         /* Mobile Responsive */
         @media (max-width: 768px) {
             .container {
-                padding: 15px;
+                padding: 10px;
             }
             
             .game-title {
@@ -487,21 +694,23 @@
             .card-container {
                 padding: 1.5rem;
                 margin: 10px;
+                max-width: 95%;
             }
             
             .answers-grid {
                 grid-template-columns: 1fr;
-                gap: 0.8rem;
+                gap: 1rem;
             }
             
             .game-info {
                 flex-direction: column;
                 text-align: center;
-                gap: 0.8rem;
+                gap: 1rem;
             }
             
             .difficulty-selector {
                 grid-template-columns: 1fr 1fr;
+                gap: 1rem;
             }
 
             .question-text {
@@ -509,8 +718,13 @@
             }
 
             .answer-btn {
-                padding: 0.8rem;
-                font-size: 0.9rem;
+                padding: 1rem;
+                font-size: 1rem;
+            }
+
+            .btn {
+                padding: 1rem 1.5rem;
+                font-size: 0.95rem;
             }
         }
 
@@ -524,17 +738,45 @@
             }
             
             .answer-btn {
-                padding: 0.7rem;
-                font-size: 0.85rem;
+                padding: 0.8rem;
+                font-size: 0.9rem;
             }
 
             .difficulty-selector {
                 grid-template-columns: 1fr;
+                gap: 0.8rem;
             }
 
             .score-display, .question-counter {
                 padding: 0.6rem 1rem;
                 font-size: 0.9rem;
+            }
+
+            .card-container {
+                padding: 1rem;
+                margin: 5px;
+            }
+
+            .celebration-text::before,
+            .celebration-text::after {
+                display: none;
+            }
+        }
+
+        /* Touch-friendly improvements */
+        @media (hover: none) and (pointer: coarse) {
+            .answer-btn {
+                padding: 1.2rem;
+                font-size: 1rem;
+            }
+            
+            .btn {
+                padding: 1.2rem 2rem;
+                font-size: 1.1rem;
+            }
+            
+            .difficulty-btn {
+                padding: 1.2rem;
             }
         }
 
@@ -542,6 +784,21 @@
         .initial-hide {
             opacity: 0;
             visibility: hidden;
+        }
+
+        /* Preloader for next question */
+        .preloader {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--pearl);
+            border-top: 2px solid var(--rose);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            opacity: 0.7;
+            z-index: 1000;
         }
     </style>
 </head>
@@ -650,6 +907,8 @@
         </div>
     </div>
 
+    <div id="preloader" class="preloader" style="display: none;"></div>
+
     <script>
         'use strict';
 
@@ -663,11 +922,36 @@
             "Dr. Stone", "Steins;Gate", "Your Name", "Spirited Away", "Princess Mononoke"
         ];
 
+        // Enhanced question templates for variety
+        const QUESTION_TEMPLATES = {
+            easy: [
+                "Who is the main protagonist of {anime}?",
+                "What is the primary genre of {anime}?",
+                "In {anime}, what is the main character's goal?",
+                "What color is {character}'s hair in {anime}?",
+                "What type of power does the main character have in {anime}?"
+            ],
+            medium: [
+                "What is the name of {character}'s special technique in {anime}?",
+                "Which organization does {character} belong to in {anime}?",
+                "What is the name of {character}'s weapon in {anime}?",
+                "In {anime}, what is the name of the main villain?",
+                "What is {character}'s rank or title in {anime}?"
+            ],
+            hard: [
+                "Which animation studio produced {anime}?",
+                "Who is the voice actor for {character} in {anime}?",
+                "In which year was {anime} first released?",
+                "What is the name of episode {number} in {anime}?",
+                "Who is the manga creator of {anime}?"
+            ]
+        };
+
         // Configuration
         const CONFIG = {
             QUESTIONS_PER_SESSION: 10,
-            MAX_RETRIES: 2, // Reduced retries for faster loading
-            RETRY_DELAY: 500, // Reduced delay for faster loading
+            MAX_RETRIES: 2,
+            RETRY_DELAY: 500,
             TIMER_DURATIONS: {
                 easy: 15,
                 medium: 20,
@@ -687,6 +971,7 @@
             totalQuestions: CONFIG.QUESTIONS_PER_SESSION,
             correctAnswers: 0,
             currentQuestion: null,
+            nextQuestion: null, // Preloaded question
             timer: null,
             timeLeft: 0,
             isAnswered: false,
@@ -727,7 +1012,8 @@
             totalCount: document.getElementById('total-count'),
             playAgainBtn: document.getElementById('play-again-btn'),
             backToSetupBtn: document.getElementById('back-to-setup-btn'),
-            gameHeader: document.querySelector('.game-header')
+            gameHeader: document.querySelector('.game-header'),
+            preloader: document.getElementById('preloader')
         };
 
         // Secure string escaping for JavaScript
@@ -779,7 +1065,7 @@
             gsap.to(elements.gameHeader, {
                 opacity: 1,
                 y: 0,
-                duration: 1,
+                duration: 1.5,
                 ease: "power3.out"
             });
 
@@ -813,14 +1099,23 @@
             elements.loginBtn.addEventListener('click', handleLogin);
             elements.retryAuthBtn.addEventListener('click', handleLogin);
             
-            // Difficulty selection
-            elements.difficultyBtns.forEach(btn => {
+            // Difficulty selection with animation
+            elements.difficultyBtns.forEach((btn, index) => {
                 btn.addEventListener('click', () => selectDifficulty(btn));
+                // Stagger animation
+                gsap.set(btn, { opacity: 0, y: 20 });
+                gsap.to(btn, { 
+                    opacity: 1, 
+                    y: 0, 
+                    duration: 0.5, 
+                    delay: index * 0.1,
+                    ease: "back.out(1.7)"
+                });
             });
 
             elements.startQuizBtn.addEventListener('click', handleQuizStart);
             elements.retryQuestionBtn.addEventListener('click', () => {
-                gameState.retryCount = 0; // Reset retry count
+                gameState.retryCount = 0;
                 loadNextQuestion();
             });
             elements.endGameBtn.addEventListener('click', endGame);
@@ -834,10 +1129,19 @@
         function selectDifficulty(selectedBtn) {
             elements.difficultyBtns.forEach(btn => {
                 btn.classList.remove('selected');
+                gsap.to(btn, { scale: 1, duration: 0.3 });
             });
             
             selectedBtn.classList.add('selected');
             gameState.settings.difficulty = selectedBtn.dataset.difficulty;
+            
+            // Animate selection
+            gsap.to(selectedBtn, { 
+                scale: 1.05, 
+                duration: 0.3,
+                ease: "back.out(1.7)"
+            });
+            
             console.log('Selected difficulty:', gameState.settings.difficulty);
         }
 
@@ -876,8 +1180,8 @@
             elements.setupContainer.style.display = 'block';
             if (typeof gsap !== 'undefined') {
                 gsap.fromTo(elements.setupContainer, 
-                    { opacity: 0, scale: 0.9 }, 
-                    { opacity: 1, scale: 1, duration: 0.5, ease: "power3.out" }
+                    { opacity: 0, scale: 0.8, rotationY: -90 }, 
+                    { opacity: 1, scale: 1, rotationY: 0, duration: 0.8, ease: "power3.out" }
                 );
             }
         }
@@ -888,7 +1192,15 @@
             gameState.settings.genre = elements.animeGenreInput.value.trim();
             
             console.log('Quiz settings:', gameState.settings);
-            startGame();
+            
+            // Animate button press
+            gsap.to(elements.startQuizBtn, {
+                scale: 0.95,
+                duration: 0.1,
+                yoyo: true,
+                repeat: 1,
+                onComplete: startGame
+            });
         }
 
         function startGame() {
@@ -908,6 +1220,7 @@
             gameState.gameStartTime = Date.now();
             gameState.retryCount = 0;
             gameState.usedAnime = new Set();
+            gameState.nextQuestion = null;
             
             updateUI();
         }
@@ -915,6 +1228,18 @@
         function updateUI() {
             elements.score.textContent = gameState.score;
             elements.currentQuestion.textContent = gameState.currentQuestionIndex + 1;
+            
+            // Animate score update with bounce
+            gsap.fromTo(elements.score.parentElement, 
+                { scale: 1 }, 
+                { 
+                    scale: 1.1, 
+                    duration: 0.2, 
+                    ease: "back.out(2)",
+                    yoyo: true, 
+                    repeat: 1 
+                }
+            );
         }
 
         async function loadNextQuestion() {
@@ -928,15 +1253,42 @@
             hideError(elements.gameError);
             
             try {
-                const question = await fetchQuestionWithRetry();
+                let question;
+                
+                // Use preloaded question if available
+                if (gameState.nextQuestion) {
+                    question = gameState.nextQuestion;
+                    gameState.nextQuestion = null;
+                } else {
+                    question = await fetchQuestionWithRetry();
+                }
+                
                 renderQuestion(question);
                 startTimer(question.difficulty);
                 gameState.currentQuestionIndex++;
                 elements.currentQuestion.textContent = gameState.currentQuestionIndex;
-                gameState.retryCount = 0; // Reset retry count on success
+                gameState.retryCount = 0;
+                
+                // Preload next question if not the last one
+                if (gameState.currentQuestionIndex < CONFIG.QUESTIONS_PER_SESSION) {
+                    preloadNextQuestion();
+                }
+                
             } catch (error) {
                 console.error('Failed to load question after retries:', error);
                 showError('Having trouble loading questions. This might be a temporary API limit. Please try again in a moment.', elements.gameError);
+            }
+        }
+
+        async function preloadNextQuestion() {
+            elements.preloader.style.display = 'block';
+            try {
+                gameState.nextQuestion = await fetchQuestionWithRetry();
+                console.log('Next question preloaded');
+            } catch (error) {
+                console.log('Failed to preload next question:', error);
+            } finally {
+                elements.preloader.style.display = 'none';
             }
         }
 
@@ -953,7 +1305,6 @@
                         throw error;
                     }
                     
-                    // Wait before retrying, with exponential backoff
                     await new Promise(resolve => setTimeout(resolve, CONFIG.RETRY_DELAY * attempt));
                 }
             }
@@ -968,7 +1319,6 @@
                 const response = await puter.ai.chat(systemPrompt);
                 console.log('Raw AI response structure:', response);
                 
-                // Extract the actual content from the response
                 let content;
                 if (response && response.message && response.message.content) {
                     content = response.message.content;
@@ -983,12 +1333,9 @@
                 
                 console.log('Extracted content:', content);
                 
-                // Parse the JSON content
                 let questionData = parseQuestionResponse(content);
-                
                 console.log('Parsed question data:', questionData);
 
-                // Validate the response
                 if (!validateQuestion(questionData)) {
                     console.error('Invalid question format:', questionData);
                     throw new Error('Invalid question format from response');
@@ -1004,19 +1351,16 @@
         }
 
         function parseQuestionResponse(content) {
-            // Remove common prefixes and suffixes
             let cleanContent = content.trim();
             
             // Remove markdown code blocks
             cleanContent = cleanContent.replace(/``````\n?/g, '');
             
-            // Remove any text before the first {
             const jsonStartIndex = cleanContent.indexOf('{');
             if (jsonStartIndex > 0) {
                 cleanContent = cleanContent.substring(jsonStartIndex);
             }
             
-            // Remove any text after the last }
             const jsonEndIndex = cleanContent.lastIndexOf('}');
             if (jsonEndIndex >= 0 && jsonEndIndex < cleanContent.length - 1) {
                 cleanContent = cleanContent.substring(0, jsonEndIndex + 1);
@@ -1027,7 +1371,6 @@
             } catch (parseError) {
                 console.error('JSON parse failed, trying regex extraction...');
                 
-                // Try to extract JSON using regex
                 const jsonMatch = cleanContent.match(/\{[^{}]*\}/);
                 if (jsonMatch) {
                     try {
@@ -1037,7 +1380,6 @@
                     }
                 }
                 
-                // Last resort: try to parse line by line
                 const lines = content.split('\n');
                 for (const line of lines) {
                     const trimmedLine = line.trim();
@@ -1055,10 +1397,8 @@
         }
 
         function getRandomAnime() {
-            // Get anime that haven't been used yet
             const availableAnime = POPULAR_ANIME.filter(anime => !gameState.usedAnime.has(anime));
             
-            // If we've used all anime, reset the used set
             if (availableAnime.length === 0) {
                 gameState.usedAnime.clear();
                 return POPULAR_ANIME[Math.floor(Math.random() * POPULAR_ANIME.length)];
@@ -1069,17 +1409,24 @@
             return selectedAnime;
         }
 
+        function getDifficultyForMixed() {
+            const difficulties = ['Easy', 'Medium', 'Hard'];
+            return difficulties[Math.floor(Math.random() * difficulties.length)];
+        }
+
         function buildSystemPrompt() {
             let difficultyInstruction = '';
             let focusInstruction = '';
             let animeSelectionInstruction = '';
+            let targetDifficulty;
 
-            // Handle difficulty
+            // Handle difficulty - Fixed mixed mode
             if (gameState.settings.difficulty === 'mixed') {
-                difficultyInstruction = `The difficulty should be randomly selected from "Easy", "Medium", or "Hard".`;
+                targetDifficulty = getDifficultyForMixed();
+                difficultyInstruction = `The difficulty must be exactly "${targetDifficulty}".`;
             } else {
-                const capitalizedDifficulty = gameState.settings.difficulty.charAt(0).toUpperCase() + gameState.settings.difficulty.slice(1);
-                difficultyInstruction = `The difficulty must be exactly "${capitalizedDifficulty}".`;
+                targetDifficulty = gameState.settings.difficulty.charAt(0).toUpperCase() + gameState.settings.difficulty.slice(1);
+                difficultyInstruction = `The difficulty must be exactly "${targetDifficulty}".`;
             }
 
             // Handle specific anime focus
@@ -1095,38 +1442,62 @@
                 animeSelectionInstruction = `Focus on "${randomAnime}" for this question.`;
             }
 
+            // Enhanced variety prompts
+            const varietyPrompts = {
+                Easy: [
+                    "Ask about main characters, their names, appearances, or basic traits",
+                    "Ask about the anime's setting, world, or basic plot elements", 
+                    "Ask about character relationships or basic story facts",
+                    "Ask about obvious visual elements or anime genres"
+                ],
+                Medium: [
+                    "Ask about special abilities, techniques, or powers",
+                    "Ask about supporting characters or secondary protagonists",
+                    "Ask about specific story arcs, episodes, or battles",
+                    "Ask about character backstories or motivations"
+                ],
+                Hard: [
+                    "Ask about production details, studios, or release years",
+                    "Ask about voice actors, creators, or staff",
+                    "Ask about specific episode numbers, titles, or minor details",
+                    "Ask about manga origins, spin-offs, or franchise details"
+                ]
+            };
+
+            const varietyPrompt = varietyPrompts[targetDifficulty][Math.floor(Math.random() * varietyPrompts[targetDifficulty].length)];
+
             return `Create a quiz question about anime. You MUST return ONLY a valid JSON object with no additional text, explanations, or formatting whatsoever.
 
 ${focusInstruction}
 ${difficultyInstruction}
 ${animeSelectionInstruction}
 
+VARIETY REQUIREMENT: ${varietyPrompt}
+
 CRITICAL ACCURACY REQUIREMENTS:
 1. Before finalizing your question, mentally verify the correct answer is 100% factually accurate
 2. Double-check that your correct answer exactly matches one of the four options
 3. Ensure all four options are plausible and well-formatted (no spelling errors)
 4. Use proper spelling, grammar, and character names throughout
-5. Avoid ambiguous questions where multiple answers could be correct
+5. Avoid repetitive question patterns - vary your question types
 6. For character names, use the most commonly known spellings
 
 Quality guidelines by difficulty:
-- Easy: Main protagonist names, basic plot elements, obvious facts (Who is the main character of...)
-- Medium: Secondary characters, specific abilities/techniques, story arcs (What is the name of...technique)
-- Hard: Minor characters, specific episodes, studio info, voice actors (Which studio animated...)
+- Easy: Main protagonist names, basic plot elements, obvious facts, character appearances
+- Medium: Secondary characters, specific abilities/techniques, story arcs, character relationships
+- Hard: Minor characters, specific episodes, studio info, voice actors, production details
 
-Examples of GOOD questions:
-- Easy: "Who is the main protagonist of Naruto?" 
-- Medium: "What is the name of Tanjiro's breathing style in Demon Slayer?"
-- Hard: "Which animation studio produced the first season of Attack on Titan?"
-
-Rewrite and elaborate on this requirement, then provide your answer: Create a factually correct anime quiz question with exactly four plausible options where one is definitively correct.
+Examples of GOOD varied questions:
+- Easy: "What color is Naruto's signature outfit?", "Where does the story of Attack on Titan take place?"
+- Medium: "What is the name of Ichigo's zanpakuto in Bleach?", "Which Hashira does Tanjiro first encounter?"
+- Hard: "Which studio animated Cowboy Bebop?", "Who composed the music for Spirited Away?"
 
 Return exactly this JSON format with no other text:
 {
   "question": "Your specific question here",
   "options": ["Option A", "Option B", "Option C", "Option D"],
   "answer": "Exact match to one option",
-  "difficulty": "Easy" | "Medium" | "Hard"
+  "difficulty": "${targetDifficulty}"
 }`;
         }
 
@@ -1169,7 +1540,6 @@ Return exactly this JSON format with no other text:
             hideLoading();
             gameState.isAnswered = false;
             
-            // Use the new safe quoting function
             const safeQuestion = safeJsQuote(question.question);
             const safeOptions = question.options.map(option => safeJsQuote(option));
             
@@ -1182,7 +1552,7 @@ Return exactly this JSON format with no other text:
                             <button class="answer-btn ${index % 2 === 0 ? 'slide-in-left' : 'slide-in-right'}" 
                                     data-answer="${safeOptions[index]}"
                                     onclick="selectAnswerSafe(this)"
-                                    style="animation-delay: ${index * 0.1}s">
+                                    style="animation-delay: ${index * 0.15}s">
                                 ${option}
                             </button>
                         `).join('')}
@@ -1193,7 +1563,6 @@ Return exactly this JSON format with no other text:
             elements.questionContainer.innerHTML = questionHTML;
         }
 
-        // New safe answer selection function using data attributes
         function selectAnswerSafe(buttonElement) {
             const selectedAnswer = buttonElement.getAttribute('data-answer');
             selectAnswer(selectedAnswer);
@@ -1202,7 +1571,6 @@ Return exactly this JSON format with no other text:
         function startTimer(difficulty) {
             clearInterval(gameState.timer);
             
-            // Determine time based on difficulty
             let duration;
             if (gameState.settings.difficulty === 'mixed') {
                 duration = CONFIG.TIMER_DURATIONS[difficulty.toLowerCase()];
@@ -1211,6 +1579,12 @@ Return exactly this JSON format with no other text:
             }
             
             gameState.timeLeft = duration;
+            
+            // Animate timer start
+            gsap.fromTo(elements.timerBar, 
+                { width: '0%' },
+                { width: '100%', duration: 0.3, ease: "power2.out" }
+            );
             
             gameState.timer = setInterval(() => {
                 gameState.timeLeft--;
@@ -1228,6 +1602,17 @@ Return exactly this JSON format with no other text:
         function updateTimerBar(totalTime) {
             const percentage = (gameState.timeLeft / totalTime) * 100;
             elements.timerBar.style.width = `${percentage}%`;
+            
+            // Add urgency animation when time is low
+            if (percentage < 30 && percentage > 0) {
+                gsap.to('.timer-container', {
+                    scale: 1.02,
+                    duration: 0.2,
+                    yoyo: true,
+                    repeat: -1,
+                    ease: "power2.inOut"
+                });
+            }
         }
 
         function selectAnswer(selectedAnswer) {
@@ -1236,6 +1621,10 @@ Return exactly this JSON format with no other text:
             
             gameState.isAnswered = true;
             clearInterval(gameState.timer);
+            
+            // Stop urgency animation
+            gsap.killTweensOf('.timer-container');
+            gsap.set('.timer-container', { scale: 1 });
             
             const answerBtns = document.querySelectorAll('.answer-btn');
             const isCorrect = selectedAnswer === gameState.currentQuestion.answer;
@@ -1248,6 +1637,9 @@ Return exactly this JSON format with no other text:
                     btn.classList.add('correct');
                 } else if (btnAnswer === selectedAnswer && !isCorrect) {
                     btn.classList.add('incorrect');
+                } else {
+                    // Fade out other options
+                    gsap.to(btn, { opacity: 0.4, duration: 0.3 });
                 }
             });
             
@@ -1256,11 +1648,40 @@ Return exactly this JSON format with no other text:
                 const difficulty = gameState.currentQuestion.difficulty.toLowerCase();
                 gameState.score += CONFIG.POINTS[difficulty];
                 updateUI();
+                
+                // Create success particles
+                createSuccessParticles();
             }
             
             setTimeout(() => {
                 loadNextQuestion();
             }, 2000);
+        }
+
+        function createSuccessParticles() {
+            const emojis = ['🎉', '⭐', '✨', '🌟', '💫'];
+            for (let i = 0; i < 8; i++) {
+                const particle = document.createElement('div');
+                particle.innerHTML = emojis[Math.floor(Math.random() * emojis.length)];
+                particle.style.position = 'fixed';
+                particle.style.fontSize = '1.5rem';
+                particle.style.pointerEvents = 'none';
+                particle.style.zIndex = '9999';
+                particle.style.left = Math.random() * window.innerWidth + 'px';
+                particle.style.top = window.innerHeight + 'px';
+                
+                document.body.appendChild(particle);
+                
+                gsap.to(particle, {
+                    y: -window.innerHeight - 50,
+                    x: (Math.random() - 0.5) * 200,
+                    rotation: Math.random() * 360,
+                    scale: Math.random() * 0.5 + 0.5,
+                    duration: 2.5,
+                    ease: "power2.out",
+                    onComplete: () => particle.remove()
+                });
+            }
         }
 
         function timeUp() {
@@ -1272,6 +1693,8 @@ Return exactly this JSON format with no other text:
                 btn.classList.add('disabled');
                 if (btn.getAttribute('data-answer') === gameState.currentQuestion.answer) {
                     btn.classList.add('correct');
+                } else {
+                    gsap.to(btn, { opacity: 0.4, duration: 0.3 });
                 }
             });
             
@@ -1283,6 +1706,8 @@ Return exactly this JSON format with no other text:
         function endGame() {
             console.log('Ending game...');
             clearInterval(gameState.timer);
+            gsap.killTweensOf('.timer-container');
+            elements.preloader.style.display = 'none';
             
             hideGameContainer();
             showGameCompleteContainer();
@@ -1300,14 +1725,14 @@ Return exactly this JSON format with no other text:
             loadNextQuestion();
         }
 
-        // UI Helper Functions
+        // UI Helper Functions with improved animations
         function showAuthContainer() {
             elements.authContainer.classList.remove('initial-hide');
             elements.authContainer.style.display = 'block';
             if (typeof gsap !== 'undefined') {
                 gsap.fromTo(elements.authContainer, 
-                    { opacity: 0, scale: 0.9 }, 
-                    { opacity: 1, scale: 1, duration: 0.5 }
+                    { opacity: 0, scale: 0.8, y: 50 }, 
+                    { opacity: 1, scale: 1, y: 0, duration: 0.8, ease: "back.out(1.7)" }
                 );
             } else {
                 elements.authContainer.style.opacity = '1';
@@ -1318,8 +1743,10 @@ Return exactly this JSON format with no other text:
             if (typeof gsap !== 'undefined') {
                 gsap.to(elements.authContainer, {
                     opacity: 0,
-                    scale: 0.9,
-                    duration: 0.3,
+                    scale: 0.8,
+                    y: -50,
+                    duration: 0.5,
+                    ease: "back.in(1.7)",
                     onComplete: () => {
                         elements.authContainer.style.display = 'none';
                     }
@@ -1333,7 +1760,10 @@ Return exactly this JSON format with no other text:
             if (typeof gsap !== 'undefined') {
                 gsap.to(elements.setupContainer, {
                     opacity: 0,
-                    duration: 0.3,
+                    scale: 0.8,
+                    rotationY: 90,
+                    duration: 0.5,
+                    ease: "back.in(1.7)",
                     onComplete: () => {
                         elements.setupContainer.style.display = 'none';
                     }
@@ -1347,8 +1777,8 @@ Return exactly this JSON format with no other text:
             elements.gameContainer.style.display = 'block';
             if (typeof gsap !== 'undefined') {
                 gsap.fromTo(elements.gameContainer, 
-                    { opacity: 0, y: 30 }, 
-                    { opacity: 1, y: 0, duration: 0.5 }
+                    { opacity: 0, y: 100, scale: 0.9 }, 
+                    { opacity: 1, y: 0, scale: 1, duration: 0.8, ease: "power3.out" }
                 );
             }
         }
@@ -1357,7 +1787,9 @@ Return exactly this JSON format with no other text:
             if (typeof gsap !== 'undefined') {
                 gsap.to(elements.gameContainer, {
                     opacity: 0,
-                    duration: 0.3,
+                    scale: 0.9,
+                    y: -50,
+                    duration: 0.5,
                     onComplete: () => {
                         elements.gameContainer.style.display = 'none';
                     }
@@ -1371,8 +1803,14 @@ Return exactly this JSON format with no other text:
             elements.gameCompleteContainer.style.display = 'block';
             if (typeof gsap !== 'undefined') {
                 gsap.fromTo(elements.gameCompleteContainer, 
-                    { opacity: 0, scale: 0.9 }, 
-                    { opacity: 1, scale: 1, duration: 0.5 }
+                    { opacity: 0, scale: 0.8, rotationX: -90 }, 
+                    { opacity: 1, scale: 1, rotationX: 0, duration: 1, ease: "back.out(1.7)" }
+                );
+                
+                // Animate final score with delay
+                gsap.fromTo('.final-score-display', 
+                    { scale: 0, rotation: -180 },
+                    { scale: 1, rotation: 0, duration: 0.8, delay: 0.5, ease: "back.out(2)" }
                 );
             }
         }
@@ -1381,7 +1819,8 @@ Return exactly this JSON format with no other text:
             if (typeof gsap !== 'undefined') {
                 gsap.to(elements.gameCompleteContainer, {
                     opacity: 0,
-                    duration: 0.3,
+                    scale: 0.8,
+                    duration: 0.5,
                     onComplete: () => {
                         elements.gameCompleteContainer.style.display = 'none';
                     }
@@ -1394,6 +1833,13 @@ Return exactly this JSON format with no other text:
         function showLoading() {
             elements.loadingContainer.style.display = 'block';
             elements.questionContainer.style.display = 'none';
+            
+            if (typeof gsap !== 'undefined') {
+                gsap.fromTo('.loading', 
+                    { scale: 0, rotation: 0 },
+                    { scale: 1, rotation: 360, duration: 0.5, ease: "back.out(1.7)" }
+                );
+            }
         }
 
         function hideLoading() {
@@ -1406,12 +1852,31 @@ Return exactly this JSON format with no other text:
             if (container) {
                 container.style.display = 'block';
                 container.querySelector('.error-message').textContent = message;
+                
+                if (typeof gsap !== 'undefined') {
+                    gsap.fromTo(container, 
+                        { opacity: 0, scale: 0.9, y: 20 },
+                        { opacity: 1, scale: 1, y: 0, duration: 0.5, ease: "back.out(1.7)" }
+                    );
+                }
             }
         }
 
         function hideError(container) {
             if (container) {
-                container.style.display = 'none';
+                if (typeof gsap !== 'undefined') {
+                    gsap.to(container, {
+                        opacity: 0,
+                        scale: 0.9,
+                        y: -20,
+                        duration: 0.3,
+                        onComplete: () => {
+                            container.style.display = 'none';
+                        }
+                    });
+                } else {
+                    container.style.display = 'none';
+                }
             }
         }
 
