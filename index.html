@@ -619,13 +619,13 @@
 
                 <div id="loading-container" class="loading-container" style="display: none;">
                     <div class="loading"></div>
-                    <p class="loading-text">Generating unique question...</p>
+                    <p class="loading-text">Creating question...</p>
                 </div>
 
                 <div id="game-error" class="error-container" style="display: none;">
                     <div class="error-message"></div>
                     <div class="retry-info">
-                        Don't worry! We're ensuring every question is unique and accurate.
+                        Ensuring question accuracy. Please wait...
                     </div>
                     <button id="retry-question-btn" class="btn secondary">Retry Question</button>
                     <button id="end-game-btn" class="btn">End Challenge</button>
@@ -667,8 +667,8 @@
         // Configuration
         const CONFIG = {
             QUESTIONS_PER_SESSION: 10,
-            MAX_RETRIES: 15, // Increased significantly for uniqueness
-            RETRY_DELAY: 2000,
+            MAX_RETRIES: 20,
+            RETRY_DELAY: 1000,
             TIMER_DURATIONS: {
                 easy: 15,
                 medium: 20,
@@ -681,127 +681,69 @@
             }
         };
 
-        // COMPREHENSIVE QUESTION TRACKING SYSTEM
+        // SIMPLE BUT COMPREHENSIVE TRACKING SYSTEM
         let questionTracker = {
-            // Track full question texts (normalized)
             usedQuestions: new Set(),
-            
-            // Track question concepts/topics (e.g., "naruto protagonist", "attack titan setting")
             usedConcepts: new Set(),
-            
-            // Track anime-difficulty combinations to force variety
-            usedAnimeQuestions: new Map(), // Map<anime, Set<difficulty>>
-            
-            // Track question patterns (e.g., "who is", "what is", "where does")
-            usedPatterns: new Set(),
-            
-            // Force anime rotation for non-specific queries
-            lastUsedAnime: [],
-            maxRecentAnime: 5,
+            usedAnime: new Set(),
+            questionCount: 0,
 
-            // Reset all tracking for new game
             reset: function() {
                 this.usedQuestions.clear();
                 this.usedConcepts.clear();
-                this.usedAnimeQuestions.clear();
-                this.usedPatterns.clear();
-                this.lastUsedAnime = [];
-                console.log('🔄 Question tracker reset for new game');
+                this.usedAnime.clear();
+                this.questionCount = 0;
+                console.log('🔄 Question tracker reset');
             },
 
-            // Check if question is duplicate in any way
-            isDuplicate: function(question, anime, difficulty) {
+            isDuplicate: function(question, targetAnime) {
                 const normalizedQ = normalizeString(question.question);
                 
-                // Check exact question text
                 if (this.usedQuestions.has(normalizedQ)) {
-                    console.log('❌ Duplicate: Exact question text');
+                    console.log('❌ Exact duplicate question');
                     return true;
                 }
 
-                // Check concept (anime + key words)
-                const concept = this.extractConcept(question.question, anime);
+                const concept = `${normalizeString(targetAnime)}-${this.extractKeywords(question.question)}`;
                 if (this.usedConcepts.has(concept)) {
-                    console.log('❌ Duplicate: Question concept -', concept);
-                    return true;
-                }
-
-                // Check anime-difficulty over-use
-                if (this.usedAnimeQuestions.has(anime)) {
-                    const animeDifficulties = this.usedAnimeQuestions.get(anime);
-                    if (animeDifficulties.has(difficulty) && animeDifficulties.size >= 2) {
-                        console.log('❌ Duplicate: Same anime-difficulty combination overused');
-                        return true;
-                    }
-                }
-
-                // Check question pattern
-                const pattern = this.extractPattern(question.question);
-                if (this.usedPatterns.has(pattern) && this.usedPatterns.size < 3) {
-                    console.log('❌ Duplicate: Question pattern overused -', pattern);
+                    console.log('❌ Duplicate concept:', concept);
                     return true;
                 }
 
                 return false;
             },
 
-            // Mark question as used
-            markAsUsed: function(question, anime, difficulty) {
+            markAsUsed: function(question, targetAnime) {
                 const normalizedQ = normalizeString(question.question);
+                const concept = `${normalizeString(targetAnime)}-${this.extractKeywords(question.question)}`;
                 
-                // Track question text
                 this.usedQuestions.add(normalizedQ);
-                
-                // Track concept
-                const concept = this.extractConcept(question.question, anime);
                 this.usedConcepts.add(concept);
+                this.usedAnime.add(normalizeString(targetAnime));
+                this.questionCount++;
                 
-                // Track anime-difficulty
-                if (!this.usedAnimeQuestions.has(anime)) {
-                    this.usedAnimeQuestions.set(anime, new Set());
-                }
-                this.usedAnimeQuestions.get(anime).add(difficulty);
-                
-                // Track pattern
-                const pattern = this.extractPattern(question.question);
-                this.usedPatterns.add(pattern);
-                
-                // Track recent anime
-                this.lastUsedAnime.push(anime);
-                if (this.lastUsedAnime.length > this.maxRecentAnime) {
-                    this.lastUsedAnime.shift();
-                }
-
-                console.log('✅ Question marked as used:', concept);
+                console.log('✅ Marked as used:', concept);
             },
 
-            // Extract concept from question (anime + key topic)
-            extractConcept: function(questionText, anime) {
-                const normalized = normalizeString(questionText);
-                const keyWords = normalized.split(' ').filter(word => 
+            extractKeywords: function(questionText) {
+                const words = normalizeString(questionText).split(' ');
+                const keywords = words.filter(word => 
                     word.length > 3 && 
-                    !['what', 'who', 'where', 'when', 'which', 'does', 'have', 'main'].includes(word)
-                ).slice(0, 3);
-                
-                return `${normalizeString(anime)}-${keyWords.join('-')}`;
+                    !['what', 'who', 'where', 'when', 'which', 'does', 'have', 'main', 'name', 'called'].includes(word)
+                ).slice(0, 2);
+                return keywords.join('-');
             },
 
-            // Extract question pattern
-            extractPattern: function(questionText) {
-                const normalized = normalizeString(questionText);
-                if (normalized.startsWith('who is')) return 'who-is';
-                if (normalized.startsWith('what is')) return 'what-is';
-                if (normalized.startsWith('where')) return 'where';
-                if (normalized.startsWith('which')) return 'which';
-                if (normalized.startsWith('how')) return 'how';
-                return 'other';
-            },
-
-            // Get available anime (not recently used)
-            getAvailableAnime: function() {
-                return POPULAR_ANIME.filter(anime => 
-                    !this.lastUsedAnime.includes(anime)
+            getNextAnime: function() {
+                const available = POPULAR_ANIME.filter(anime => 
+                    !this.usedAnime.has(normalizeString(anime))
                 );
+                
+                if (available.length === 0) {
+                    return POPULAR_ANIME[Math.floor(Math.random() * POPULAR_ANIME.length)];
+                }
+                
+                return available[Math.floor(Math.random() * available.length)];
             }
         };
 
@@ -825,7 +767,7 @@
             }
         };
 
-        // DOM Elements
+        // DOM Elements (same as before)
         const elements = {
             authContainer: document.getElementById('auth-container'),
             setupContainer: document.getElementById('setup-container'),
@@ -856,164 +798,184 @@
             preloader: document.getElementById('preloader')
         };
 
-        // Secure string escaping for JavaScript
+        // Utility functions
         function safeJsQuote(str) {
             if (typeof str !== 'string') return '';
-            
             const htmlEscaped = str
                 .replace(/&/g, '&amp;')
                 .replace(/</g, '&lt;')
                 .replace(/>/g, '&gt;')
                 .replace(/"/g, '&quot;')
                 .replace(/'/g, '&#x27;');
-            
-            return htmlEscaped
-                .replace(/\\/g, '\\\\')
-                .replace(/'/g, "\\'")
-                .replace(/\n/g, ' ')
-                .replace(/\r/g, ' ')
-                .replace(/\t/g, ' ');
+            return htmlEscaped.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\n/g, ' ').replace(/\r/g, ' ').replace(/\t/g, ' ');
         }
 
-        // Normalize strings for duplicate detection
         function normalizeString(str) {
             return str.toString().trim().toLowerCase()
-                .replace(/[^\w\s]/g, '')
-                .replace(/\s+/g, ' ')
-                .trim();
+                .replace(/[^\w\s]/g, '').replace(/\s+/g, ' ').trim();
         }
 
-        // Check if options have duplicates
         function hasDuplicateOptions(options) {
             const normalizedOptions = options.map(opt => normalizeString(opt));
             const uniqueOptions = new Set(normalizedOptions);
             return uniqueOptions.size !== options.length;
         }
 
-        // ENHANCED: Multi-step AI reasoning with forced uniqueness
-        async function generateUniqueQuestionWithReasoning() {
-            console.log('=== STARTING UNIQUE QUESTION GENERATION ===');
+        // SIMPLIFIED: Direct question generation
+        async function generateQuestion() {
+            console.log('=== GENERATING QUESTION ===');
 
-            // Get anime for this question with forced variety
-            const targetAnime = selectAnimeForQuestion();
+            const targetAnime = selectTargetAnime();
             const targetDifficulty = getDifficultyForMixed();
-
+            
             console.log(`🎯 Target: ${targetAnime} (${targetDifficulty})`);
-            console.log(`📊 Tracker status:`, {
-                usedQuestions: questionTracker.usedQuestions.size,
-                usedConcepts: questionTracker.usedConcepts.size,
-                usedPatterns: questionTracker.usedPatterns.size,
-                recentAnime: questionTracker.lastUsedAnime
-            });
 
-            // STEP 1: AI Planning with uniqueness constraints
-            const planningPrompt = `You are creating an anime quiz question. First, let me give you STRICT UNIQUENESS CONSTRAINTS:
+            const forbiddenConcepts = Array.from(questionTracker.usedConcepts).join(', ');
 
-TARGET ANIME: ${targetAnime}
-TARGET DIFFICULTY: ${targetDifficulty}
+            // SIMPLIFIED PROMPT - Direct and concise
+            const prompt = `Create a ${targetDifficulty} anime trivia question about "${targetAnime}".
 
-FORBIDDEN CONCEPTS (you CANNOT ask about these - they've been used):
-${Array.from(questionTracker.usedConcepts).join(', ')}
+FORBIDDEN (already used): ${forbiddenConcepts}
 
-FORBIDDEN PATTERNS (avoid these question starts):
-${Array.from(questionTracker.usedPatterns).join(', ')}
+REQUIREMENTS:
+- Question must be about "${targetAnime}" specifically
+- Must be factually accurate
+- 4 different options
+- Answer must exactly match one option
+- Avoid concepts: ${forbiddenConcepts}
 
-RECENT ANIME USED: ${questionTracker.lastUsedAnime.join(', ')}
-
-YOUR TASK:
-1. Think of 3 DIFFERENT aspects of ${targetAnime} you could ask about
-2. For each aspect, check if it would create a UNIQUE concept (not in forbidden list)
-3. Choose the MOST UNIQUE aspect that you're 100% certain about
-4. Plan a question that uses a DIFFERENT pattern than forbidden ones
-
-Show me your planning process. Don't create the question yet - just your thinking about UNIQUENESS.`;
-
-            try {
-                const planningResponse = await puter.ai.chat(planningPrompt);
-                const planningContent = extractAIContent(planningResponse);
-                console.log('🤔 AI Planning:', planningContent);
-
-                // STEP 2: Create question based on unique planning
-                const questionPrompt = `Based on your uniqueness planning above, now create the actual quiz question.
-
-Your planning: ${planningContent}
-
-Requirements:
-- Anime: ${targetAnime}
-- Difficulty: ${targetDifficulty}
-- Must be UNIQUE (not similar to any forbidden concepts)
-- Must use a FRESH question pattern
-
-Create in EXACT JSON format:
+Return ONLY this JSON (no extra text):
 {
-  "question": "Your unique question here",
-  "options": ["Correct answer", "Wrong answer 1", "Wrong answer 2", "Wrong answer 3"],
+  "question": "Short, direct question about ${targetAnime}",
+  "options": ["Correct answer", "Wrong 1", "Wrong 2", "Wrong 3"],
   "answer": "Correct answer",
   "difficulty": "${targetDifficulty}"
-}
+}`;
 
-CRITICAL: Make this question about ${targetAnime} and ensure it's completely different from previously used concepts.`;
-
-                const questionResponse = await puter.ai.chat(questionPrompt);
-                const questionContent = extractAIContent(questionResponse);
-                console.log('🎯 AI Generated Question:', questionContent);
-
-                const parsedQuestion = parseQuestionResponse(questionContent);
+            try {
+                console.log('Sending prompt to AI...');
+                const response = await puter.ai.chat(prompt);
                 
-                // Add anime metadata for tracking
-                parsedQuestion._metadata = {
-                    anime: targetAnime,
-                    difficulty: targetDifficulty
-                };
+                let content;
+                if (response && response.message && response.message.content) {
+                    content = response.message.content;
+                } else if (typeof response === 'string') {
+                    content = response;
+                } else if (response && response.content) {
+                    content = response.content;
+                } else {
+                    throw new Error('Unexpected response format');
+                }
 
-                return parsedQuestion;
-
+                console.log('Raw AI Response:', content);
+                
+                const question = parseQuestionResponse(content);
+                question._metadata = { anime: targetAnime, difficulty: targetDifficulty };
+                
+                return question;
             } catch (error) {
-                console.error('Multi-step unique generation failed:', error);
+                console.error('Question generation failed:', error);
                 throw error;
             }
         }
 
-        // Extract AI content from response
-        function extractAIContent(response) {
-            if (response && response.message && response.message.content) {
-                return response.message.content;
-            } else if (typeof response === 'string') {
-                return response;
-            } else if (response && response.content) {
-                return response.content;
-            }
-            return '';
-        }
-
-        // Select anime for question with forced variety
-        function selectAnimeForQuestion() {
+        function selectTargetAnime() {
             if (gameState.settings.specificAnime) {
                 return gameState.settings.specificAnime;
             } else if (gameState.settings.genre) {
-                // For genre, still try to get variety
-                const availableAnime = questionTracker.getAvailableAnime();
-                return availableAnime.length > 0 ? 
-                    availableAnime[Math.floor(Math.random() * availableAnime.length)] :
-                    POPULAR_ANIME[Math.floor(Math.random() * POPULAR_ANIME.length)];
+                return questionTracker.getNextAnime();
             } else {
-                // Force anime variety for general questions
-                const availableAnime = questionTracker.getAvailableAnime();
-                if (availableAnime.length === 0) {
-                    // Reset if we've used all anime
-                    questionTracker.lastUsedAnime = [];
-                    return POPULAR_ANIME[Math.floor(Math.random() * POPULAR_ANIME.length)];
-                }
-                return availableAnime[Math.floor(Math.random() * availableAnime.length)];
+                return questionTracker.getNextAnime();
             }
         }
 
-        // Initialize the game
+        function getDifficultyForMixed() {
+            if (gameState.settings.difficulty === 'mixed') {
+                const difficulties = ['Easy', 'Medium', 'Hard'];
+                return difficulties[Math.floor(Math.random() * difficulties.length)];
+            } else {
+                return gameState.settings.difficulty.charAt(0).toUpperCase() + gameState.settings.difficulty.slice(1);
+            }
+        }
+
+        function parseQuestionResponse(content) {
+            let cleanContent = content.trim();
+            cleanContent = cleanContent.replace(/``````\n?/g, '');
+            
+            const jsonStartIndex = cleanContent.indexOf('{');
+            if (jsonStartIndex > 0) {
+                cleanContent = cleanContent.substring(jsonStartIndex);
+            }
+            
+            const jsonEndIndex = cleanContent.lastIndexOf('}');
+            if (jsonEndIndex >= 0 && jsonEndIndex < cleanContent.length - 1) {
+                cleanContent = cleanContent.substring(0, jsonEndIndex + 1);
+            }
+            
+            try {
+                return JSON.parse(cleanContent);
+            } catch (parseError) {
+                console.error('JSON parse failed:', parseError);
+                throw new Error('Could not parse JSON');
+            }
+        }
+
+        function validateQuestion(question) {
+            if (!question || typeof question !== 'object') return false;
+            if (typeof question.question !== 'string' || question.question.length < 5) return false;
+            if (!Array.isArray(question.options) || question.options.length !== 4) return false;
+            if (!question.options.every(opt => typeof opt === 'string' && opt.length > 0)) return false;
+            if (typeof question.answer !== 'string' || !question.options.includes(question.answer)) return false;
+            if (!['Easy', 'Medium', 'Hard'].includes(question.difficulty)) return false;
+            return true;
+        }
+
+        async function fetchQuestionWithRetry() {
+            for (let attempt = 1; attempt <= CONFIG.MAX_RETRIES; attempt++) {
+                try {
+                    console.log(`Attempt ${attempt}/${CONFIG.MAX_RETRIES}`);
+                    
+                    const question = await generateQuestion();
+                    const anime = question._metadata?.anime || 'Unknown';
+                    
+                    if (questionTracker.isDuplicate(question, anime)) {
+                        console.log('🔄 Duplicate detected, retrying...');
+                        throw new Error('Duplicate question');
+                    }
+                    
+                    if (hasDuplicateOptions(question.options)) {
+                        console.log('🔄 Duplicate options, retrying...');
+                        throw new Error('Duplicate options');
+                    }
+                    
+                    if (!validateQuestion(question)) {
+                        console.log('🔄 Invalid format, retrying...');
+                        throw new Error('Invalid question');
+                    }
+                    
+                    questionTracker.markAsUsed(question, anime);
+                    gameState.currentQuestion = question;
+                    
+                    console.log('✅ Question generated successfully!');
+                    return question;
+                    
+                } catch (error) {
+                    console.error(`Attempt ${attempt} failed:`, error.message);
+                    
+                    if (attempt === CONFIG.MAX_RETRIES) {
+                        throw error;
+                    }
+                    
+                    await new Promise(resolve => setTimeout(resolve, CONFIG.RETRY_DELAY));
+                }
+            }
+        }
+
+        // Initialize the game (same as before)
         document.addEventListener('DOMContentLoaded', async () => {
             console.log('DOM loaded, initializing game...');
             
             if (typeof gsap === 'undefined') {
-                console.log('Waiting for GSAP to load...');
                 setTimeout(() => initializeGame(), 100);
                 return;
             }
@@ -1022,28 +984,19 @@ CRITICAL: Make this question about ${targetAnime} and ensure it's completely dif
         });
 
         async function initializeGame() {
-            console.log('Initializing game...');
-            
             if (typeof puter === 'undefined') {
                 console.error('PuterJS is not available');
                 showError('PuterJS is not available. Please check your internet connection.');
                 return;
             }
 
-            gsap.to(elements.gameHeader, {
-                opacity: 1,
-                duration: 1,
-                ease: "power2.out"
-            });
-
+            gsap.to(elements.gameHeader, { opacity: 1, duration: 1, ease: "power2.out" });
             elements.totalQuestions.textContent = CONFIG.QUESTIONS_PER_SESSION;
             setupEventListeners();
 
             try {
-                console.log('Attempting auto sign-in...');
                 const user = await puter.auth.getUser();
                 if (user) {
-                    console.log('Auto sign-in successful');
                     setTimeout(() => showSetupScreen(), 10);
                     return;
                 }
@@ -1051,13 +1004,10 @@ CRITICAL: Make this question about ${targetAnime} and ensure it's completely dif
                 console.log('Auto sign-in failed:', error);
             }
 
-            console.log('Showing auth container');
             showAuthContainer();
         }
 
         function setupEventListeners() {
-            console.log('Setting up event listeners...');
-            
             elements.loginBtn.addEventListener('click', handleLogin);
             elements.retryAuthBtn.addEventListener('click', handleLogin);
             
@@ -1078,13 +1028,9 @@ CRITICAL: Make this question about ${targetAnime} and ensure it's completely dif
         }
 
         function selectDifficulty(selectedBtn) {
-            elements.difficultyBtns.forEach(btn => {
-                btn.classList.remove('selected');
-            });
-            
+            elements.difficultyBtns.forEach(btn => btn.classList.remove('selected'));
             selectedBtn.classList.add('selected');
             gameState.settings.difficulty = selectedBtn.dataset.difficulty;
-            console.log('Selected difficulty:', gameState.settings.difficulty);
         }
 
         function handleKeyboard(e) {
@@ -1100,13 +1046,11 @@ CRITICAL: Make this question about ${targetAnime} and ensure it's completely dif
         }
 
         async function handleLogin() {
-            console.log('Handling login...');
             try {
                 hideError(elements.authError);
                 elements.loginBtn.innerHTML = '<div class="loading"></div>';
                 
                 await puter.auth.signIn();
-                console.log('Sign in successful');
                 showSetupScreen();
             } catch (error) {
                 console.error('Login failed:', error);
@@ -1116,32 +1060,22 @@ CRITICAL: Make this question about ${targetAnime} and ensure it's completely dif
         }
 
         function showSetupScreen() {
-            console.log('Showing setup screen...');
             hideAuthContainer();
-            
             elements.setupContainer.style.display = 'block';
             if (typeof gsap !== 'undefined') {
-                gsap.fromTo(elements.setupContainer, 
-                    { opacity: 0, y: 20 }, 
-                    { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }
-                );
+                gsap.fromTo(elements.setupContainer, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4 });
             }
         }
 
         function handleQuizStart() {
-            console.log('Handling quiz start...');
             gameState.settings.specificAnime = elements.specificAnimeInput.value.trim();
             gameState.settings.genre = elements.animeGenreInput.value.trim();
-            
-            console.log('Quiz settings:', gameState.settings);
             startGame();
         }
 
         function startGame() {
-            console.log('Starting game...');
             hideSetupContainer();
             showGameContainer();
-            
             resetGameState();
             loadNextQuestion();
         }
@@ -1154,10 +1088,7 @@ CRITICAL: Make this question about ${targetAnime} and ensure it's completely dif
             gameState.gameStartTime = Date.now();
             gameState.retryCount = 0;
             gameState.nextQuestion = null;
-            
-            // CRITICAL: Reset question tracking for new game
             questionTracker.reset();
-            
             updateUI();
         }
 
@@ -1167,7 +1098,6 @@ CRITICAL: Make this question about ${targetAnime} and ensure it's completely dif
         }
 
         async function loadNextQuestion() {
-            console.log('Loading next question...');
             if (gameState.currentQuestionIndex >= CONFIG.QUESTIONS_PER_SESSION) {
                 endGame();
                 return;
@@ -1183,7 +1113,7 @@ CRITICAL: Make this question about ${targetAnime} and ensure it's completely dif
                     question = gameState.nextQuestion;
                     gameState.nextQuestion = null;
                 } else {
-                    question = await fetchUniqueQuestionWithRetry();
+                    question = await fetchQuestionWithRetry();
                 }
                 
                 renderQuestion(question);
@@ -1197,145 +1127,23 @@ CRITICAL: Make this question about ${targetAnime} and ensure it's completely dif
                 }
                 
             } catch (error) {
-                console.error('Failed to load unique question after retries:', error);
-                showError('Having trouble generating unique questions. Please try again.', elements.gameError);
+                console.error('Failed to load question:', error);
+                showError('Unable to generate question. Please try again.', elements.gameError);
             }
         }
 
         async function preloadNextQuestion() {
             elements.preloader.style.display = 'block';
             try {
-                gameState.nextQuestion = await fetchUniqueQuestionWithRetry();
-                console.log('Next unique question preloaded');
+                gameState.nextQuestion = await fetchQuestionWithRetry();
             } catch (error) {
-                console.log('Failed to preload next question:', error);
+                console.log('Failed to preload:', error);
             } finally {
                 elements.preloader.style.display = 'none';
             }
         }
 
-        async function fetchUniqueQuestionWithRetry() {
-            for (let attempt = 1; attempt <= CONFIG.MAX_RETRIES; attempt++) {
-                try {
-                    console.log(`Generating unique question, attempt ${attempt}/${CONFIG.MAX_RETRIES}`);
-                    
-                    // Generate question with uniqueness constraints
-                    const question = await generateUniqueQuestionWithReasoning();
-                    
-                    // Extract anime from metadata
-                    const anime = question._metadata?.anime || 'Unknown';
-                    const difficulty = question._metadata?.difficulty || 'Easy';
-                    
-                    // Check for ALL types of duplicates
-                    if (questionTracker.isDuplicate(question, anime, difficulty)) {
-                        console.log('🔄 Question failed uniqueness check, retrying...');
-                        throw new Error('Failed uniqueness check');
-                    }
-                    
-                    // Check for duplicate options
-                    if (hasDuplicateOptions(question.options)) {
-                        console.log('🔄 Duplicate options detected, retrying...');
-                        throw new Error('Duplicate options');
-                    }
-                    
-                    // Validate question format
-                    if (!validateQuestion(question)) {
-                        console.log('🔄 Question validation failed, retrying...');
-                        throw new Error('Invalid question format');
-                    }
-                    
-                    // Mark as used to prevent future duplicates
-                    questionTracker.markAsUsed(question, anime, difficulty);
-                    gameState.currentQuestion = question;
-                    
-                    console.log('✅ UNIQUE question successfully generated!');
-                    return question;
-                    
-                } catch (error) {
-                    console.error(`Attempt ${attempt} failed:`, error.message);
-                    
-                    if (attempt === CONFIG.MAX_RETRIES) {
-                        throw error;
-                    }
-                    
-                    // Longer delay for better uniqueness generation
-                    await new Promise(resolve => setTimeout(resolve, CONFIG.RETRY_DELAY * Math.min(attempt, 3)));
-                }
-            }
-        }
-
-        function parseQuestionResponse(content) {
-            let cleanContent = content.trim();
-            
-            cleanContent = cleanContent.replace(/``````\n?/g, '');
-            
-            const jsonStartIndex = cleanContent.indexOf('{');
-            if (jsonStartIndex > 0) {
-                cleanContent = cleanContent.substring(jsonStartIndex);
-            }
-            
-            const jsonEndIndex = cleanContent.lastIndexOf('}');
-            if (jsonEndIndex >= 0 && jsonEndIndex < cleanContent.length - 1) {
-                cleanContent = cleanContent.substring(0, jsonEndIndex + 1);
-            }
-            
-            try {
-                return JSON.parse(cleanContent);
-            } catch (parseError) {
-                console.error('JSON parse failed:', parseError);
-                throw new Error('Could not parse JSON from content: ' + content);
-            }
-        }
-
-        function getDifficultyForMixed() {
-            if (gameState.settings.difficulty === 'mixed') {
-                const difficulties = ['Easy', 'Medium', 'Hard'];
-                return difficulties[Math.floor(Math.random() * difficulties.length)];
-            } else {
-                return gameState.settings.difficulty.charAt(0).toUpperCase() + gameState.settings.difficulty.slice(1);
-            }
-        }
-
-        function validateQuestion(question) {
-            console.log('=== VALIDATION START ===');
-            
-            if (!question || typeof question !== 'object') {
-                console.error('Question is not an object:', question);
-                return false;
-            }
-            
-            if (typeof question.question !== 'string' || question.question.length < 5) {
-                console.error('Invalid question text:', question.question);
-                return false;
-            }
-            
-            if (!Array.isArray(question.options) || question.options.length !== 4) {
-                console.error('Invalid options array:', question.options);
-                return false;
-            }
-            
-            if (!question.options.every(opt => typeof opt === 'string' && opt.length > 0)) {
-                console.error('Invalid option format:', question.options);
-                return false;
-            }
-            
-            if (typeof question.answer !== 'string' || !question.options.includes(question.answer)) {
-                console.error('Invalid answer:', question.answer);
-                console.error('Options:', question.options);
-                return false;
-            }
-            
-            if (!['Easy', 'Medium', 'Hard'].includes(question.difficulty)) {
-                console.error('Invalid difficulty:', question.difficulty);
-                return false;
-            }
-            
-            console.log('=== VALIDATION PASSED ===');
-            return true;
-        }
-
         function renderQuestion(question) {
-            console.log('Rendering question:', question);
             hideLoading();
             gameState.isAnswered = false;
             
@@ -1349,8 +1157,7 @@ CRITICAL: Make this question about ${targetAnime} and ensure it's completely dif
                     <div class="answers-grid">
                         ${question.options.map((option, index) => `
                             <button class="answer-btn ${index % 2 === 0 ? 'slide-in-left' : 'slide-in-right'}" 
-                                    data-answer-index="${index}"
-                                    onclick="selectAnswerSafe(this, ${index})"
+                                    onclick="selectAnswerSafe(${index})"
                                     style="animation-delay: ${index * 0.1}s">
                                 ${option}
                             </button>
@@ -1362,20 +1169,17 @@ CRITICAL: Make this question about ${targetAnime} and ensure it's completely dif
             elements.questionContainer.innerHTML = questionHTML;
         }
 
-        function selectAnswerSafe(buttonElement, optionIndex) {
+        function selectAnswerSafe(optionIndex) {
             const selectedAnswerText = gameState.currentQuestion.options[optionIndex];
-            selectAnswer(selectedAnswerText, buttonElement, optionIndex);
+            selectAnswer(selectedAnswerText, document.querySelectorAll('.answer-btn')[optionIndex]);
         }
 
         function startTimer(difficulty) {
             clearInterval(gameState.timer);
             
-            let duration;
-            if (gameState.settings.difficulty === 'mixed') {
-                duration = CONFIG.TIMER_DURATIONS[difficulty.toLowerCase()];
-            } else {
-                duration = CONFIG.TIMER_DURATIONS[gameState.settings.difficulty];
-            }
+            let duration = gameState.settings.difficulty === 'mixed' ? 
+                CONFIG.TIMER_DURATIONS[difficulty.toLowerCase()] :
+                CONFIG.TIMER_DURATIONS[gameState.settings.difficulty];
             
             gameState.timeLeft = duration;
             
@@ -1397,11 +1201,7 @@ CRITICAL: Make this question about ${targetAnime} and ensure it's completely dif
             elements.timerBar.style.width = `${percentage}%`;
         }
 
-        function selectAnswer(selectedAnswerText, selectedButton, optionIndex) {
-            console.log('=== ANSWER SELECTION DEBUG ===');
-            console.log('Selected answer text:', selectedAnswerText);
-            console.log('Correct answer:', gameState.currentQuestion.answer);
-            
+        function selectAnswer(selectedAnswerText, selectedButton) {
             if (gameState.isAnswered) return;
             
             gameState.isAnswered = true;
@@ -1440,7 +1240,6 @@ CRITICAL: Make this question about ${targetAnime} and ensure it's completely dif
         }
 
         function timeUp() {
-            console.log('Time up!');
             gameState.isAnswered = true;
             
             const answerBtns = document.querySelectorAll('.answer-btn');
@@ -1461,7 +1260,6 @@ CRITICAL: Make this question about ${targetAnime} and ensure it's completely dif
         }
 
         function endGame() {
-            console.log('Ending game...');
             clearInterval(gameState.timer);
             elements.preloader.style.display = 'none';
             
@@ -1474,22 +1272,18 @@ CRITICAL: Make this question about ${targetAnime} and ensure it's completely dif
         }
 
         function restartGame() {
-            console.log('Restarting game...');
             hideGameCompleteContainer();
             resetGameState();
             showGameContainer();
             loadNextQuestion();
         }
 
-        // UI Helper Functions
+        // UI Helper Functions (simplified versions)
         function showAuthContainer() {
             elements.authContainer.classList.remove('initial-hide');
             elements.authContainer.style.display = 'block';
             if (typeof gsap !== 'undefined') {
-                gsap.fromTo(elements.authContainer, 
-                    { opacity: 0, y: 20 }, 
-                    { opacity: 1, y: 0, duration: 0.4 }
-                );
+                gsap.fromTo(elements.authContainer, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4 });
             } else {
                 elements.authContainer.style.opacity = '1';
             }
@@ -1498,12 +1292,8 @@ CRITICAL: Make this question about ${targetAnime} and ensure it's completely dif
         function hideAuthContainer() {
             if (typeof gsap !== 'undefined') {
                 gsap.to(elements.authContainer, {
-                    opacity: 0,
-                    y: -20,
-                    duration: 0.3,
-                    onComplete: () => {
-                        elements.authContainer.style.display = 'none';
-                    }
+                    opacity: 0, y: -20, duration: 0.3,
+                    onComplete: () => { elements.authContainer.style.display = 'none'; }
                 });
             } else {
                 elements.authContainer.style.display = 'none';
@@ -1513,12 +1303,8 @@ CRITICAL: Make this question about ${targetAnime} and ensure it's completely dif
         function hideSetupContainer() {
             if (typeof gsap !== 'undefined') {
                 gsap.to(elements.setupContainer, {
-                    opacity: 0,
-                    y: -20,
-                    duration: 0.3,
-                    onComplete: () => {
-                        elements.setupContainer.style.display = 'none';
-                    }
+                    opacity: 0, y: -20, duration: 0.3,
+                    onComplete: () => { elements.setupContainer.style.display = 'none'; }
                 });
             } else {
                 elements.setupContainer.style.display = 'none';
@@ -1528,22 +1314,15 @@ CRITICAL: Make this question about ${targetAnime} and ensure it's completely dif
         function showGameContainer() {
             elements.gameContainer.style.display = 'block';
             if (typeof gsap !== 'undefined') {
-                gsap.fromTo(elements.gameContainer, 
-                    { opacity: 0, y: 20 }, 
-                    { opacity: 1, y: 0, duration: 0.4 }
-                );
+                gsap.fromTo(elements.gameContainer, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4 });
             }
         }
 
         function hideGameContainer() {
             if (typeof gsap !== 'undefined') {
                 gsap.to(elements.gameContainer, {
-                    opacity: 0,
-                    y: -20,
-                    duration: 0.3,
-                    onComplete: () => {
-                        elements.gameContainer.style.display = 'none';
-                    }
+                    opacity: 0, y: -20, duration: 0.3,
+                    onComplete: () => { elements.gameContainer.style.display = 'none'; }
                 });
             } else {
                 elements.gameContainer.style.display = 'none';
@@ -1553,22 +1332,15 @@ CRITICAL: Make this question about ${targetAnime} and ensure it's completely dif
         function showGameCompleteContainer() {
             elements.gameCompleteContainer.style.display = 'block';
             if (typeof gsap !== 'undefined') {
-                gsap.fromTo(elements.gameCompleteContainer, 
-                    { opacity: 0, y: 20 }, 
-                    { opacity: 1, y: 0, duration: 0.4 }
-                );
+                gsap.fromTo(elements.gameCompleteContainer, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4 });
             }
         }
 
         function hideGameCompleteContainer() {
             if (typeof gsap !== 'undefined') {
                 gsap.to(elements.gameCompleteContainer, {
-                    opacity: 0,
-                    y: -20,
-                    duration: 0.3,
-                    onComplete: () => {
-                        elements.gameCompleteContainer.style.display = 'none';
-                    }
+                    opacity: 0, y: -20, duration: 0.3,
+                    onComplete: () => { elements.gameCompleteContainer.style.display = 'none'; }
                 });
             } else {
                 elements.gameCompleteContainer.style.display = 'none';
@@ -1586,7 +1358,6 @@ CRITICAL: Make this question about ${targetAnime} and ensure it's completely dif
         }
 
         function showError(message, container = null) {
-            console.log('Showing error:', message);
             if (container) {
                 container.style.display = 'block';
                 container.querySelector('.error-message').textContent = message;
