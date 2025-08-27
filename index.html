@@ -589,15 +589,6 @@
                     </small>
                 </div>
 
-                <div class="form-group">
-                    <label class="form-label" for="anime-genre">Focus on Genre:</label>
-                    <input type="text" id="anime-genre" class="custom-input" 
-                           placeholder="e.g., Shonen, Romance, Horror, Sci-Fi...">
-                    <small style="color: var(--slate); opacity: 0.7; margin-top: 0.5rem; display: block; font-size: 0.85rem;">
-                        Leave empty for questions from all genres
-                    </small>
-                </div>
-
                 <button id="start-quiz-btn" class="btn" style="margin-top: 1rem;">Start Challenge</button>
             </div>
         </div>
@@ -687,7 +678,7 @@
             usedConcepts: new Set(),
             usedAnime: new Set(),
             questionHashes: new Set(),
-            // NEW: Store complete question history for AI reference
+            // Store complete question history for AI reference
             questionHistory: [],
             questionCount: 0,
 
@@ -741,7 +732,7 @@
                 this.usedAnime.add(normalizeString(targetAnime));
                 this.questionHashes.add(questionHash);
 
-                // NEW: Store the full question text for AI reference
+                // Store the full question text for AI reference
                 this.questionHistory.push({
                     question: question.question,
                     anime: targetAnime,
@@ -755,12 +746,12 @@
                 console.log('📚 Question history length:', this.questionHistory.length);
             },
 
-            // NEW: Get previous questions for AI prompt
+            // Get previous questions for AI prompt
             getPreviousQuestions: function(maxCount = 5) {
                 return this.questionHistory.slice(-maxCount);
             },
 
-            // NEW: Format previous questions for AI prompt
+            // Format previous questions for AI prompt
             formatPreviousQuestionsForPrompt: function() {
                 const previousQuestions = this.getPreviousQuestions(5);
                 if (previousQuestions.length === 0) {
@@ -811,12 +802,11 @@
             retryCount: 0,
             settings: {
                 difficulty: 'mixed',
-                specificAnime: '',
-                genre: ''
+                specificAnime: ''
             }
         };
 
-        // DOM Elements (same as before)
+        // DOM Elements
         const elements = {
             authContainer: document.getElementById('auth-container'),
             setupContainer: document.getElementById('setup-container'),
@@ -827,7 +817,6 @@
             authError: document.getElementById('auth-error'),
             difficultyBtns: document.querySelectorAll('.difficulty-btn'),
             specificAnimeInput: document.getElementById('specific-anime'),
-            animeGenreInput: document.getElementById('anime-genre'),
             startQuizBtn: document.getElementById('start-quiz-btn'),
             score: document.getElementById('score'),
             currentQuestion: document.getElementById('current-question'),
@@ -870,7 +859,7 @@
             return uniqueOptions.size !== options.length;
         }
 
-        // NEW: Question generation with explicit previous question avoidance
+        // Question generation with explicit previous question avoidance
         async function generateQuestion() {
             console.log('=== GENERATING QUESTION ===');
 
@@ -879,7 +868,7 @@
             
             console.log(`🎯 Target: ${targetAnime} (${targetDifficulty})`);
 
-            // NEW: Get previous questions for AI to avoid
+            // Get previous questions for AI to avoid
             const previousQuestions = questionTracker.formatPreviousQuestionsForPrompt();
             console.log('📚 Previous questions to avoid:', previousQuestions);
 
@@ -953,8 +942,6 @@ Return ONLY this JSON:
         function selectTargetAnime() {
             if (gameState.settings.specificAnime) {
                 return gameState.settings.specificAnime;
-            } else if (gameState.settings.genre) {
-                return questionTracker.getNextAnime();
             } else {
                 return questionTracker.getNextAnime();
             }
@@ -1047,7 +1034,7 @@ Return ONLY this JSON:
             }
         }
 
-        // Initialize the game (same as before)
+        // Initialize the game
         document.addEventListener('DOMContentLoaded', async () => {
             console.log('DOM loaded, initializing game...');
             
@@ -1145,7 +1132,6 @@ Return ONLY this JSON:
 
         function handleQuizStart() {
             gameState.settings.specificAnime = elements.specificAnimeInput.value.trim();
-            gameState.settings.genre = elements.animeGenreInput.value.trim();
             startGame();
         }
 
@@ -1250,7 +1236,7 @@ Return ONLY this JSON:
             console.log('=== RENDER COMPLETE ===');
         }
 
-        // Answer selection function with proper index handling (same as before)
+        // Answer selection function with proper index handling
         function selectAnswerFixed(optionIndex) {
             console.log('=== ANSWER SELECTION DEBUG ===');
             console.log('Selected option index:', optionIndex);
@@ -1373,7 +1359,7 @@ Return ONLY this JSON:
             loadNextQuestion();
         }
 
-        // UI Helper Functions (simplified for brevity)
+        // UI Helper Functions
         function showAuthContainer() {
             elements.authContainer.classList.remove('initial-hide');
             elements.authContainer.style.display = 'block';
